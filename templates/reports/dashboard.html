@@ -1,0 +1,75 @@
+{% extends 'reports/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{{ title }}</h2>
+        <p>Date: {{ today }} | Total Rooms: {{ total_rooms }} | Active Tenants: {{ active_bookings }}</p>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Rooms</div>
+        <div class="stat-number info">{{ total_rooms }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-label">Active Tenants</div>
+        <div class="stat-number info">{{ active_bookings }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-label">Empty Rooms</div>
+        <div class="stat-number success">{{ empty_rooms_count }}</div>
+        <a href="{% url 'reports:empty_rooms' %}">View Report</a>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-label">Rent Owed</div>
+        <div class="stat-number alert">HK${{ total_rent_owed }}</div>
+        <a href="{% url 'reports:rent_owed' %}">View Report</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>🚨 Urgent Actions</h3>
+    </div>
+    <div class="card-body">
+        {% if rent_owed_count > 0 %}
+        <p class="alert"><strong>{{ rent_owed_count }}</strong> tenants with overdue rent (HK${{ total_rent_owed }} + HK${{ total_late_fees }} late fees)</p>
+        {% endif %}
+        
+        {% if upcoming_move_outs.count > 0 %}
+        <p class="warning"><strong>{{ upcoming_move_outs.count }}</strong> tenants moving out in next 30 days</p>
+        {% endif %}
+        
+        {% if ending_contracts.count > 0 %}
+        <p class="info"><strong>{{ ending_contracts.count }}</strong> contracts ending in next 3 weeks</p>
+        {% endif %}
+        
+        {% if rent_owed_count == 0 and upcoming_move_outs.count == 0 %}
+        <p class="success">No urgent actions required</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>📊 Quick Reports</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <a href="{% url 'reports:empty_rooms' %}" class="btn">🏠 Empty Rooms</a>
+            <a href="{% url 'reports:rent_owed' %}" class="btn">💰 Rent Owed</a>
+            <a href="{% url 'reports:move_out' %}" class="btn">📅 Move Outs</a>
+            <a href="{% url 'reports:monthly_sales' %}" class="btn">📈 Sales Report</a>
+            <a href="{% url 'reports:utilities' %}" class="btn">💡 Utilities</a>
+            <a href="/admin/" class="btn" target="_blank">⚙️ Admin Panel</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

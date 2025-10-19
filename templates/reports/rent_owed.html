@@ -1,0 +1,94 @@
+{% extends 'reports/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{{ title }}</h2>
+        <p>Generated on: {{ today }} | Total Overdue: HK${{ total_owed }} (Rent: HK${{ total_rent_owed }} + Late Fees: HK${{ total_late_fees }})</p>
+    </div>
+    <div class="card-body">
+        <div class="export-buttons">
+            <a href="?export=csv" class="btn">📥 Export CSV</a>
+            <button onclick="window.print()" class="btn">🖨️ Print Report</button>
+        </div>
+
+        {% if overdue_rent %}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Overdue Payments</div>
+                <div class="stat-number alert">{{ overdue_rent|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Rent Owed</div>
+                <div class="stat-number alert">HK${{ total_rent_owed }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Late Fees</div>
+                <div class="stat-number alert">HK${{ total_late_fees }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Owed</div>
+                <div class="stat-number alert">HK${{ total_owed }}</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Tenant</th>
+                    <th>Room</th>
+                    <th>Rent Amount</th>
+                    <th>Due Date</th>
+                    <th>Days Overdue</th>
+                    <th>Late Fees</th>
+                    <th>Total Owed</th>
+                    <th>Contact</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in overdue_rent %}
+                <tr>
+                    <td><strong>{{ payment.booking.tenant.full_name }}</strong></td>
+                    <td>{{ payment.booking.room.room_code }}</td>
+                    <td class="alert">HK${{ payment.amount }}</td>
+                    <td>{{ payment.due_date }}</td>
+                    <td class="alert">{{ payment.late_fee_days }} days</td>
+                    <td class="alert">HK${{ payment.late_fee_amount }}</td>
+                    <td class="alert"><strong>HK${{ payment.total_owed }}</strong></td>
+                    <td>
+                        {{ payment.booking.tenant.phone_number }}<br>
+                        <small>{{ payment.booking.tenant.user.email }}</small>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="success" style="text-align: center; padding: 2rem;">
+            <h3>✅ No Overdue Rent Payments</h3>
+            <p>All rent payments are up to date!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if overdue_rent %}
+<div class="card">
+    <div class="card-header">
+        <h3>🚨 Late Fee Calculation</h3>
+    </div>
+    <div class="card-body">
+        <p><strong>Late Fee Policy:</strong> HK$100 per day after due date</p>
+        <p><strong>Reminder Schedule:</strong></p>
+        <ul>
+            <li>3 days before due date: Payment reminder</li>
+            <li>Due date + 1 day: Late fee starts (HK$100/day)</li>
+            <li>Due date + 7 days: Invoice with penalty fees sent automatically</li>
+            <li>Due date + 14 days: Court notice sent automatically</li>
+        </ul>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

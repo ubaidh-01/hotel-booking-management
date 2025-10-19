@@ -1,0 +1,108 @@
+{% extends 'reports/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{{ title }}</h2>
+        <p>Generated on: {{ today }} | Total Unpaid: HK${{ total_unpaid|floatformat:0 }} | Unpaid Bills: {{ unpaid_count }}</p>
+    </div>
+    <div class="card-body">
+        <div class="export-buttons">
+            <button onclick="window.print()" class="btn">🖨️ Print Report</button>
+        </div>
+
+        {% if unpaid_utilities %}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Unpaid Bills</div>
+                <div class="stat-number alert">{{ unpaid_count }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Unpaid</div>
+                <div class="stat-number alert">HK${{ total_unpaid|floatformat:0 }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Average Bill</div>
+                <div class="stat-number info">
+                    HK${{ average_bill|floatformat:0 }}
+                </div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Tenant</th>
+                    <th>Room</th>
+                    <th>Utility Type</th>
+                    <th>Amount</th>
+                    <th>Due Date</th>
+                    <th>Days Overdue</th>
+                    <th>Contact</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in unpaid_utilities %}
+                <tr>
+                    <td><strong>{{ payment.booking.tenant.full_name }}</strong></td>
+                    <td>{{ payment.booking.room.room_code }}</td>
+                    <td>{{ payment.get_payment_type_display }}</td>
+                    <td class="alert">HK${{ payment.amount|floatformat:0 }}</td>
+                    <td>
+                        {% if payment.due_date %}
+                            {{ payment.due_date }}
+                        {% else %}
+                            Not set
+                        {% endif %}
+                    </td>
+                    <td class="alert">
+                        {% if payment.days_overdue %}
+                            {{ payment.days_overdue }} days
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ payment.booking.tenant.phone_number }}<br>
+                        <small>{{ payment.booking.tenant.user.email }}</small>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="success" style="text-align: center; padding: 2rem;">
+            <h3>✅ All Utilities Paid</h3>
+            <p>No outstanding utility payments!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if unpaid_utilities %}
+<div class="card">
+    <div class="card-header">
+        <h3>💡 Utility Billing Information</h3>
+    </div>
+    <div class="card-body">
+        <p><strong>Billing Process:</strong></p>
+        <ul>
+            <li>Utility bills are calculated pro-rata based on move-in dates</li>
+            <li>Tenants share utility costs for their apartment</li>
+            <li>Bills are due 14 days after issue date</li>
+            <li>Late payments may incur additional fees</li>
+        </ul>
+
+        <p><strong>Utility Types:</strong></p>
+        <ul>
+            <li>⚡ Electricity - Monthly billing</li>
+            <li>💧 Water - Monthly billing</li>
+            <li>🔥 Gas - Monthly billing</li>
+            <li>🌐 Internet - Fixed monthly charge</li>
+        </ul>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

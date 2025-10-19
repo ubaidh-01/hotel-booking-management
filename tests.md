@@ -1,0 +1,1 @@
+ pytest bookings/tests/test_booking_model_2.py

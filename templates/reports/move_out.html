@@ -1,0 +1,103 @@
+{% extends 'reports/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{{ title }}</h2>
+        <p>Generated on: {{ today }} | Report Period: {{ report_range }} | Total Refunds: HK${{ total_refunds }}</p>
+    </div>
+
+    <div class="card-body">
+        <div class="export-buttons">
+            <button onclick="window.print()" class="btn">🖨️ Print Report</button>
+        </div>
+
+        {% if upcoming_move_outs %}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Move Outs</div>
+                <div class="stat-number warning">{{ upcoming_move_outs|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Refunds</div>
+                <div class="stat-number info">HK${{ total_refunds }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">This Week</div>
+                <div class="stat-number warning">{{ this_week_count }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Next Week</div>
+                <div class="stat-number warning">{{ next_week_count }}</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Tenant</th>
+                    <th>Room</th>
+                    <th>Move Out Date</th>
+                    <th>Days Until Move Out</th>
+                    <th>Deposit Paid</th>
+                    <th>Estimated Refund</th>
+                    <th>Contact</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in upcoming_move_outs %}
+                <tr>
+                    <td><strong>{{ booking.tenant.full_name }}</strong></td>
+                    <td>{{ booking.room.room_code }}</td>
+                    <td>{{ booking.move_out_date }}</td>
+                    <td class="warning">{{ booking.days_until_move_out }}</td>
+                    <td>HK${{ booking.deposit_paid }}</td>
+                    <td class="success">HK${{ booking.refund_amount }}</td>
+                    <td>
+                        {{ booking.tenant.phone_number }}<br>
+                        <small>{{ booking.tenant.user.email }}</small>
+                    </td>
+                    <td>
+                        {% if booking.move_out_status == "MOVING OUT TODAY" %}
+                        <span class="alert">{{ booking.move_out_status }}</span>
+                        {% elif booking.move_out_status == "THIS WEEK" %}
+                        <span class="warning">{{ booking.move_out_status }}</span>
+                        {% elif booking.move_out_status == "NEXT WEEK" %}
+                        <span class="info">{{ booking.move_out_status }}</span>
+                        {% else %}
+                        <span class="success">{{ booking.move_out_status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="success" style="text-align: center; padding: 2rem;">
+            <h3>✅ No Move Outs Scheduled</h3>
+            <p>No tenants are scheduled to move out in the next 30 days.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if upcoming_move_outs %}
+<div class="card">
+    <div class="card-header">
+        <h3>📋 Move Out Process</h3>
+    </div>
+    <div class="card-body">
+        <ol>
+            <li><strong>3 weeks before:</strong> Auto-email sent asking for extension decision</li>
+            <li><strong>1 week before:</strong> Send move-out instructions and cleaning requirements</li>
+            <li><strong>Move-out day:</strong> Tenant uploads room photos for refund processing</li>
+            <li><strong>After inspection:</strong> Refund processed within 7 business days</li>
+        </ol>
+        <p><strong>Refund Policy:</strong> Security deposit refunded after deduction for damages or cleaning fees if room is not returned in original condition.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

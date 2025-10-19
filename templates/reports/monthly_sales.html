@@ -1,0 +1,126 @@
+{% extends 'reports/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{{ title }}</h2>
+        <p>Generated on: {{ today }} | Total Income: HK${{ total_income }} | Transactions: {{ total_transactions }}</p>
+        
+        <!-- Month Selector -->
+        <form method="get" style="margin-top: 1rem;">
+            <label for="month">Select Month:</label>
+            <input type="month" id="month" name="month" value="{{ selected_month }}">
+            <button type="submit" class="btn">View Report</button>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Income</div>
+                <div class="stat-number success">HK${{ total_income|floatformat:0 }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Transactions</div>
+                <div class="stat-number info">{{ total_transactions }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Average Transaction</div>
+                <div class="stat-number info">
+                    {% if total_transactions > 0 %}
+                    HK${{ total_income|divisibleby:total_transactions|floatformat:0 }}
+                    {% else %}
+                    HK$0
+                    {% endif %}
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Report Period</div>
+                <div class="stat-label">{{ selected_month }}</div>
+            </div>
+        </div>
+
+        <!-- Payment Type Breakdown -->
+        <h3>💰 Payment Breakdown</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Payment Type</th>
+                    <th>Number of Payments</th>
+                    <th>Total Amount</th>
+                    <th>Percentage</th>
+                    <th>Average Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment_type, data in payment_summary.items %}
+                    {% if data.count > 0 %}
+                    <tr>
+                        <td><strong>{{ data.label }}</strong></td>
+                        <td>{{ data.count }}</td>
+                        <td class="success">HK${{ data.total|floatformat:0 }}</td>
+                        <td>{{ data.percentage|floatformat:1 }}%</td>
+                        <td>HK${{ data.average|floatformat:0 }}</td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Recent Transactions -->
+        <h3 style="margin-top: 2rem;">📋 Recent Transactions</h3>
+        {% if total_transactions > 0 %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Tenant</th>
+                    <th>Room</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Receipt No.</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment_type, data in payment_summary.items %}
+                    {% for payment in data.payments|slice:":3" %}
+                    <tr>
+                        <td>{{ payment.payment_date }}</td>
+                        <td>{{ payment.booking.tenant.full_name }}</td>
+                        <td>{{ payment.booking.room.room_code }}</td>
+                        <td>{{ payment.get_payment_type_display }}</td>
+                        <td class="success">HK${{ payment.amount }}</td>
+                        <td><small>{{ payment.receipt_number }}</small></td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No transactions found for the selected period.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Summary Card -->
+<div class="card">
+    <div class="card-header">
+        <h3>📈 Monthly Summary</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            {% for payment_type, data in payment_summary.items %}
+            {% if data.count > 0 %}
+            <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: #27ae60;">HK${{ data.total|floatformat:0 }}</div>
+                <div style="color: #666; font-size: 0.9rem;">{{ data.label }}</div>
+                <div style="color: #999; font-size: 0.8rem;">{{ data.count }} payments</div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
