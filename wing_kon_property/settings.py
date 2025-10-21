@@ -24,6 +24,9 @@ INSTALLED_APPS = [
     'payments',
     'maintenance',
     'reports',
+    # Celery & Notifications
+    'django_celery_beat',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -86,6 +89,47 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Or your SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'ubaidafzal022@gmail.com'
+EMAIL_HOST_PASSWORD = 'lgkn jwvm vcka sveh'
+DEFAULT_FROM_EMAIL = 'ubaidafzal022@gmail.com'
+
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_TIMEZONE = 'Asia/Hong_Kong'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+# Celery Beat Schedule
+CELERY_BEAT_SCHEDULE = {
+    'send-rent-reminders': {
+        'task': 'notifications.tasks.send_rent_reminders',
+        'schedule': 86400.0,  # Every 24 hours
+    },
+    'send-contract-reminders': {
+        'task': 'notifications.tasks.send_contract_reminders',
+        'schedule': 86400.0,  # Every 24 hours
+    },
+    'send-birthday-wishes': {
+        'task': 'notifications.tasks.send_birthday_wishes',
+        'schedule': 86400.0,  # Every 24 hours
+    },
+    'process-late-fees': {
+        'task': 'notifications.tasks.process_late_fees',
+        'schedule': 86400.0,  # Every 24 hours
+    },
+    'sync-room-status': {
+        'task': 'notifications.tasks.sync_room_status',
+        'schedule': 86400.0,  # Every 24 hours
+    },
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

@@ -1,0 +1,199 @@
+{% extends 'reports/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{{ title }}</h2>
+        <p>Date: {{ today }} | Monitor your automated notification system</p>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Notifications Sent</div>
+        <div class="stat-number info">{{ stats.total_sent }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-label">Failed Notifications</div>
+        <div class="stat-number {% if stats.total_failed > 0 %}alert{% else %}success{% endif %}">
+            {{ stats.total_failed }}
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-label">Sent Today</div>
+        <div class="stat-number info">{{ stats.today_sent }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-label">Rent Reminders</div>
+        <div class="stat-number warning">{{ stats.rent_reminders }}</div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+    <div class="card-header">
+        <h3>🚀 Quick Actions</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <a href="{% url 'notifications:test_notification' %}" class="btn" onclick="return confirm('Send test email?')">
+                📧 Send Test Email
+            </a>
+            <a href="/admin/notifications/notificationlog/" class="btn" target="_blank">
+                📋 View All Logs
+            </a>
+            <a href="/admin/django_celery_beat/periodictask/" class="btn" target="_blank">
+                ⏰ Manage Schedules
+            </a>
+            <a href="/admin/" class="btn" target="_blank">
+                ⚙️ Admin Panel
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Automated Tasks Schedule -->
+<div class="card">
+    <div class="card-header">
+        <h3>⏰ Automated Tasks Schedule</h3>
+    </div>
+    <div class="card-body">
+        <table>
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Schedule</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Rent Reminders</strong></td>
+                    <td>Daily at 9:00 AM</td>
+                    <td>3-day reminders + overdue notices</td>
+                    <td><span class="success">ACTIVE</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Late Fee Processing</strong></td>
+                    <td>Daily at 9:00 AM</td>
+                    <td>HK$100/day fees + court notices</td>
+                    <td><span class="success">ACTIVE</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Contract Reminders</strong></td>
+                    <td>Daily at 9:00 AM</td>
+                    <td>3-week renewal reminders</td>
+                    <td><span class="success">ACTIVE</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Birthday Wishes</strong></td>
+                    <td>Daily at 9:00 AM</td>
+                    <td>Auto birthday emails</td>
+                    <td><span class="success">ACTIVE</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Room Status Sync</strong></td>
+                    <td>Daily at 6:00 AM</td>
+                    <td>Sync room status with bookings</td>
+                    <td><span class="success">ACTIVE</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Recent Notifications -->
+<div class="card">
+    <div class="card-header">
+        <h3>📨 Recent Notifications (Last 7 Days)</h3>
+    </div>
+    <div class="card-body">
+        {% if recent_notifications %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Tenant</th>
+                    <th>Type</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for notification in recent_notifications %}
+                <tr>
+                    <td>{{ notification.sent_at|date:"M d, H:i"|default:"Pending" }}</td>
+                    <td>
+                        {% if notification.tenant %}
+                            {{ notification.tenant.full_name }}
+                        {% else %}
+                            System
+                        {% endif %}
+                    </td>
+                    <td>{{ notification.get_notification_type_display }}</td>
+                    <td>{{ notification.subject }}</td>
+                    <td>
+                        {% if notification.status == 'sent' %}
+                            <span class="success">✅ Sent</span>
+                        {% elif notification.status == 'failed' %}
+                            <span class="alert">❌ Failed</span>
+                        {% else %}
+                            <span class="warning">⏳ Pending</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No notifications sent in the last 7 days.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Notification Types Info -->
+<div class="card">
+    <div class="card-header">
+        <h3>ℹ️ Notification Types & Triggers</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                <h4>💰 Rent Reminders</h4>
+                <ul>
+                    <li><strong>3 days before due:</strong> Friendly reminder</li>
+                    <li><strong>Due date:</strong> Payment due notice</li>
+                    <li><strong>1 day overdue:</strong> Late fee warning (HK$100/day)</li>
+                    <li><strong>7 days overdue:</strong> Late fee invoice</li>
+                    <li><strong>14 days overdue:</strong> Court notice</li>
+                </ul>
+            </div>
+            
+            <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                <h4>📄 Contract Management</h4>
+                <ul>
+                    <li><strong>21 days before end:</strong> Renewal reminder</li>
+                    <li><strong>Extension options:</strong> Yes/No response</li>
+                    <li><strong>Auto-followup:</strong> For non-responses</li>
+                </ul>
+            </div>
+            
+            <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                <h4>🎉 Tenant Relations</h4>
+                <ul>
+                    <li><strong>Birthdays:</strong> Auto wishes for current tenants</li>
+                    <li><strong>HK$100 credit:</strong> Birthday gift on next rent</li>
+                    <li><strong>Excludes:</strong> Moved-out tenants</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

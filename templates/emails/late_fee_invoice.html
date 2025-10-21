@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
+        .header { background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%); color: white; padding: 30px; text-align: center; }
+        .content { padding: 30px; background: #f8f9fa; }
+        .footer { background: #34495e; color: white; padding: 20px; text-align: center; font-size: 12px; }
+        .invoice-table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .invoice-table th { background: #2c3e50; color: white; padding: 15px; text-align: left; }
+        .invoice-table td { padding: 12px 15px; border-bottom: 1px solid #ecf0f1; }
+        .total-row { background: #f8f9fa; font-weight: bold; font-size: 1.1em; }
+        .alert { color: #e74c3c; font-weight: bold; }
+        .btn { display: inline-block; padding: 12px 30px; background: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .urgent-notice { background: #e74c3c; color: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .warning-notice { background: #f39c12; color: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 Wing Kong Properties</h1>
+            <p>Late Fee Invoice</p>
+        </div>
+
+        <div class="content">
+            <h2 style="color: #c0392b;">INVOICE FOR LATE PAYMENT</h2>
+            <p>Dear {{ tenant_name }},</p>
+
+            <p>This invoice includes late fees for your overdue rent payment. Please settle the amount immediately to avoid further penalties.</p>
+
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th style="text-align: right;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Monthly Rent (Due: {{ due_date }})</td>
+                        <td style="text-align: right;">HK${{ original_amount }}</td>
+                    </tr>
+                    <tr>
+                        <td>Late Fees ({{ days_overdue }} days × HK$100/day)</td>
+                        <td style="text-align: right; color: #e74c3c;">HK${{ late_fee }}</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>TOTAL AMOUNT DUE</strong></td>
+                        <td style="text-align: right; color: #e74c3c; font-size: 1.2em;"><strong>HK${{ total_amount_due }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            {% if days_overdue >= 14 %}
+            <div class="urgent-notice">
+                <h3 style="margin: 0 0 15px 0;">⚖️ COURT NOTICE - URGENT ACTION REQUIRED</h3>
+                <p style="margin: 0 0 10px 0;">Your account is <strong>{{ days_overdue }} days overdue</strong>. This is a final notice before legal proceedings.</p>
+                <p style="margin: 0;"><strong>IMMEDIATE ACTION:</strong> This matter will be filed with the Lands Tribunal Court within 7 days if full payment is not received.</p>
+            </div>
+            {% elif days_overdue >= 7 %}
+            <div class="warning-notice">
+                <h3 style="margin: 0 0 15px 0;">⚠️ FINAL NOTICE - LATE PAYMENT</h3>
+                <p style="margin: 0;">Your account is <strong>{{ days_overdue }} days overdue</strong>. Continued non-payment will result in legal action and may affect your credit history.</p>
+            </div>
+            {% endif %}
+
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{ payment_url }}" class="btn">💳 PAY NOW ONLINE</a>
+            </div>
+
+            <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 25px 0;">
+                <h4 style="margin-top: 0; color: #2980b9;">🏦 Bank Transfer Instructions</h4>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0; width: 40%;"><strong>Bank:</strong></td>
+                        <td style="padding: 8px 0;">HSBC Hong Kong</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0;"><strong>Account Name:</strong></td>
+                        <td style="padding: 8px 0;">Wing Kong Properties Ltd</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0;"><strong>Account Number:</strong></td>
+                        <td style="padding: 8px 0;">123-456789-888</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0;"><strong>Reference:</strong></td>
+                        <td style="padding: 8px 0; font-weight: bold;">{{ room_code }}-{{ invoice_date }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0;"><strong>Amount:</strong></td>
+                        <td style="padding: 8px 0; font-weight: bold; color: #e74c3c;">HK${{ total_amount_due }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <p style="margin: 0; color: #856404;">
+                    <strong>📞 Need Assistance?</strong><br>
+                    If you have any questions or need to discuss payment arrangements, please contact our accounts department immediately.
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Wing Kong Properties Ltd | 123 Wing Kong Road, Central, Hong Kong</p>
+            <p>📞 +852 1234 5678 | ✉️ accounts@wing-kong.com</p>
+            <p style="margin-top: 10px; font-size: 11px; opacity: 0.8;">
+                Invoice Date: {{ invoice_date }} | Invoice ID: {{ room_code }}-{{ invoice_date }}
+            </p>
+        </div>
+    </div>
+</body>
+</html>

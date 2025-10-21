@@ -56,6 +56,7 @@
             <a href="{% url 'reports:move_out' %}" {% if 'move-out' in request.path %}class="active"{% endif %}>Move Outs</a>
             <a href="{% url 'reports:monthly_sales' %}" {% if 'monthly-sales' in request.path %}class="active"{% endif %}>Sales Report</a>
             <a href="{% url 'reports:utilities' %}" {% if 'utilities' in request.path %}class="active"{% endif %}>Utilities</a>
+            <a href="{% url 'notifications:dashboard' %}" {% if 'notifications' in request.path %}class="active"{% endif %}>Notifications</a>
             <a href="/admin/" target="_blank">Admin Panel</a>
         </div>
     </nav>

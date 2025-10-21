@@ -5,5 +5,6 @@ from django.shortcuts import redirect
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('reports/', include('reports.urls')),
+    path('notifications/', include('notifications.urls')),
     path('', lambda request: redirect('/reports/')),  # Redirect root to reports
 ]

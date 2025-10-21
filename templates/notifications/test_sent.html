@@ -1,0 +1,32 @@
+{% extends 'reports/base.html' %}
+
+{% block title %}Test Notification Sent{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>✅ Test Notification Sent</h2>
+    </div>
+    <div class="card-body" style="text-align: center; padding: 3rem;">
+        <div style="font-size: 4rem; margin-bottom: 2rem;">📧</div>
+        <h3>Test Notification Has Been Queued!</h3>
+        <p>Your test email has been sent to the background processing queue.</p>
+        <p>Check your email inbox and the notification logs to verify delivery.</p>
+        
+        <div style="margin: 2rem 0;">
+            <a href="{% url 'notifications:dashboard' %}" class="btn">← Back to Dashboard</a>
+            <a href="/admin/notifications/notificationlog/" class="btn" target="_blank">View Logs</a>
+        </div>
+        
+        <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; margin-top: 2rem;">
+            <h4>Next Steps:</h4>
+            <ol style="text-align: left; display: inline-block;">
+                <li>Check your email inbox for the test message</li>
+                <li>Verify Celery worker is processing tasks</li>
+                <li>Check notification logs for sent status</li>
+                <li>Test with actual tenant data when ready</li>
+            </ol>
+        </div>
+    </div>
+</div>
+{% endblock %}
