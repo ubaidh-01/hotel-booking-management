@@ -7,7 +7,7 @@ import csv
 
 from properties.models import Room
 from bookings.models import Booking
-from payments.models import Payment
+from payments.models import Payment, UtilityBill
 from tenants.models import Tenant
 from contracts.models import Contract
 
@@ -265,33 +265,81 @@ def monthly_sales_report(request):
 
 @staff_required
 def utilities_report(request):
-    """Requirement #13: Electricity/Water/Gas Report"""
+    """Requirement #13: Electricity/Water/Gas Report with Pro-Rata Calculation"""
     today = timezone.now().date()
 
-    # Unpaid utility bills
-    unpaid_utilities = Payment.objects.filter(
+    # Get all utility bills
+    utility_bills = UtilityBill.objects.filter(
+        is_settled=False
+    ).select_related('property').prefetch_related('property__rooms__booking_set')
+
+    # Calculate pro-rata amounts for each bill
+    bills_with_details = []
+    total_unpaid = 0
+
+    for bill in utility_bills:
+        # Get active tenants in this property during bill period
+        active_bookings = Booking.objects.filter(
+            room__property=bill.property,
+            status='active',
+            move_in_date__lte=bill.due_date,
+            move_out_date__gte=bill.bill_date
+        ).select_related('tenant', 'room')
+
+        # Calculate pro-rata share per tenant
+        total_share_days = 0
+        tenant_shares = []
+
+        for booking in active_bookings:
+            # Calculate days tenant was responsible for this bill
+            bill_start = max(booking.move_in_date, bill.bill_date)
+            bill_end = min(booking.move_out_date, bill.due_date)
+            tenant_days = (bill_end - bill_start).days + 1
+
+            if tenant_days > 0:
+                total_share_days += tenant_days
+                tenant_shares.append({
+                    'booking': booking,
+                    'days': tenant_days,
+                    'share_amount': 0,  # Will calculate after total
+                })
+
+        # Calculate each tenant's share amount
+        for tenant_share in tenant_shares:
+            if total_share_days > 0:
+                tenant_share['share_amount'] = (bill.bill_amount / total_share_days) * tenant_share['days']
+
+        # Check if payments received for this bill
+        utility_payments = Payment.objects.filter(
+            payment_type='utility',
+            booking__in=[ts['booking'] for ts in tenant_shares],
+            payment_date__range=[bill.bill_date, bill.due_date]
+        )
+
+        paid_tenants = set(payment.booking_id for payment in utility_payments)
+
+        bills_with_details.append({
+            'bill': bill,
+            'tenant_shares': tenant_shares,
+            'total_share_days': total_share_days,
+            'paid_tenants': paid_tenants,
+            'total_amount': bill.bill_amount,
+            'unpaid_amount': bill.bill_amount - sum(p.amount for p in utility_payments),
+        })
+
+        total_unpaid += bills_with_details[-1]['unpaid_amount']
+
+    # Also show simple unpaid utility payments (fallback)
+    unpaid_utility_payments = Payment.objects.filter(
         payment_type='utility',
         status='pending'
     ).select_related('booking__tenant', 'booking__room')
 
-    total_unpaid = sum(p.amount for p in unpaid_utilities)
-    unpaid_count = unpaid_utilities.count()
-    average_bill = total_unpaid / unpaid_count if unpaid_count > 0 else 0
-
-    # Calculate days overdue for each payment (if due_date exists)
-    for payment in unpaid_utilities:
-        if payment.due_date:
-            days_overdue = (today - payment.due_date).days
-            payment.days_overdue = days_overdue if days_overdue > 0 else 0
-        else:
-            payment.days_overdue = None
-
     context = {
         'title': 'Utilities Payment Report',
-        'unpaid_utilities': unpaid_utilities,
+        'bills_with_details': bills_with_details,
         'total_unpaid': total_unpaid,
-        'average_bill': average_bill,
-        'unpaid_count': unpaid_count,
+        'unpaid_utility_payments': unpaid_utility_payments,
         'today': today,
     }
     return render(request, 'reports/utilities.html', context)

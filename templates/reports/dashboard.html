@@ -97,9 +97,6 @@
                     <i class="fas fa-file-contract me-3"></i>
                     <div>
                         <strong>{{ ending_contracts.count }}</strong> contracts ending in next 3 weeks
-                        <div class="mt-2">
-                            <a href="#" class="btn btn-sm btn-info">View Details</a>
-                        </div>
                     </div>
                 </div>
                 {% endif %}
@@ -165,46 +162,37 @@
 
     <!-- Recent Activity -->
     <div class="col-lg-4 mb-4">
+    <!-- Financial Overview -->
         <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-history me-2"></i> Recent Activity</h5>
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-sign-out-alt me-2"></i> Upcoming Move-Outs</h5>
+        </div>
+        <div class="card-body">
+            {% if upcoming_move_outs %}
+            <div class="list-group list-group-flush">
+                {% for booking in upcoming_move_outs|slice:":5" %}
+                <div class="list-group-item px-0 border-0">
+                    <div class="d-flex w-100 justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">{{ booking.tenant.full_name }}</h6>
+                            <p class="mb-1 text-muted small">{{ booking.room.room_code }}</p>
+                        </div>
+                        <small class="text-muted">{{ booking.move_out_date }}</small>
+                    </div>
+                    <small class="text-muted">
+                        {% with days_left=booking.move_out_date|timeuntil:today %}
+                        {{ days_left }} left
+                        {% endwith %}
+                    </small>
+                </div>
+                {% endfor %}
             </div>
-            <div class="card-body">
-                <div class="list-group list-group-flush">
-                    <div class="list-group-item px-0">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">New tenant moved in</h6>
-                            <small class="text-muted">2 hours ago</small>
-                        </div>
-                        <p class="mb-1 text-muted">Room A305 - John Smith</p>
-                    </div>
-                    <div class="list-group-item px-0">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">Rent payment received</h6>
-                            <small class="text-muted">5 hours ago</small>
-                        </div>
-                        <p class="mb-1 text-muted">Room B210 - HK$8,500</p>
-                    </div>
-                    <div class="list-group-item px-0">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">Maintenance completed</h6>
-                            <small class="text-muted">Yesterday</small>
-                        </div>
-                        <p class="mb-1 text-muted">Room C101 - Plumbing fixed</p>
-                    </div>
-                    <div class="list-group-item px-0">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">Contract renewed</h6>
-                            <small class="text-muted">2 days ago</small>
-                        </div>
-                        <p class="mb-1 text-muted">Room D402 - 6 months</p>
-                    </div>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="#" class="btn btn-sm btn-outline-primary">View All Activity</a>
-                </div>
+            {% else %}
+            <p class="text-muted text-center mb-0">No move-outs scheduled</p>
+            {% endif %}
+            <div class="text-center mt-3">
+                <a href="{% url 'reports:move_out' %}" class="btn btn-sm btn-outline-primary">View All</a>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}

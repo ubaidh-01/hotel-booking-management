@@ -1,11 +1,18 @@
 from pathlib import Path
+import environ
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-%#l3qtlobp+0_hq8=(#h*v^ws=%b@gdam*y!4)_(bzp1aseieg'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 ALLOWED_HOSTS = []
 
@@ -91,22 +98,13 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-
-# Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Or your SMTP server
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'ubaidafzal022@gmail.com'
-EMAIL_HOST_PASSWORD = 'lgkn jwvm vcka sveh'
-DEFAULT_FROM_EMAIL = 'ubaidafzal022@gmail.com'
-
 # Celery Configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_TIMEZONE = 'Asia/Hong_Kong'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
 
 # Celery Beat Schedule
 CELERY_BEAT_SCHEDULE = {
@@ -145,11 +143,11 @@ USE_TZ = True
 
 
 JAZZMIN_SETTINGS = {
-    "site_title": "Wing Kon Property Admin",
-    "site_header": "Wing Kon Property",
-    "site_brand": "Wing Kon",
-    "welcome_sign": "Welcome to Wing Kon Admin",
-    "copyright": "Wing Kon © 2025",
+    "site_title": "Wing Kong Property Admin",
+    "site_header": "Wing Kong Property",
+    "site_brand": "Wing Kong",
+    "welcome_sign": "Welcome to Wing Kong Admin",
+    "copyright": "Wing Kong © 2025",
     "show_ui_builder": True,  # Enables a live UI style editor in the admin
 
     "icons": {
@@ -177,3 +175,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+EMAIL_BACKEND = env('EMAIL_BACKEND')
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env.int('EMAIL_PORT')
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
