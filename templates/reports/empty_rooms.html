@@ -3,46 +3,109 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">{{ title }}</h2>
+        <p class="text-muted mb-0">Generated on: {{ today }} | Total Empty Rooms: {{ total_count }} | Total Monthly Rent Value: HK${{ total_rent_value }}</p>
+    </div>
+    <div>
+        <div class="btn-group" role="group">
+            <a href="?export=csv" class="btn btn-outline-primary">
+                <i class="fas fa-file-csv me-2"></i> Export CSV
+            </a>
+            <button onclick="window.print()" class="btn btn-outline-secondary">
+                <i class="fas fa-print me-2"></i> Print
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Summary -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="stats-card success">
+            <div class="stats-icon">
+                <i class="fas fa-home"></i>
+            </div>
+            <div class="stats-number">{{ total_count }}</div>
+            <div class="stats-label">Empty Rooms</div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="stats-card primary">
+            <div class="stats-icon">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <div class="stats-number">HK${{ total_rent_value }}</div>
+            <div class="stats-label">Potential Monthly Income</div>
+        </div>
+    </div>
+</div>
+
+<!-- Empty Rooms Table -->
 <div class="card">
-    <div class="card-header">
-        <h2>{{ title }}</h2>
-        <p>Generated on: {{ today }} | Total Empty Rooms: {{ total_count }} | Total Monthly Rent Value: HK${{ total_rent_value }}</p>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i> Empty Rooms Inventory</h5>
+        <div>
+            <input type="text" class="form-control form-control-sm" placeholder="Search rooms..." style="width: 200px;">
+        </div>
     </div>
     <div class="card-body">
-        <div class="export-buttons">
-            <a href="?export=csv" class="btn">📥 Export CSV</a>
-            <button onclick="window.print()" class="btn">🖨️ Print Report</button>
-        </div>
-
         {% if empty_rooms %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Room Code</th>
-                    <th>Property</th>
-                    <th>Monthly Rent</th>
-                    <th>Size (sqft)</th>
-                    <th>Private Bathroom</th>
-                    <th>Balcony</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for room in empty_rooms %}
-                <tr>
-                    <td><strong>{{ room.room_code }}</strong></td>
-                    <td>{{ room.property.name }}</td>
-                    <td>HK${{ room.monthly_rent }}</td>
-                    <td>{{ room.size_sqft|default:"N/A" }}</td>
-                    <td>{{ room.has_private_bathroom|yesno:"Yes,No" }}</td>
-                    <td>{{ room.has_balcony|yesno:"Yes,No" }}</td>
-                    <td><span class="success">{{ room.get_status_display }}</span></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Room Code</th>
+                        <th>Property</th>
+                        <th>Monthly Rent</th>
+                        <th>Size (sqft)</th>
+                        <th>Private Bathroom</th>
+                        <th>Balcony</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in empty_rooms %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'properties:crm_room_detail' room_code=room.room_code %}" class="text-decoration-none fw-bold">
+                                {{ room.room_code|upper }}
+                            </a>
+                        </td>
+                        <td>{{ room.property.name }}</td>
+                        <td>HK${{ room.monthly_rent }}</td>
+                        <td>{{ room.size_sqft|default:"N/A" }}</td>
+                        <td>
+                            {% if room.has_private_bathroom %}
+                                <i class="fas fa-check-circle text-success"></i>
+                            {% else %}
+                                <i class="fas fa-times-circle text-danger"></i>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if room.has_balcony %}
+                                <i class="fas fa-check-circle text-success"></i>
+                            {% else %}
+                                <i class="fas fa-times-circle text-danger"></i>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge bg-success">{{ room.get_status_display }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% else %}
-        <p>No empty rooms available.</p>
+        <div class="text-center py-4">
+            <i class="fas fa-home fa-3x text-muted mb-3"></i>
+            <h5>No Empty Rooms Available</h5>
+            <p class="text-muted">All rooms are currently occupied or reserved.</p>
+            <a href="{% url 'properties:crm_room_list' %}" class="btn btn-primary">
+                <i class="fas fa-list me-2"></i> View All Rooms
+            </a>
+        </div>
         {% endif %}
     </div>
 </div>

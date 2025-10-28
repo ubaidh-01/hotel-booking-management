@@ -1,0 +1,205 @@
+{% extends 'reports/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">{{ title }}</h2>
+        <p class="text-muted mb-0">Complete overview of all {{ stats.total_rooms }} rooms across all properties</p>
+    </div>
+    <div>
+        <a href="/admin/properties/room/add/" class="btn btn-primary" target="_blank">
+            <i class="fas fa-plus me-2"></i> Add New Room
+        </a>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card primary">
+            <div class="stats-icon">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="stats-number">{{ stats.total_rooms }}</div>
+            <div class="stats-label">Total Rooms</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card success">
+            <div class="stats-icon">
+                <i class="fas fa-home"></i>
+            </div>
+            <div class="stats-number">{{ stats.available_rooms }}</div>
+            <div class="stats-label">Available</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card warning">
+            <div class="stats-icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="stats-number">{{ stats.occupied_rooms }}</div>
+            <div class="stats-label">Occupied</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card info">
+            <div class="stats-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stats-number">{{ stats.reserved_rooms }}</div>
+            <div class="stats-label">Reserved</div>
+        </div>
+    </div>
+</div>
+
+<!-- Rooms Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i> Room Inventory</h5>
+        <div>
+            <input type="text" class="form-control form-control-sm" placeholder="Search rooms..." style="width: 200px;">
+        </div>
+    </div>
+    <div class="card-body">
+        {% if rooms %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Room Code</th>
+                        <th>Property</th>
+                        <th>Monthly Rent</th>
+                        <th>Status</th>
+                        <th>Current Tenant</th>
+                        <th>Features</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in rooms %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'properties:crm_room_detail' room_code=room.room_code %}" class="text-decoration-none fw-bold">
+                                {{ room.room_code|upper }}
+                            </a>
+                        </td>
+                        <td>{{ room.property.name }}</td>
+                        <td>HK${{ room.monthly_rent }}</td>
+                        <td>
+                            {% if room.status == 'available' %}
+                                <span class="badge bg-success">Available</span>
+                            {% elif room.status == 'occupied' %}
+                                <span class="badge bg-warning">Occupied</span>
+                            {% elif room.status == 'reserved' %}
+                                <span class="badge bg-info">Reserved</span>
+                            {% elif room.status == 'maintenance' %}
+                                <span class="badge bg-danger">Maintenance</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ room.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% with current_booking=room.get_current_booking %}
+                                {% if current_booking %}
+                                    {{ current_booking.tenant.full_name }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>
+                            {% if room.has_private_bathroom %}<i class="fas fa-bath me-1" title="Private Bathroom"></i>{% endif %}
+                            {% if room.has_balcony %}<i class="fas fa-sun me-1" title="Balcony"></i>{% endif %}
+                            {% if not room.has_private_bathroom and not room.has_balcony %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'properties:crm_room_detail' room_code=room.room_code %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/admin/properties/room/{{ room.id }}/change/"
+                                   class="btn btn-sm btn-outline-secondary" target="_blank">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% if room.status == 'available' %}
+                                <a href="/admin/bookings/booking/add/?room={{ room.id }}"
+                                   class="btn btn-sm btn-outline-success" target="_blank">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-home fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No rooms found in the system.</p>
+            <a href="/admin/properties/room/add/" class="btn btn-primary" target="_blank">
+                <i class="fas fa-plus me-2"></i> Add First Room
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Status Legend -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-palette me-2"></i> Status Legend</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+                <div class="d-flex align-items-center p-3 border rounded">
+                    <span class="badge bg-success me-2"></span>
+                    <div>
+                        <strong>Available</strong>
+                        <div class="text-muted small">Ready for booking ({{ stats.available_rooms }})</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="d-flex align-items-center p-3 border rounded">
+                    <span class="badge bg-warning me-2"></span>
+                    <div>
+                        <strong>Occupied</strong>
+                        <div class="text-muted small">Currently rented ({{ stats.occupied_rooms }})</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="d-flex align-items-center p-3 border rounded">
+                    <span class="badge bg-info me-2"></span>
+                    <div>
+                        <strong>Reserved</strong>
+                        <div class="text-muted small">Booking confirmed ({{ stats.reserved_rooms }})</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="d-flex align-items-center p-3 border rounded">
+                    <span class="badge bg-danger me-2"></span>
+                    <div>
+                        <strong>Maintenance</strong>
+                        <div class="text-muted small">Under repair/cleaning ({{ stats.maintenance_rooms }})</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

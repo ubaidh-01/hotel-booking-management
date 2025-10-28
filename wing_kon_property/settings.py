@@ -10,6 +10,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -141,6 +142,30 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Wing Kon Property Admin",
+    "site_header": "Wing Kon Property",
+    "site_brand": "Wing Kon",
+    "welcome_sign": "Welcome to Wing Kon Admin",
+    "copyright": "Wing Kon © 2025",
+    "show_ui_builder": True,  # Enables a live UI style editor in the admin
+
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+    },
+    "hide_models": [
+        "auth.Group",
+        "django_celery_beat.PeriodicTask",
+        "django_celery_beat.IntervalSchedule",
+        "django_celery_beat.CrontabSchedule",
+        "django_celery_beat.SolarSchedule",
+        "django_celery_beat.ClockedSchedule",
+    ],
+}
 
 
 # Static files (CSS, JavaScript, Images)

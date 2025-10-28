@@ -3,105 +3,166 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h2>{{ title }}</h2>
-        <p>Generated on: {{ today }} | Total Unpaid: HK${{ total_unpaid|floatformat:0 }} | Unpaid Bills: {{ unpaid_count }}</p>
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">{{ title }}</h2>
+        <p class="text-muted mb-0">Generated on: {{ today }} | Total Unpaid: HK${{ total_unpaid|floatformat:0 }} | Unpaid Bills: {{ unpaid_count }}</p>
     </div>
-    <div class="card-body">
-        <div class="export-buttons">
-            <button onclick="window.print()" class="btn">🖨️ Print Report</button>
-        </div>
-
-        {% if unpaid_utilities %}
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Unpaid Bills</div>
-                <div class="stat-number alert">{{ unpaid_count }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Unpaid</div>
-                <div class="stat-number alert">HK${{ total_unpaid|floatformat:0 }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Average Bill</div>
-                <div class="stat-number info">
-                    HK${{ average_bill|floatformat:0 }}
-                </div>
-            </div>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Tenant</th>
-                    <th>Room</th>
-                    <th>Utility Type</th>
-                    <th>Amount</th>
-                    <th>Due Date</th>
-                    <th>Days Overdue</th>
-                    <th>Contact</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for payment in unpaid_utilities %}
-                <tr>
-                    <td><strong>{{ payment.booking.tenant.full_name }}</strong></td>
-                    <td>{{ payment.booking.room.room_code }}</td>
-                    <td>{{ payment.get_payment_type_display }}</td>
-                    <td class="alert">HK${{ payment.amount|floatformat:0 }}</td>
-                    <td>
-                        {% if payment.due_date %}
-                            {{ payment.due_date }}
-                        {% else %}
-                            Not set
-                        {% endif %}
-                    </td>
-                    <td class="alert">
-                        {% if payment.days_overdue %}
-                            {{ payment.days_overdue }} days
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
-                    <td>
-                        {{ payment.booking.tenant.phone_number }}<br>
-                        <small>{{ payment.booking.tenant.user.email }}</small>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div class="success" style="text-align: center; padding: 2rem;">
-            <h3>✅ All Utilities Paid</h3>
-            <p>No outstanding utility payments!</p>
-        </div>
-        {% endif %}
+    <div>
+        <button onclick="window.print()" class="btn btn-outline-secondary">
+            <i class="fas fa-print me-2"></i> Print
+        </button>
     </div>
 </div>
 
 {% if unpaid_utilities %}
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="stats-card danger">
+            <div class="stats-icon">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <div class="stats-number">{{ unpaid_count }}</div>
+            <div class="stats-label">Unpaid Bills</div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="stats-card warning">
+            <div class="stats-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stats-number">HK${{ total_unpaid|floatformat:0 }}</div>
+            <div class="stats-label">Total Unpaid</div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="stats-card info">
+            <div class="stats-icon">
+                <i class="fas fa-calculator"></i>
+            </div>
+            <div class="stats-number">HK${{ average_bill|floatformat:0 }}</div>
+            <div class="stats-label">Average Bill</div>
+        </div>
+    </div>
+</div>
+
+<!-- Unpaid Utilities Table -->
 <div class="card">
-    <div class="card-header">
-        <h3>💡 Utility Billing Information</h3>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i> Unpaid Utility Bills</h5>
+        <div>
+            <input type="text" class="form-control form-control-sm" placeholder="Search tenants..." style="width: 200px;">
+        </div>
     </div>
     <div class="card-body">
-        <p><strong>Billing Process:</strong></p>
-        <ul>
-            <li>Utility bills are calculated pro-rata based on move-in dates</li>
-            <li>Tenants share utility costs for their apartment</li>
-            <li>Bills are due 14 days after issue date</li>
-            <li>Late payments may incur additional fees</li>
-        </ul>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Tenant</th>
+                        <th>Room</th>
+                        <th>Utility Type</th>
+                        <th>Amount</th>
+                        <th>Due Date</th>
+                        <th>Days Overdue</th>
+                        <th>Contact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in unpaid_utilities %}
+                    <tr>
+                        <td><strong>{{ payment.booking.tenant.full_name }}</strong></td>
+                        <td>{{ payment.booking.room.room_code }}</td>
+                        <td>{{ payment.get_payment_type_display }}</td>
+                        <td>HK${{ payment.amount|floatformat:0 }}</td>
+                        <td>
+                            {% if payment.due_date %}
+                                {{ payment.due_date }}
+                            {% else %}
+                                <span class="text-muted">Not set</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if payment.days_overdue %}
+                                <span class="badge bg-danger">{{ payment.days_overdue }} days</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div>
+                                <i class="fas fa-phone me-1"></i> {{ payment.booking.tenant.phone_number }}
+                            </div>
+                            <div class="small text-muted">
+                                <i class="fas fa-envelope me-1"></i> {{ payment.booking.tenant.user.email }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-        <p><strong>Utility Types:</strong></p>
-        <ul>
-            <li>⚡ Electricity - Monthly billing</li>
-            <li>💧 Water - Monthly billing</li>
-            <li>🔥 Gas - Monthly billing</li>
-            <li>🌐 Internet - Fixed monthly charge</li>
-        </ul>
+<!-- Utility Billing Information -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Utility Billing Information</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6><strong>Billing Process:</strong></h6>
+                <ul>
+                    <li>Utility bills are calculated pro-rata based on move-in dates</li>
+                    <li>Tenants share utility costs for their apartment</li>
+                    <li>Bills are due 14 days after issue date</li>
+                    <li>Late payments may incur additional fees</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6><strong>Utility Types:</strong></h6>
+                <ul>
+                    <li><i class="fas fa-bolt text-warning me-2"></i> Electricity - Monthly billing</li>
+                    <li><i class="fas fa-tint text-primary me-2"></i> Water - Monthly billing</li>
+                    <li><i class="fas fa-fire text-danger me-2"></i> Gas - Monthly billing</li>
+                    <li><i class="fas fa-wifi text-info me-2"></i> Internet - Fixed monthly charge</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <div class="alert alert-info">
+                <h6><i class="fas fa-lightbulb me-2"></i> Energy Saving Tips</h6>
+                <p class="mb-0">Encourage tenants to save energy by turning off lights when not in use, using energy-efficient appliances, and reporting any water leaks immediately.</p>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button class="btn btn-warning">
+                    <i class="fas fa-bell me-2"></i> Send Payment Reminders
+                </button>
+                <button class="btn btn-primary">
+                    <i class="fas fa-file-invoice me-2"></i> Generate Utility Invoices
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- All Utilities Paid -->
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+        <h3>All Utilities Paid</h3>
+        <p class="text-muted">No outstanding utility payments!</p>
+        <a href="{% url 'reports:dashboard' %}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+        </a>
     </div>
 </div>
 {% endif %}

@@ -3,91 +3,167 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h2>{{ title }}</h2>
-        <p>Generated on: {{ today }} | Total Overdue: HK${{ total_owed }} (Rent: HK${{ total_rent_owed }} + Late Fees: HK${{ total_late_fees }})</p>
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">{{ title }}</h2>
+        <p class="text-muted mb-0">Generated on: {{ today }} | Total Overdue: HK${{ total_owed }} (Rent: HK${{ total_rent_owed }} + Late Fees: HK${{ total_late_fees }})</p>
     </div>
-    <div class="card-body">
-        <div class="export-buttons">
-            <a href="?export=csv" class="btn">📥 Export CSV</a>
-            <button onclick="window.print()" class="btn">🖨️ Print Report</button>
+    <div>
+        <div class="btn-group" role="group">
+            <a href="?export=csv" class="btn btn-outline-primary">
+                <i class="fas fa-file-csv me-2"></i> Export CSV
+            </a>
+            <button onclick="window.print()" class="btn btn-outline-secondary">
+                <i class="fas fa-print me-2"></i> Print
+            </button>
         </div>
-
-        {% if overdue_rent %}
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Overdue Payments</div>
-                <div class="stat-number alert">{{ overdue_rent|length }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Rent Owed</div>
-                <div class="stat-number alert">HK${{ total_rent_owed }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Late Fees</div>
-                <div class="stat-number alert">HK${{ total_late_fees }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Owed</div>
-                <div class="stat-number alert">HK${{ total_owed }}</div>
-            </div>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Tenant</th>
-                    <th>Room</th>
-                    <th>Rent Amount</th>
-                    <th>Due Date</th>
-                    <th>Days Overdue</th>
-                    <th>Late Fees</th>
-                    <th>Total Owed</th>
-                    <th>Contact</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for payment in overdue_rent %}
-                <tr>
-                    <td><strong>{{ payment.booking.tenant.full_name }}</strong></td>
-                    <td>{{ payment.booking.room.room_code }}</td>
-                    <td class="alert">HK${{ payment.amount }}</td>
-                    <td>{{ payment.due_date }}</td>
-                    <td class="alert">{{ payment.late_fee_days }} days</td>
-                    <td class="alert">HK${{ payment.late_fee_amount }}</td>
-                    <td class="alert"><strong>HK${{ payment.total_owed }}</strong></td>
-                    <td>
-                        {{ payment.booking.tenant.phone_number }}<br>
-                        <small>{{ payment.booking.tenant.user.email }}</small>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div class="success" style="text-align: center; padding: 2rem;">
-            <h3>✅ No Overdue Rent Payments</h3>
-            <p>All rent payments are up to date!</p>
-        </div>
-        {% endif %}
     </div>
 </div>
 
 {% if overdue_rent %}
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card danger">
+            <div class="stats-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stats-number">{{ overdue_rent|length }}</div>
+            <div class="stats-label">Overdue Payments</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card warning">
+            <div class="stats-icon">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <div class="stats-number">HK${{ total_rent_owed }}</div>
+            <div class="stats-label">Total Rent Owed</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card info">
+            <div class="stats-icon">
+                <i class="fas fa-calculator"></i>
+            </div>
+            <div class="stats-number">HK${{ total_late_fees }}</div>
+            <div class="stats-label">Late Fees</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card primary">
+            <div class="stats-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stats-number">HK${{ total_owed }}</div>
+            <div class="stats-label">Total Owed</div>
+        </div>
+    </div>
+</div>
+
+<!-- Overdue Rent Table -->
 <div class="card">
-    <div class="card-header">
-        <h3>🚨 Late Fee Calculation</h3>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i> Overdue Rent Details</h5>
+        <div>
+            <input type="text" class="form-control form-control-sm" placeholder="Search tenants..." style="width: 200px;">
+        </div>
     </div>
     <div class="card-body">
-        <p><strong>Late Fee Policy:</strong> HK$100 per day after due date</p>
-        <p><strong>Reminder Schedule:</strong></p>
-        <ul>
-            <li>3 days before due date: Payment reminder</li>
-            <li>Due date + 1 day: Late fee starts (HK$100/day)</li>
-            <li>Due date + 7 days: Invoice with penalty fees sent automatically</li>
-            <li>Due date + 14 days: Court notice sent automatically</li>
-        </ul>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Tenant</th>
+                        <th>Room</th>
+                        <th>Rent Amount</th>
+                        <th>Due Date</th>
+                        <th>Days Overdue</th>
+                        <th>Late Fees</th>
+                        <th>Total Owed</th>
+                        <th>Contact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in overdue_rent %}
+                    <tr>
+                        <td><strong>{{ payment.booking.tenant.full_name }}</strong></td>
+                        <td>
+                            <a href="{% url 'properties:crm_room_detail' room_code=payment.booking.room.room_code %}" class="text-decoration-none">
+                                {{ payment.booking.room.room_code|upper }}
+                            </a>
+                        </td>
+                        <td>HK${{ payment.amount }}</td>
+                        <td>{{ payment.due_date }}</td>
+                        <td><span class="badge bg-danger">{{ payment.late_fee_days }} days</span></td>
+                        <td>HK${{ payment.late_fee_amount }}</td>
+                        <td><strong>HK${{ payment.total_owed }}</strong></td>
+                        <td>
+                            <div>
+                                <i class="fas fa-phone me-1"></i> {{ payment.booking.tenant.phone_number }}
+                            </div>
+                            <div class="small text-muted">
+                                <i class="fas fa-envelope me-1"></i> {{ payment.booking.tenant.user.email }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Late Fee Calculation -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-calculator me-2"></i> Late Fee Calculation</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6><strong>Late Fee Policy:</strong></h6>
+                <p>HK$100 per day after due date</p>
+
+                <h6><strong>Reminder Schedule:</strong></h6>
+                <ul>
+                    <li>3 days before due date: Payment reminder</li>
+                    <li>Due date + 1 day: Late fee starts (HK$100/day)</li>
+                    <li>Due date + 7 days: Invoice with penalty fees sent automatically</li>
+                    <li>Due date + 14 days: Court notice sent automatically</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-circle me-2"></i> Important Notice</h6>
+                    <p class="mb-0">Tenants with more than 14 days overdue rent will automatically receive a court notice. Please attempt to contact them before this happens.</p>
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    <button class="btn btn-warning">
+                        <i class="fas fa-bell me-2"></i> Send Reminder to All
+                    </button>
+                    <button class="btn btn-danger">
+                        <i class="fas fa-file-alt me-2"></i> Generate Late Fee Invoices
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- No Overdue Rent -->
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+        <h3>No Overdue Rent Payments</h3>
+        <p class="text-muted">All rent payments are up to date!</p>
+        <a href="{% url 'reports:dashboard' %}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+        </a>
     </div>
 </div>
 {% endif %}

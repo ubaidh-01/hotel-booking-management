@@ -1,0 +1,207 @@
+{% extends 'reports/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">🏠 Room {{ room.room_code|upper }}</h2>
+        <p class="text-muted mb-0">{{ room.property.name }} | Status:
+            {% if room.status == 'available' %}
+                <span class="badge bg-success">{{ room.get_status_display }}</span>
+            {% else %}
+                <span class="badge bg-warning">{{ room.get_status_display }}</span>
+            {% endif %}
+        </p>
+    </div>
+    <div>
+        <a href="{% url 'properties:crm_room_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Rooms
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Room Information -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Room Details</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td style="width: 40%"><strong>Property:</strong></td>
+                        <td>{{ room.property.name }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monthly Rent:</strong></td>
+                        <td>HK${{ room.monthly_rent }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Deposit:</strong></td>
+                        <td>HK${{ room.deposit_amount }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Size:</strong></td>
+                        <td>{{ room.size_sqft|default:"N/A" }} sqft</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Private Bathroom:</strong></td>
+                        <td>
+                            {% if room.has_private_bathroom %}
+                                <i class="fas fa-check-circle text-success"></i> Yes
+                            {% else %}
+                                <i class="fas fa-times-circle text-danger"></i> No
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Balcony:</strong></td>
+                        <td>
+                            {% if room.has_balcony %}
+                                <i class="fas fa-check-circle text-success"></i> Yes
+                            {% else %}
+                                <i class="fas fa-times-circle text-danger"></i> No
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="d-grid gap-2 mt-3">
+                    <a href="/admin/properties/room/{{ room.id }}/change/" class="btn btn-primary" target="_blank">
+                        <i class="fas fa-edit me-2"></i> Edit Room
+                    </a>
+                    <a href="/admin/bookings/booking/add/?room={{ room.id }}" class="btn btn-success" target="_blank">
+                        <i class="fas fa-calendar-plus me-2"></i> Create Booking
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Occupancy -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i> Current Occupancy</h5>
+            </div>
+            <div class="card-body">
+                {% if current_booking %}
+                <div class="alert alert-info">
+                    <h6 class="alert-heading">Tenant Information</h6>
+                    <hr>
+                    <p class="mb-2"><strong>Tenant:</strong> {{ current_booking.tenant.full_name }}</p>
+                    <p class="mb-2"><strong>Move In:</strong> {{ current_booking.move_in_date }}</p>
+                    <p class="mb-2"><strong>Move Out:</strong> {{ current_booking.move_out_date }}</p>
+                    <p class="mb-3"><strong>Rent:</strong> HK${{ current_booking.monthly_rent }}/month</p>
+                    <a href="/admin/bookings/booking/{{ current_booking.id }}/change/" class="btn btn-sm btn-outline-primary" target="_blank">
+                        <i class="fas fa-external-link-alt me-1"></i> View Booking Details
+                    </a>
+                </div>
+                {% else %}
+                <div class="alert alert-success text-center">
+                    <i class="fas fa-home fa-3x mb-3"></i>
+                    <h5>Room Available</h5>
+                    <p>This room is currently available for booking</p>
+                    <a href="/admin/bookings/booking/add/?room={{ room.id }}" class="btn btn-success">
+                        <i class="fas fa-calendar-plus me-2"></i> Book This Room
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment History -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i> Recent Payments</h5>
+    </div>
+    <div class="card-body">
+        {% if payment_history %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Tenant</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payment_history %}
+                    <tr>
+                        <td>{{ payment.payment_date }}</td>
+                        <td>{{ payment.booking.tenant.full_name }}</td>
+                        <td>{{ payment.get_payment_type_display }}</td>
+                        <td>HK${{ payment.amount }}</td>
+                        <td>
+                            {% if payment.status == 'completed' %}
+                            <span class="badge bg-success">Paid</span>
+                            {% else %}
+                            <span class="badge bg-danger">Pending</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No payment history found.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Maintenance History -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-tools me-2"></i> Maintenance History</h5>
+    </div>
+    <div class="card-body">
+        {% if maintenance_tickets %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Issue</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in maintenance_tickets %}
+                    <tr>
+                        <td>{{ ticket.reported_date|date:"M d, Y" }}</td>
+                        <td>{{ ticket.title }}</td>
+                        <td>
+                            {% if ticket.priority == 'urgent' %}
+                            <span class="badge bg-danger">Urgent</span>
+                            {% else %}
+                            <span class="badge bg-warning">{{ ticket.get_priority_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ ticket.get_status_display }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No maintenance tickets found.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

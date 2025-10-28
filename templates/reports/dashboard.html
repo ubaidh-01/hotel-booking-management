@@ -3,72 +3,207 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h2>{{ title }}</h2>
-        <p>Date: {{ today }} | Total Rooms: {{ total_rooms }} | Active Tenants: {{ active_bookings }}</p>
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">{{ title }}</h2>
+        <p class="text-muted mb-0">Date: {{ today }} | Total Rooms: {{ total_rooms }} | Active Tenants: {{ active_bookings }}</p>
     </div>
 </div>
 
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-label">Total Rooms</div>
-        <div class="stat-number info">{{ total_rooms }}</div>
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card primary">
+            <div class="stats-icon">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="stats-number">{{ total_rooms }}</div>
+            <div class="stats-label">Total Rooms</div>
+        </div>
     </div>
-    
-    <div class="stat-card">
-        <div class="stat-label">Active Tenants</div>
-        <div class="stat-number info">{{ active_bookings }}</div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card info">
+            <div class="stats-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stats-number">{{ active_bookings }}</div>
+            <div class="stats-label">Active Tenants</div>
+        </div>
     </div>
-    
-    <div class="stat-card">
-        <div class="stat-label">Empty Rooms</div>
-        <div class="stat-number success">{{ empty_rooms_count }}</div>
-        <a href="{% url 'reports:empty_rooms' %}">View Report</a>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card success">
+            <div class="stats-icon">
+                <i class="fas fa-home"></i>
+            </div>
+            <div class="stats-number">{{ empty_rooms_count }}</div>
+            <div class="stats-label">Empty Rooms</div>
+            <a href="{% url 'reports:empty_rooms' %}" class="stats-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
     </div>
-    
-    <div class="stat-card">
-        <div class="stat-label">Rent Owed</div>
-        <div class="stat-number alert">HK${{ total_rent_owed }}</div>
-        <a href="{% url 'reports:rent_owed' %}">View Report</a>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card danger">
+            <div class="stats-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stats-number">HK${{ total_rent_owed }}</div>
+            <div class="stats-label">Rent Owed</div>
+            <a href="{% url 'reports:rent_owed' %}" class="stats-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <h3>🚨 Urgent Actions</h3>
-    </div>
-    <div class="card-body">
-        {% if rent_owed_count > 0 %}
-        <p class="alert"><strong>{{ rent_owed_count }}</strong> tenants with overdue rent (HK${{ total_rent_owed }} + HK${{ total_late_fees }} late fees)</p>
-        {% endif %}
-        
-        {% if upcoming_move_outs.count > 0 %}
-        <p class="warning"><strong>{{ upcoming_move_outs.count }}</strong> tenants moving out in next 30 days</p>
-        {% endif %}
-        
-        {% if ending_contracts.count > 0 %}
-        <p class="info"><strong>{{ ending_contracts.count }}</strong> contracts ending in next 3 weeks</p>
-        {% endif %}
-        
-        {% if rent_owed_count == 0 and upcoming_move_outs.count == 0 %}
-        <p class="success">No urgent actions required</p>
-        {% endif %}
-    </div>
-</div>
+<div class="row">
+    <!-- Urgent Actions -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i> Urgent Actions</h5>
+            </div>
+            <div class="card-body">
+                {% if rent_owed_count > 0 %}
+                <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
+                    <i class="fas fa-money-bill-wave me-3"></i>
+                    <div>
+                        <strong>{{ rent_owed_count }}</strong> tenants with overdue rent (HK${{ total_rent_owed }} + HK${{ total_late_fees }} late fees)
+                        <div class="mt-2">
+                            <a href="{% url 'reports:rent_owed' %}" class="btn btn-sm btn-danger">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
 
-<div class="card">
-    <div class="card-header">
-        <h3>📊 Quick Reports</h3>
+                {% if upcoming_move_outs.count > 0 %}
+                <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
+                    <i class="fas fa-sign-out-alt me-3"></i>
+                    <div>
+                        <strong>{{ upcoming_move_outs.count }}</strong> tenants moving out in next 30 days
+                        <div class="mt-2">
+                            <a href="{% url 'reports:move_out' %}" class="btn btn-sm btn-warning">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if ending_contracts.count > 0 %}
+                <div class="alert alert-info d-flex align-items-center mb-3" role="alert">
+                    <i class="fas fa-file-contract me-3"></i>
+                    <div>
+                        <strong>{{ ending_contracts.count }}</strong> contracts ending in next 3 weeks
+                        <div class="mt-2">
+                            <a href="#" class="btn btn-sm btn-info">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if rent_owed_count == 0 and upcoming_move_outs.count == 0 %}
+                <div class="alert alert-success d-flex align-items-center" role="alert">
+                    <i class="fas fa-check-circle me-3"></i>
+                    <div>
+                        <strong>No urgent actions required</strong>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Reports -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i> Quick Reports</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6 col-md-4">
+                        <a href="{% url 'properties:crm_room_list' %}" class="btn btn-outline-primary w-100 d-flex flex-column align-items-center py-3">
+                            <i class="fas fa-building fa-2x mb-2"></i>
+                            All Rooms
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <a href="{% url 'reports:empty_rooms' %}" class="btn btn-outline-success w-100 d-flex flex-column align-items-center py-3">
+                            <i class="fas fa-home fa-2x mb-2"></i>
+                            Empty Rooms
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <a href="{% url 'reports:rent_owed' %}" class="btn btn-outline-danger w-100 d-flex flex-column align-items-center py-3">
+                            <i class="fas fa-money-bill-wave fa-2x mb-2"></i>
+                            Rent Owed
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <a href="{% url 'reports:move_out' %}" class="btn btn-outline-warning w-100 d-flex flex-column align-items-center py-3">
+                            <i class="fas fa-sign-out-alt fa-2x mb-2"></i>
+                            Move Outs
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <a href="{% url 'reports:monthly_sales' %}" class="btn btn-outline-info w-100 d-flex flex-column align-items-center py-3">
+                            <i class="fas fa-chart-line fa-2x mb-2"></i>
+                            Sales Report
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <a href="{% url 'reports:utilities' %}" class="btn btn-outline-secondary w-100 d-flex flex-column align-items-center py-3">
+                            <i class="fas fa-bolt fa-2x mb-2"></i>
+                            Utilities
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-            <a href="{% url 'reports:empty_rooms' %}" class="btn">🏠 Empty Rooms</a>
-            <a href="{% url 'reports:rent_owed' %}" class="btn">💰 Rent Owed</a>
-            <a href="{% url 'reports:move_out' %}" class="btn">📅 Move Outs</a>
-            <a href="{% url 'reports:monthly_sales' %}" class="btn">📈 Sales Report</a>
-            <a href="{% url 'reports:utilities' %}" class="btn">💡 Utilities</a>
-            <a href="/admin/" class="btn" target="_blank">⚙️ Admin Panel</a>
+
+    <!-- Recent Activity -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i> Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item px-0">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">New tenant moved in</h6>
+                            <small class="text-muted">2 hours ago</small>
+                        </div>
+                        <p class="mb-1 text-muted">Room A305 - John Smith</p>
+                    </div>
+                    <div class="list-group-item px-0">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Rent payment received</h6>
+                            <small class="text-muted">5 hours ago</small>
+                        </div>
+                        <p class="mb-1 text-muted">Room B210 - HK$8,500</p>
+                    </div>
+                    <div class="list-group-item px-0">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Maintenance completed</h6>
+                            <small class="text-muted">Yesterday</small>
+                        </div>
+                        <p class="mb-1 text-muted">Room C101 - Plumbing fixed</p>
+                    </div>
+                    <div class="list-group-item px-0">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Contract renewed</h6>
+                            <small class="text-muted">2 days ago</small>
+                        </div>
+                        <p class="mb-1 text-muted">Room D402 - 6 months</p>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="#" class="btn btn-sm btn-outline-primary">View All Activity</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -56,7 +56,13 @@ class Room(models.Model):
         return f"{self.room_code} - {self.property.name}"
 
     def get_absolute_url(self):
-        return f"/{self.room_code}/"
+        """URL for individual room pages - Requirement #6"""
+        from django.urls import reverse
+        return reverse('room_detail', kwargs={'room_code': self.room_code})
+
+    def get_crm_room_url(self):
+        """CRM room URL - stays within CRM system"""
+        return f"/crm/rooms/{self.room_code}/"
 
     def get_current_booking(self):
         """Get the currently active booking for this room"""

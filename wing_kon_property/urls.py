@@ -6,5 +6,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('reports/', include('reports.urls')),
     path('notifications/', include('notifications.urls')),
-    path('', lambda request: redirect('/reports/')),  # Redirect root to reports
+    path('', include('properties.urls')),  # Includes CRM room URLs
+    path('', lambda request: redirect('/reports/')),  # Default to CRM dashboard
 ]
