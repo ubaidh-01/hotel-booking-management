@@ -10,4 +10,6 @@ urlpatterns = [
     path('move-out/', views.move_out_report, name='move_out'),
     path('monthly-sales/', views.monthly_sales_report, name='monthly_sales'),
     path('utilities/', views.utilities_report, name='utilities'),
+    path('temporary-stay/', views.temporary_stay_report, name='temporary_stay'),
+
 ]

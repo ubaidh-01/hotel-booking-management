@@ -324,6 +324,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {% if 'temporary-stay' in request.path %}active{% endif %}" href="{% url 'reports:temporary_stay' %}">
+                        Temporary Stays
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a class="nav-link {% if 'monthly-sales' in request.path %}active{% endif %}" href="{% url 'reports:monthly_sales' %}">
                         <i class="fas fa-chart-line"></i> Sales Report
                     </a>

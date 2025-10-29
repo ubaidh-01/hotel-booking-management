@@ -1,0 +1,208 @@
+{% extends 'reports/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{{ title }}</h2>
+        <p>Generated on: {{ today }} | Active Temporary Stays: {{ active_temporary_stays.count }}</p>
+    </div>
+</div>
+
+<!-- Urgent Actions -->
+{% if needs_switch %}
+<div class="card border-danger mb-4">
+    <div class="card-header bg-danger text-white">
+        <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i> Urgent: Room Switching Required</h5>
+    </div>
+    <div class="card-body">
+        <p>The following temporary stays have ended and need room switching:</p>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Tenant</th>
+                        <th>Temporary Room</th>
+                        <th>Permanent Room</th>
+                        <th>Temporary Stay Ended</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contract in needs_switch %}
+                    <tr>
+                        <td>{{ contract.booking.tenant.full_name }}</td>
+                        <td>{{ contract.temporary_room.room_code }}</td>
+                        <td>{{ contract.booking.room.room_code }}</td>
+                        <td class="text-danger">{{ contract.temporary_stay_end }}</td>
+                        <td>
+                            <form method="post" action="{% url 'switch_to_permanent' contract.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success">Switch to Permanent</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Financial Summary -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h4 class="text-success">HK${{ total_refunds_due }}</h4>
+                <p class="mb-0">Total Refunds Due to Tenants</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h4 class="text-danger">HK${{ total_additional_payments }}</h4>
+                <p class="mb-0">Additional Payments Due</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Active Temporary Stays -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-bed me-2"></i> Active Temporary Stays</h5>
+    </div>
+    <div class="card-body">
+        {% if active_temporary_stays %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Tenant</th>
+                        <th>Temporary Room</th>
+                        <th>Permanent Room</th>
+                        <th>Temporary Stay Period</th>
+                        <th>Rent Difference</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contract in active_temporary_stays %}
+                    <tr>
+                        <td>
+                            <strong>{{ contract.booking.tenant.full_name }}</strong><br>
+                            <small class="text-muted">{{ contract.booking.tenant.phone_number }}</small>
+                        </td>
+                        <td>
+                            <a href="{% url 'properties:crm_room_detail' room_code=contract.temporary_room.room_code %}">
+                                {{ contract.temporary_room.room_code }}
+                            </a><br>
+                            <small>HK${{ contract.temporary_stay_rent }}/month</small>
+                        </td>
+                        <td>
+                            <a href="{% url 'properties:crm_room_detail' room_code=contract.booking.room.room_code %}">
+                                {{ contract.booking.room.room_code }}
+                            </a><br>
+                            <small>HK${{ contract.permanent_stay_rent }}/month</small>
+                        </td>
+                        <td>
+                            {{ contract.temporary_stay_start }} to {{ contract.temporary_stay_end }}<br>
+                            <small class="text-muted">{{ contract.temporary_stay_duration }} days</small>
+                        </td>
+                        <td>
+                            {% if contract.rent_difference > 0 %}
+                            <span class="text-success">
+                                +HK${{ contract.rent_difference }}<br>
+                                <small>(Refund to tenant)</small>
+                            </span>
+                            {% elif contract.rent_difference < 0 %}
+                            <span class="text-danger">
+                                HK${{ contract.rent_difference }}<br>
+                                <small>(Additional payment)</small>
+                            </span>
+                            {% else %}
+                            <span class="text-muted">No difference</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if contract.needs_room_switch %}
+                            <span class="badge bg-danger">Switch Required</span>
+                            {% else %}
+                            <span class="badge bg-success">Active</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="/admin/contracts/contract/{{ contract.id }}/change/" 
+                                   class="btn btn-outline-primary" target="_blank">
+                                    Edit
+                                </a>
+                                <form method="post" action="{% url 'contracts:switch_to_permanent' contract.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-success">Switch Room</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No active temporary stays</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Upcoming Temporary Stay Endings -->
+{% if upcoming_endings %}
+<div class="card">
+    <div class="card-header bg-warning">
+        <h5 class="mb-0"><i class="fas fa-clock me-2"></i> Upcoming Temporary Stay Endings (Next 7 Days)</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Tenant</th>
+                        <th>Temporary Room</th>
+                        <th>Ends On</th>
+                        <th>Days Left</th>
+                        <th>Rent Difference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contract in upcoming_endings %}
+                    <tr>
+                        <td>{{ contract.booking.tenant.full_name }}</td>
+                        <td>{{ contract.temporary_room.room_code }}</td>
+                        <td>{{ contract.temporary_stay_end }}</td>
+                        <td>
+                            <span class="badge bg-warning">
+                                {{ contract.temporary_stay_end|timeuntil:today }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if contract.rent_difference > 0 %}
+                            <span class="text-success">+HK${{ contract.rent_difference }}</span>
+                            {% elif contract.rent_difference < 0 %}
+                            <span class="text-danger">HK${{ contract.rent_difference }}</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

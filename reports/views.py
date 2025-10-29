@@ -264,6 +264,49 @@ def monthly_sales_report(request):
 
 
 @staff_required
+def temporary_stay_report(request):
+    today = timezone.now().date()
+
+    # Active temporary stays
+    active_temporary_stays = Contract.objects.filter(
+        is_temporary_stay_active=True
+    ).select_related(
+        'booking__tenant',
+        'booking__room',
+        'temporary_room'
+    )
+
+    # Upcoming temporary stay endings (next 7 days)
+    upcoming_endings = Contract.objects.filter(
+        is_temporary_stay_active=True,
+        temporary_stay_end__range=[today, today + timedelta(days=7)]
+    ).select_related('booking__tenant', 'booking__room', 'temporary_room')
+
+    # Stays needing room switch
+    needs_switch = Contract.objects.filter(
+        is_temporary_stay_active=True,
+        temporary_stay_end__lt=today
+    ).select_related('booking__tenant', 'booking__room', 'temporary_room')
+
+    # Calculate totals
+    total_refunds_due = sum(
+        contract.rent_difference for contract in active_temporary_stays if contract.rent_difference > 0)
+    total_additional_payments = sum(
+        abs(contract.rent_difference) for contract in active_temporary_stays if contract.rent_difference < 0)
+
+    context = {
+        'title': 'Temporary Stay Report',
+        'active_temporary_stays': active_temporary_stays,
+        'upcoming_endings': upcoming_endings,
+        'needs_switch': needs_switch,
+        'total_refunds_due': total_refunds_due,
+        'total_additional_payments': total_additional_payments,
+        'today': today,
+    }
+    return render(request, 'reports/temporary_stay.html', context)
+
+
+@staff_required
 def utilities_report(request):
     """Requirement #13: Electricity/Water/Gas Report with Pro-Rata Calculation"""
     today = timezone.now().date()

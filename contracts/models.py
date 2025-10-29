@@ -30,11 +30,21 @@ class Contract(models.Model):
     signed_date = models.DateTimeField(null=True, blank=True)
     digital_signature = models.TextField(blank=True)  # Store signature data
 
-    # Temporary Stay Information (for your requirement #12)
+    # Temporary Stay Information
     temporary_room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True, blank=True,
                                        related_name='temporary_contracts')
     temporary_stay_start = models.DateField(null=True, blank=True)
     temporary_stay_end = models.DateField(null=True, blank=True)
+
+    temporary_stay_rent = models.DecimalField(max_digits=10, decimal_places=2, default=0,
+                                              help_text="Rent during temporary stay")
+    permanent_stay_rent = models.DecimalField(max_digits=10, decimal_places=2, default=0,
+                                              help_text="Rent for permanent room")
+    rent_difference = models.DecimalField(max_digits=10, decimal_places=2, default=0,
+                                          help_text="Positive = refund, Negative = additional payment")
+
+    # Status Tracking
+    is_temporary_stay_active = models.BooleanField(default=False)
 
     # Auto-generated fields
     created_at = models.DateTimeField(auto_now_add=True)
@@ -54,3 +64,45 @@ class Contract(models.Model):
         if not self.contract_number:
             self.contract_number = f"CONTRACT-{uuid.uuid4().hex[:8].upper()}"
         super().save(*args, **kwargs)
+
+    def calculate_rent_difference(self):
+        """Calculate rent difference between temporary and permanent stays"""
+        if self.temporary_stay_rent and self.permanent_stay_rent:
+            self.rent_difference = self.permanent_stay_rent - self.temporary_stay_rent
+        return self.rent_difference
+
+    def switch_to_permanent_room(self):
+        """Switch from temporary to permanent room"""
+        if self.temporary_room and self.booking.room:
+            # Update booking room
+            old_room = self.booking.room
+            self.booking.room = self.temporary_room
+            self.booking.save()
+
+            # Update room statuses
+            old_room.status = 'available'
+            old_room.save()
+
+            self.temporary_room.status = 'occupied'
+            self.temporary_room.save()
+
+            self.is_temporary_stay_active = False
+            self.save()
+
+            return True
+        return False
+
+    @property
+    def temporary_stay_duration(self):
+        """Calculate temporary stay duration in days"""
+        if self.temporary_stay_start and self.temporary_stay_end:
+            return (self.temporary_stay_end - self.temporary_stay_start).days
+        return 0
+
+    @property
+    def needs_room_switch(self):
+        """Check if temporary stay has ended and needs switching"""
+        if self.is_temporary_stay_active and self.temporary_stay_end:
+            from django.utils import timezone
+            return timezone.now().date() >= self.temporary_stay_end
+        return False
