@@ -169,6 +169,17 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'notifications.tasks.escalate_high_priority_tickets',
         'schedule': 86400.0,  # Every 24 hours
     },
+
+    'generate-payment-receipts': {
+        'task': 'notifications.tasks.generate_payment_receipts',
+        'schedule': 3600.0,  # Every hour
+    },
+
+    'process-pending-receipts': {
+        'task': 'notifications.tasks.process_pending_receipts',
+        'schedule': 1800.0,  # Every 30 minutes
+    },
+
 }
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

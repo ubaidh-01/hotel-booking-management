@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #e3f2fd; padding: 20px; text-align: center; border-radius: 5px; }
+        .content { padding: 20px; }
+        .receipt-box { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: center; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+        table { width: 100%; border-collapse: collapse; }
+        table td { padding: 8px; border-bottom: 1px solid #ddd; }
+        table .label { font-weight: bold; width: 40%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Payment Receipt</h2>
+            <p>Receipt {{ receipt_number }} - Room {{ room_code }}</p>
+        </div>
+        
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+            
+            <p>Thank you for your payment. Please find your receipt details below.</p>
+            
+            <div class="receipt-box">
+                <h3 style="color: #28a745; margin: 0 0 10px 0;">HK$ {{ amount }}</h3>
+                <p style="margin: 0;"><strong>{{ payment_type }}</strong></p>
+            </div>
+            
+            <table>
+                <tr>
+                    <td class="label">Receipt Number:</td>
+                    <td><strong>{{ receipt_number }}</strong></td>
+                </tr>
+                <tr>
+                    <td class="label">Payment Date:</td>
+                    <td>{{ payment_date }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Payment Method:</td>
+                    <td>{{ payment_method }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Room:</td>
+                    <td>{{ room_code }}</td>
+                </tr>
+            </table>
+            
+            <p>A PDF copy of your receipt is attached to this email for your records.</p>
+            
+            <p>You can also download your receipt anytime from your tenant portal.</p>
+            
+            <p>If you have any questions about this payment, please contact our accounts team.</p>
+            
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Accounts Team</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated receipt. Please keep this email for your records.</p>
+        </div>
+    </div>
+</body>
+</html>

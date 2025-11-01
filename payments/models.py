@@ -1,15 +1,11 @@
+import logging
 from datetime import timedelta
-
 from django.db import models
 from django.utils import timezone
-
 from bookings.models import Booking
-from tenants.models import Tenant
-from properties.models import Room
 import uuid
-from decimal import Decimal
 
-from wing_kon_property import settings
+logger = logging.getLogger(__name__)
 
 
 class Payment(models.Model):
@@ -64,6 +60,10 @@ class Payment(models.Model):
     late_fee_days = models.IntegerField(default=0)
     late_fee_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
+    receipt_generated = models.BooleanField(default=False)
+    receipt_generated_date = models.DateTimeField(null=True, blank=True)
+    receipt_pdf = models.FileField(upload_to='receipts/', null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -76,6 +76,52 @@ class Payment(models.Model):
         if not self.receipt_number:
             self.receipt_number = f"RCPT-{uuid.uuid4().hex[:8].upper()}"
         super().save(*args, **kwargs)
+
+    # ADD THESE METHODS:
+    def generate_receipt_pdf(self):
+        """Generate PDF receipt for payment"""
+        try:
+            from weasyprint import HTML
+            from django.template.loader import render_to_string
+            from django.core.files.base import ContentFile
+
+            context = {
+                'payment': self,
+                'tenant': self.booking.tenant,
+                'room': self.booking.room,
+                'today': timezone.now().date(),
+            }
+
+            html_string = render_to_string('payments/receipt_pdf.html', context)
+            pdf_file = HTML(string=html_string).write_pdf()
+
+            # Save PDF file
+            filename = f"receipt_{self.receipt_number}_{timezone.now().strftime('%Y%m%d')}.pdf"
+            self.receipt_pdf.save(filename, ContentFile(pdf_file), save=False)
+
+            self.receipt_generated = True
+            self.receipt_generated_date = timezone.now()
+            self.save()
+
+            logger.info(f"Receipt generated for payment {self.receipt_number}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to generate receipt for payment {self.id}: {e}")
+            return False
+
+    def send_receipt_email(self):
+        from notifications.services import EmailService
+
+        """Send receipt email to tenant"""
+        try:
+            success = EmailService.send_payment_receipt(self)
+            if success:
+                logger.info(f"Receipt email sent for payment {self.receipt_number}")
+            return success
+        except Exception as e:
+            logger.error(f"Failed to send receipt email for payment {self.id}: {e}")
+            return False
 
 
 class UtilityBill(models.Model):

@@ -1,0 +1,133 @@
+<!-- templates/payments/receipt_pdf.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.4; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+        .receipt-details { margin: 30px 0; }
+        .amount-box { text-align: center; background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0; }
+        .footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; font-size: 12px; color: #666; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        table td { padding: 10px; border-bottom: 1px solid #ddd; }
+        table .label { font-weight: bold; width: 40%; background: #f8f9fa; }
+        .watermark { position: absolute; opacity: 0.1; font-size: 80px; transform: rotate(-45deg); top: 300px; left: 100px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Watermark -->
+        <div class="watermark">PAID</div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>Wing Kong Property Management Ltd.</h1>
+            <h2>Official Payment Receipt</h2>
+            <p>Unit 123, Prosperity Building, Hong Kong | Tel: +852 1234 5678</p>
+        </div>
+
+        <!-- Receipt Details -->
+        <div class="receipt-details">
+            <table>
+                <tr>
+                    <td class="label">Receipt Number:</td>
+                    <td><strong>{{ payment.receipt_number }}</strong></td>
+                </tr>
+                <tr>
+                    <td class="label">Issue Date:</td>
+                    <td>{{ today }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Tenant Name:</td>
+                    <td>{{ tenant.full_name }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Room Number:</td>
+                    <td>{{ room.room_code }}</td>
+                </tr>
+                <tr>
+                    <td class="label">HKID/Passport:</td>
+                    <td>{{ tenant.hkid_number|default:tenant.passport_number|default:"N/A" }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Payment Amount -->
+        <div class="amount-box">
+            <h1 style="color: #28a745; margin: 0; font-size: 36px;">HK$ {{ payment.amount }}</h1>
+            <p style="font-size: 18px; margin: 10px 0 0 0;"><strong>{{ payment.get_payment_type_display }}</strong></p>
+        </div>
+
+        <!-- Payment Details -->
+        <div class="receipt-details">
+            <h3>Payment Information</h3>
+            <table>
+                <tr>
+                    <td class="label">Payment Date:</td>
+                    <td>{{ payment.payment_date }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Payment Method:</td>
+                    <td>{{ payment.get_payment_method_display }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Payment Type:</td>
+                    <td>{{ payment.get_payment_type_display }}</td>
+                </tr>
+                {% if payment.bank_reference %}
+                <tr>
+                    <td class="label">Bank Reference:</td>
+                    <td>{{ payment.bank_reference }}</td>
+                </tr>
+                {% endif %}
+                {% if payment.rent_month %}
+                <tr>
+                    <td class="label">Rent Period:</td>
+                    <td>{{ payment.rent_month|date:"F Y" }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+
+        <!-- Booking Reference -->
+        <div style="margin: 30px 0;">
+            <h3>Booking Reference</h3>
+            <table>
+                <tr>
+                    <td class="label">Booking ID:</td>
+                    <td>#{{ payment.booking.id }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Contract Number:</td>
+                    <td>{{ payment.booking.contract.contract_number|default:"N/A" }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Stay Period:</td>
+                    <td>{{ payment.booking.move_in_date }} to {{ payment.booking.move_out_date }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Terms and Conditions -->
+        <div style="margin: 30px 0; font-size: 12px; color: #666;">
+            <p><strong>Terms & Conditions:</strong></p>
+            <ul>
+                <li>This receipt is proof of payment for the specified amount</li>
+                <li>Please retain this receipt for your records</li>
+                <li>For any discrepancies, contact accounts within 7 days</li>
+                <li>Receipt number must be quoted in all correspondence</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Wing Kong Property Management Ltd.</strong></p>
+            <p>Unit 123, Prosperity Building, Hong Kong | Tel: +852 1234 5678 | Email: accounts@wing-kong.com</p>
+            <p>This is an official computer-generated receipt. No signature required.</p>
+            <p>Generated on: {{ today }} | Transaction ID: {{ payment.receipt_number }}</p>
+        </div>
+    </div>
+</body>
+</html>

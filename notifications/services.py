@@ -793,3 +793,49 @@ class EmailService:
         except Exception as e:
             logger.error(f"Failed to send refund confirmation: {e}")
             return False
+
+
+    @staticmethod
+    def send_payment_receipt(payment):
+        """Send payment receipt to tenant (Requirement #10)"""
+        try:
+            tenant = payment.booking.tenant
+            room = payment.booking.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'room_code': room.room_code,
+                'receipt_number': payment.receipt_number,
+                'payment_date': payment.payment_date.strftime('%Y-%m-%d'),
+                'payment_type': payment.get_payment_type_display(),
+                'amount': payment.amount,
+                'payment_method': payment.get_payment_method_display(),
+                'receipt_url': f"https://wing-kong.com/payments/{payment.id}/receipt",
+            }
+
+            subject = f"Payment Receipt - {payment.receipt_number} - {room.room_code}"
+
+            html_content = render_to_string('emails/payment_receipt.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                reply_to=['accounts@wing-kong.com']
+            )
+
+            # Attach PDF receipt if available
+            if payment.receipt_pdf:
+                email.attach_file(payment.receipt_pdf.path)
+
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Payment receipt sent to {tenant.full_name}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send payment receipt: {e}")
+            return False

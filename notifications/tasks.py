@@ -564,6 +564,68 @@ def escalate_high_priority_tickets():
 
     return urgent_stuck_tickets.count()
 
+
+@shared_task
+def generate_payment_receipts():
+    """Automatically generate receipts for completed payments (Requirement #10)"""
+    from payments.models import Payment
+
+    logger.info("Starting automatic receipt generation...")
+
+    # Find completed payments without receipts
+    completed_payments = Payment.objects.filter(
+        status='completed',
+        receipt_generated=False
+    ).select_related('booking__tenant', 'booking__room')
+
+    receipts_generated = 0
+    emails_sent = 0
+
+    for payment in completed_payments:
+        try:
+            # Generate PDF receipt
+            receipt_generated = payment.generate_receipt_pdf()
+
+            if receipt_generated:
+                receipts_generated += 1
+
+                # Send receipt email
+                email_sent = payment.send_receipt_email()
+                if email_sent:
+                    emails_sent += 1
+
+                logger.info(f"Generated receipt for payment {payment.receipt_number}")
+
+        except Exception as e:
+            logger.error(f"Failed to generate receipt for payment {payment.id}: {e}")
+
+    logger.info(f"Receipt generation completed: {receipts_generated} receipts generated, {emails_sent} emails sent")
+    return receipts_generated
+
+
+@shared_task
+def process_pending_receipts():
+    """Process receipts for payments that were just marked as completed"""
+    from payments.models import Payment
+
+    # Find payments completed in the last hour that need receipts
+    one_hour_ago = timezone.now() - timedelta(hours=1)
+
+    recent_payments = Payment.objects.filter(
+        status='completed',
+        received_date__gte=one_hour_ago,
+        receipt_generated=False
+    ).select_related('booking__tenant', 'booking__room')
+
+    for payment in recent_payments:
+        try:
+            payment.generate_receipt_pdf()
+            payment.send_receipt_email()
+        except Exception as e:
+            logger.error(f"Failed to process receipt for recent payment {payment.id}: {e}")
+
+    return recent_payments.count()
+
 def send_test_email():
     """Test task to verify email setup"""
     print("INN")

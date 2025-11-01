@@ -6,7 +6,6 @@ from django.db import models
 from django.utils import timezone
 
 from bookings.models import Booking
-from notifications.services import EmailService
 from notifications.whatsapp_service import WhatsAppService
 from properties.models import Room
 import uuid
@@ -211,6 +210,8 @@ class Contract(models.Model):
             return False
 
     def send_for_tenant_signature(self):
+        from notifications.services import EmailService
+
         """Send contract to tenant for digital signature"""
         try:
             # Generate verification codes
