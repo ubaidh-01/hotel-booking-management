@@ -1,3 +1,5 @@
+import logging
+
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
@@ -5,6 +7,7 @@ from django.utils import timezone
 from properties.models import Room
 from tenants.models import Tenant
 
+logger = logging.getLogger(__name__)
 
 class Booking(models.Model):
     BOOKING_STATUS = [
@@ -31,6 +34,32 @@ class Booking(models.Model):
     move_out_date = models.DateField()
     duration_months = models.IntegerField(help_text="Duration of stay in months")
 
+    move_out_photos = models.JSONField(default=list, blank=True)  # Store photo URLs
+    move_out_clean_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending Inspection'),
+            ('clean', 'Clean - Ready for Refund'),
+            ('needs_cleaning', 'Needs Additional Cleaning'),
+            ('damages', 'Damages Found'),
+        ],
+        default='pending'
+    )
+    move_out_inspection_date = models.DateTimeField(null=True, blank=True)
+    move_out_inspection_notes = models.TextField(blank=True)
+    refund_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Refund Pending'),
+            ('processing', 'Refund Processing'),
+            ('completed', 'Refund Completed'),
+            ('deductions', 'Refund with Deductions'),
+        ],
+        default='pending'
+    )
+    refund_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    refund_issued_date = models.DateTimeField(null=True, blank=True)
+
     # Status Tracking
     status = models.CharField(max_length=20, choices=BOOKING_STATUS, default='pending')
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default='pending')
@@ -48,6 +77,47 @@ class Booking(models.Model):
 
     # Additional Information
     special_requests = models.TextField(blank=True)
+
+    def calculate_refund_amount(self):
+        """Calculate refund amount after deductions"""
+        deposit_paid = self.deposit_paid or 0
+        deductions = 0
+
+        # Add deduction logic here (cleaning fees, damages, etc.)
+        if self.move_out_clean_status == 'needs_cleaning':
+            deductions += 500  # HK$500 cleaning fee
+        elif self.move_out_clean_status == 'damages':
+            # Would need damage assessment system
+            deductions += 1000  # Example damage fee
+
+        self.refund_amount = max(0, deposit_paid - deductions)
+        return self.refund_amount
+
+    def generate_refund_receipt(self):
+        """Generate refund receipt PDF"""
+        try:
+            from weasyprint import HTML
+            from django.template.loader import render_to_string
+
+            context = {
+                'booking': self,
+                'tenant': self.tenant,
+                'room': self.room,
+                'refund_amount': self.refund_amount,
+                'today': timezone.now().date(),
+            }
+
+            html_string = render_to_string('bookings/refund_receipt.html', context)
+            pdf_file = HTML(string=html_string).write_pdf()
+
+            # Save PDF (you might want to store this in a FileField)
+            filename = f"refund_receipt_{self.id}_{timezone.now().strftime('%Y%m%d')}.pdf"
+            # Implement file saving logic here
+
+            return True
+        except Exception as e:
+            logger.error(f"Failed to generate refund receipt: {e}")
+            return False
 
     class Meta:
         ordering = ['-booking_date']
@@ -94,7 +164,6 @@ class Booking(models.Model):
             room.status = 'occupied' if active_booking else 'available'
 
         room.save()
-
 
 # Signal to automatically update room status when booking changes
 @receiver(post_save, sender=Booking)

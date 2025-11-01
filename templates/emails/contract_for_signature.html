@@ -1,0 +1,86 @@
+<!-- templates/emails/contract_for_signature.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #e3f2fd; padding: 20px; text-align: center; border-radius: 5px; }
+        .content { padding: 20px; }
+        .contract-details { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .verification-box { background: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border: 2px solid #ffc107; }
+        .button { background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Tenancy Agreement for Signature</h2>
+            <p>Room {{ room_code }} - Contract {{ contract_number }}</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            <p>Your tenancy agreement for <strong>Room {{ room_code }}</strong> is ready for your digital signature.</p>
+
+            <div class="contract-details">
+                <h4>Contract Summary:</h4>
+                <table style="width: 100%;">
+                    <tr>
+                        <td><strong>Contract Number:</strong></td>
+                        <td>{{ contract_number }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Room:</strong></td>
+                        <td>{{ room_code }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Term:</strong></td>
+                        <td>{{ start_date }} to {{ end_date }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monthly Rent:</strong></td>
+                        <td>HK$ {{ monthly_rent }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security Deposit:</strong></td>
+                        <td>HK$ {{ security_deposit }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="verification-box">
+                <h4>📧 Email Verification Code:</h4>
+                <div style="text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #28a745; margin: 15px 0;">
+                    {{ email_verification_code }}
+                </div>
+                <p>You will need this code to verify your email address during the signing process.</p>
+            </div>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{ signing_url }}" class="button">📝 Sign Contract Now</a>
+            </div>
+
+            <p><strong>Signing Instructions:</strong></p>
+            <ol>
+                <li>Click the button above to access the signing page</li>
+                <li>Verify your email address using the code provided</li>
+                <li>Review the full contract terms</li>
+                <li>Provide your digital signature</li>
+                <li>Submit the signed contract</li>
+            </ol>
+
+            <p>Once signed, you will receive a copy of the executed contract for your records.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Contracts Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated email for contract signing. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>

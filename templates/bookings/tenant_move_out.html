@@ -1,0 +1,353 @@
+<!-- templates/bookings/tenant_move_out.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Move Out Portal - Wing Kong Properties</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .photo-preview {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin: 5px;
+        }
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+            background: #e7f3ff;
+        }
+        .cleaning-checklist {
+            background: #fff3cd;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        .status-badge {
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <!-- Header -->
+                <div class="card mb-4 border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-1"><i class="fas fa-door-open"></i> Move Out Portal</h3>
+                                <p class="mb-0">Room {{ room.room_code }} - Move Out: {{ booking.move_out_date }}</p>
+                            </div>
+                            <div class="text-end">
+                                <small>Secure Deposit Refund Process</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Tracker -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="fas fa-tasks"></i> Refund Process Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="p-3 {% if booking.move_out_photos %}bg-success text-white{% else %}bg-light{% endif %} rounded">
+                                    <i class="fas fa-camera fa-2x mb-2"></i>
+                                    <h6>Photo Upload</h6>
+                                    <span class="badge {% if booking.move_out_photos %}bg-light text-dark{% else %}bg-secondary{% endif %}">
+                                        {% if booking.move_out_photos %}Completed{% else %}Pending{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 {% if booking.move_out_inspection_date %}bg-success text-white{% else %}bg-light{% endif %} rounded">
+                                    <i class="fas fa-clipboard-check fa-2x mb-2"></i>
+                                    <h6>Inspection</h6>
+                                    <span class="badge {% if booking.move_out_inspection_date %}bg-light text-dark{% else %}bg-secondary{% endif %}">
+                                        {% if booking.move_out_inspection_date %}Completed{% else %}Pending{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 {% if booking.refund_status == 'processing' %}bg-warning{% elif booking.refund_status == 'completed' %}bg-success text-white{% else %}bg-light{% endif %} rounded">
+                                    <i class="fas fa-money-check fa-2x mb-2"></i>
+                                    <h6>Refund Processing</h6>
+                                    <span class="badge {% if booking.refund_status == 'completed' %}bg-light text-dark{% else %}bg-secondary{% endif %}">
+                                        {{ booking.get_refund_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 {% if booking.refund_status == 'completed' %}bg-success text-white{% else %}bg-light{% endif %} rounded">
+                                    <i class="fas fa-receipt fa-2x mb-2"></i>
+                                    <h6>Refund Issued</h6>
+                                    <span class="badge {% if booking.refund_status == 'completed' %}bg-light text-dark{% else %}bg-secondary{% endif %}">
+                                        {% if booking.refund_status == 'completed' %}Completed{% else %}Pending{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo Upload Section -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-camera"></i> Upload Move Out Photos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Important:</strong> Upload clear photos of your cleaned room to receive your security deposit refund.
+                            Photos must show the room in the same condition as when you moved in.
+                        </div>
+
+                        <!-- Upload Area -->
+                        <div class="upload-area mb-4" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                            <h5>Drop photos here or click to browse</h5>
+                            <p class="text-muted">Supported formats: JPG, PNG, WEBP (Max 10MB each)</p>
+                            <input type="file" id="photoUpload" multiple accept="image/*" style="display: none;">
+                        </div>
+
+                        <!-- Photo Preview -->
+                        <div id="photoPreview" class="mb-4">
+                            <h6>Uploaded Photos:</h6>
+                            <div class="d-flex flex-wrap" id="previewContainer">
+                                {% for photo in booking.move_out_photos %}
+                                <div class="position-relative me-2 mb-2">
+                                    <img src="#" alt="Uploaded photo" class="photo-preview" data-filename="{{ photo }}">
+                                    <span class="position-absolute top-0 start-100 translate-middle badge bg-success">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Upload Button -->
+                        <div class="text-center">
+                            <button id="uploadButton" class="btn btn-success btn-lg" disabled>
+                                <i class="fas fa-upload"></i> Submit Photos for Inspection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cleaning Guidelines -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-warning">
+                        <h5 class="mb-0"><i class="fas fa-broom"></i> Cleaning Checklist</h5>
+                    </div>
+                    <div class="card-body cleaning-checklist">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i> Floors swept and mopped</li>
+                                    <li><i class="fas fa-check text-success me-2"></i> Walls wiped clean</li>
+                                    <li><i class="fas fa-check text-success me-2"></i> Windows and mirrors cleaned</li>
+                                    <li><i class="fas fa-check text-success me-2"></i> All surfaces dusted</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i> Bathroom sanitized</li>
+                                    <li><i class="fas fa-check text-success me-2"></i> Kitchen area cleaned</li>
+                                    <li><i class="fas fa-check text-success me-2"></i> All personal items removed</li>
+                                    <li><i class="fas fa-check text-success me-2"></i> Furniture in original position</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning mt-3">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Note:</strong> Failure to clean properly may result in cleaning fees deducted from your deposit.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Refund Information -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-money-bill-wave"></i> Refund Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td><strong>Security Deposit Paid:</strong></td>
+                                        <td class="text-end">HK$ {{ booking.deposit_paid }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Estimated Refund:</strong></td>
+                                        <td class="text-end text-success"><strong>HK$ {{ booking.refund_amount }}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Refund Status:</strong></td>
+                                        <td class="text-end">
+                                            <span class="badge bg-{{ booking.refund_status|default:'secondary' }} status-badge">
+                                                {{ booking.get_refund_status_display }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-clock"></i> Refund Timeline</h6>
+                                    <p class="mb-1">After photo submission: 1-2 business days for inspection</p>
+                                    <p class="mb-1">After approval: 7-10 business days for bank transfer</p>
+                                    <p class="mb-0">Total: 8-12 business days</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const photoUpload = document.getElementById('photoUpload');
+            const previewContainer = document.getElementById('previewContainer');
+            const uploadButton = document.getElementById('uploadButton');
+
+            let uploadedFiles = [];
+
+            // Click upload area to trigger file input
+            uploadArea.addEventListener('click', () => photoUpload.click());
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#007bff';
+                uploadArea.style.background = '#e7f3ff';
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#dee2e6';
+                uploadArea.style.background = '#f8f9fa';
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#dee2e6';
+                uploadArea.style.background = '#f8f9fa';
+
+                const files = e.dataTransfer.files;
+                handleFiles(files);
+            });
+
+            // File input change
+            photoUpload.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+
+            function handleFiles(files) {
+                for (let file of files) {
+                    if (file.type.startsWith('image/')) {
+                        uploadedFiles.push(file);
+
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const preview = document.createElement('div');
+                            preview.className = 'position-relative me-2 mb-2';
+                            preview.innerHTML = `
+                                <img src="${e.target.result}" alt="Preview" class="photo-preview">
+                                <span class="position-absolute top-0 start-100 translate-middle badge bg-secondary">
+                                    <i class="fas fa-times"></i>
+                                </span>
+                            `;
+                            previewContainer.appendChild(preview);
+
+                            // Add remove functionality
+                            preview.querySelector('.badge').addEventListener('click', () => {
+                                preview.remove();
+                                uploadedFiles = uploadedFiles.filter(f => f !== file);
+                                updateUploadButton();
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+                updateUploadButton();
+            }
+
+            function updateUploadButton() {
+                uploadButton.disabled = uploadedFiles.length === 0;
+            }
+
+            // Upload photos
+            uploadButton.addEventListener('click', async () => {
+                if (uploadedFiles.length === 0) return;
+
+                const formData = new FormData();
+                for (let file of uploadedFiles) {
+                    formData.append('photos', file);
+                }
+
+                try {
+                    uploadButton.disabled = true;
+                    uploadButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+                    const response = await fetch('', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                        },
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert('✅ Photos uploaded successfully! Our team will review them within 1-2 business days.');
+                        window.location.reload();
+                    } else {
+                        alert('❌ Error uploading photos. Please try again.');
+                    }
+                } catch (error) {
+                    alert('❌ Network error. Please try again.');
+                } finally {
+                    uploadButton.disabled = false;
+                    uploadButton.innerHTML = '<i class="fas fa-upload"></i> Submit Photos for Inspection';
+                }
+            });
+
+            // CSRF token helper
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        });
+    </script>
+</body>
+</html>

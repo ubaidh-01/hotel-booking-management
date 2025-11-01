@@ -1,0 +1,60 @@
+<!-- templates/emails/refund_confirmation.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #d4edda; padding: 20px; text-align: center; border-radius: 5px; border: 1px solid #c3e6cb; }
+        .content { padding: 20px; }
+        .refund-box { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: center; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Refund Processed Successfully</h2>
+            <p>Security Deposit Refund - Room {{ room_code }}</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            <p>We are pleased to inform you that your security deposit refund has been processed.</p>
+
+            <div class="refund-box">
+                <h3>HK$ {{ refund_amount }}</h3>
+                <p><strong>Refund Amount</strong></p>
+                <table style="width: 100%; max-width: 300px; margin: 0 auto;">
+                    <tr>
+                        <td><strong>Processed Date:</strong></td>
+                        <td>{{ refund_date }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Payment Method:</strong></td>
+                        <td>{{ payment_method }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Room:</strong></td>
+                        <td>{{ room_code }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <p>The refund has been sent via {{ payment_method }}. Please allow 2-3 business days for the funds to appear in your account.</p>
+
+            <p>You can download your refund receipt from your tenant portal for your records.</p>
+
+            <p>Thank you for choosing Wing Kong Property Management. We wish you all the best in your future endeavors!</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Accounts Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated refund confirmation. Please keep this email for your records.</p>
+        </div>
+    </div>
+</body>
+</html>

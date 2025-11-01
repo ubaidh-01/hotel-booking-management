@@ -1,10 +1,17 @@
+import logging
+import random
+
+from django.core.files.base import ContentFile
 from django.db import models
 from django.utils import timezone
 
 from bookings.models import Booking
-from tenants.models import Tenant
+from notifications.services import EmailService
+from notifications.whatsapp_service import WhatsAppService
 from properties.models import Room
 import uuid
+
+logger = logging.getLogger(__name__)
 
 
 class Contract(models.Model):
@@ -37,13 +44,26 @@ class Contract(models.Model):
                                        related_name='temporary_contracts')
     temporary_stay_start = models.DateField(null=True, blank=True)
     temporary_stay_end = models.DateField(null=True, blank=True)
-
     temporary_stay_rent = models.DecimalField(max_digits=10, decimal_places=2, default=0,
                                               help_text="Rent during temporary stay")
     permanent_stay_rent = models.DecimalField(max_digits=10, decimal_places=2, default=0,
                                               help_text="Rent for permanent room")
     rent_difference = models.DecimalField(max_digits=10, decimal_places=2, default=0,
                                           help_text="Positive = refund, Negative = additional payment")
+    digital_signature_tenant = models.TextField(blank=True)  # Store tenant's signature data
+    digital_signature_staff = models.TextField(blank=True)  # Store staff signature
+    tenant_signed_date = models.DateTimeField(null=True, blank=True)
+    staff_signed_date = models.DateTimeField(null=True, blank=True)
+
+    # Email and WhatsApp verification
+    tenant_email_verified = models.BooleanField(default=False)
+    tenant_whatsapp_verified = models.BooleanField(default=False)
+    email_verification_code = models.CharField(max_length=6, blank=True)
+    whatsapp_verification_code = models.CharField(max_length=6, blank=True)
+
+    # Contract generation
+    contract_pdf = models.FileField(upload_to='contracts/pdfs/', null=True, blank=True)
+    contract_hash = models.CharField(max_length=64, blank=True)  # For integrity verification
 
     # Status Tracking
     is_temporary_stay_active = models.BooleanField(default=False)
@@ -141,3 +161,71 @@ class Contract(models.Model):
         return (self.days_until_expiry <= 21 and
                 self.days_until_expiry > 0 and
                 not self.move_out_notice_sent)
+
+    @property
+    def is_fully_signed(self):
+        """Check if contract is fully signed by both parties"""
+        return bool(self.digital_signature_tenant and self.digital_signature_staff)
+
+    @property
+    def signing_status(self):
+        """Get current signing status"""
+        if self.is_fully_signed:
+            return 'fully_signed'
+        elif self.digital_signature_tenant:
+            return 'tenant_signed'
+        elif self.digital_signature_staff:
+            return 'staff_signed'
+        else:
+            return 'unsigned'
+
+    def generate_contract_pdf(self):
+        """Generate PDF version of the contract"""
+        try:
+            from weasyprint import HTML
+            from django.template.loader import render_to_string
+            import hashlib
+
+            context = {
+                'contract': self,
+                'tenant': self.booking.tenant,
+                'room': self.booking.room,
+                'today': timezone.now().date(),
+            }
+
+            html_string = render_to_string('contracts/contract_pdf.html', context)
+            pdf_file = HTML(string=html_string).write_pdf()
+
+            # Generate hash for integrity
+            contract_hash = hashlib.sha256(pdf_file).hexdigest()
+
+            # Save PDF
+            filename = f"contract_{self.contract_number}_{timezone.now().strftime('%Y%m%d')}.pdf"
+            self.contract_pdf.save(filename, ContentFile(pdf_file), save=False)
+            self.contract_hash = contract_hash
+            self.save()
+
+            return True
+        except Exception as e:
+            logger.error(f"Failed to generate contract PDF: {e}")
+            return False
+
+    def send_for_tenant_signature(self):
+        """Send contract to tenant for digital signature"""
+        try:
+            # Generate verification codes
+            self.email_verification_code = str(random.randint(100000, 999999))
+            self.whatsapp_verification_code = str(random.randint(100000, 999999))
+            self.save()
+
+            # Send email with signing link
+            EmailService.send_contract_for_signature(self)
+
+            # Send WhatsApp verification if number provided
+            if self.booking.tenant.whatsapp_number:
+                WhatsAppService.send_verification_code(self)
+
+            return True
+        except Exception as e:
+            logger.error(f"Failed to send contract for signature: {e}")
+            return False

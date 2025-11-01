@@ -1,0 +1,93 @@
+<!-- templates/emails/contract_signed_confirmation.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #d4edda; padding: 20px; text-align: center; border-radius: 5px; border: 1px solid #c3e6cb; }
+        .content { padding: 20px; }
+        .confirmation-box { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #28a745; }
+        .contract-details { background: #e7f3ff; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .button { background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+        .details-table { width: 100%; border-collapse: collapse; }
+        .details-table td { padding: 8px; border-bottom: 1px solid #ddd; }
+        .details-table .label { font-weight: bold; width: 40%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>✅ Contract Successfully Executed</h2>
+            <p>Your tenancy agreement is now active</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            <div class="confirmation-box">
+                <h4>🎉 Congratulations!</h4>
+                <p>Your tenancy agreement for <strong>Room {{ room_code }}</strong> has been successfully signed and executed.</p>
+                <p><strong>Contract {{ contract_number }} is now legally binding.</strong></p>
+            </div>
+
+            <div class="contract-details">
+                <h4>Contract Summary:</h4>
+                <table class="details-table">
+                    <tr>
+                        <td class="label">Contract Number:</td>
+                        <td><strong>{{ contract_number }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Room:</td>
+                        <td>{{ room_code }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Term:</td>
+                        <td>{{ start_date }} to {{ end_date }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Monthly Rent:</td>
+                        <td><strong>HK$ {{ monthly_rent }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Status:</td>
+                        <td><span style="color: #28a745; font-weight: bold;">✅ Fully Executed</span></td>
+                    </tr>
+                </table>
+            </div>
+
+            <p><strong>Next Steps:</strong></p>
+            <ul>
+                <li>Your room will be prepared for move-in</li>
+                <li>You will receive move-in instructions 3 days before your start date</li>
+                <li>Set up your tenant portal account to manage payments and requests</li>
+                <li>Save a copy of your contract for your records</li>
+            </ul>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{ contract_url }}" class="button">📄 View Your Contract</a>
+                <a href="{{ tenant_portal_url }}" class="button" style="background: #17a2b8; margin-left: 10px;">🚪 Access Tenant Portal</a>
+            </div>
+
+            <p><strong>Important Reminders:</strong></p>
+            <ul>
+                <li>Keep a copy of your signed contract in a safe place</li>
+                <li>Set up payment methods in your tenant portal</li>
+                <li>Review the house rules and regulations</li>
+                <li>Contact us if you have any questions before move-in</li>
+            </ul>
+
+            <p>Welcome to Wing Kong Property Management! We look forward to providing you with excellent service.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated confirmation email. Please save this for your records.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!-- templates/emails/move_out_inspection_result.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #e3f2fd; padding: 20px; text-align: center; border-radius: 5px; }
+        .content { padding: 20px; }
+        .results-box { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+        .status-clean { color: #28a745; font-weight: bold; }
+        .status-needs-cleaning { color: #fd7e14; font-weight: bold; }
+        .status-damages { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Move Out Inspection Results</h2>
+            <p>Room {{ room_code }}</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            <p>We have completed the inspection of <strong>Room {{ room_code }}</strong> following your move out.</p>
+
+            <div class="results-box">
+                <h4>Inspection Summary:</h4>
+                <table style="width: 100%;">
+                    <tr>
+                        <td><strong>Inspection Date:</strong></td>
+                        <td>{{ inspection_date }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cleanliness Status:</strong></td>
+                        <td>
+                            {% if clean_status == 'Clean - Ready for Refund' %}
+                            <span class="status-clean">✅ {{ clean_status }}</span>
+                            {% elif clean_status == 'Needs Additional Cleaning' %}
+                            <span class="status-needs-cleaning">⚠️ {{ clean_status }}</span>
+                            {% else %}
+                            <span class="status-damages">❌ {{ clean_status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Original Deposit:</strong></td>
+                        <td>HK$ {{ original_deposit }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Deductions:</strong></td>
+                        <td>HK$ {{ deductions }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Refund Amount:</strong></td>
+                        <td><strong>HK$ {{ refund_amount }}</strong></td>
+                    </tr>
+                </table>
+
+                {% if inspection_notes %}
+                <div style="margin-top: 15px; padding: 10px; background: white; border-radius: 3px;">
+                    <strong>Inspection Notes:</strong><br>
+                    {{ inspection_notes }}
+                </div>
+                {% endif %}
+            </div>
+
+            <p><strong>Refund Timeline:</strong> {{ refund_timeline }}</p>
+
+            <p>If you have any questions about the inspection results, please contact our operations team.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Operations Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated inspection results notification.</p>
+        </div>
+    </div>
+</body>
+</html>

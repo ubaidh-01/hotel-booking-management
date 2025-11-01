@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.4; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+        .receipt-details { margin: 30px 0; }
+        .amount-box { text-align: center; background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0; }
+        .footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; font-size: 12px; color: #666; }
+        table { width: 100%; border-collapse: collapse; }
+        table td { padding: 8px; border-bottom: 1px solid #ddd; }
+        table .label { font-weight: bold; width: 40%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Wing Kong Property Management</h1>
+            <h2>Security Deposit Refund Receipt</h2>
+            <p>Official Refund Document</p>
+        </div>
+
+        <div class="receipt-details">
+            <table>
+                <tr>
+                    <td class="label">Receipt Number:</td>
+                    <td>REF-{{ booking.id }}-{{ today|date:"Ymd" }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Issue Date:</td>
+                    <td>{{ today }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Tenant Name:</td>
+                    <td>{{ tenant.full_name }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Room Number:</td>
+                    <td>{{ room.room_code }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Contract Period:</td>
+                    <td>{{ booking.move_in_date }} to {{ booking.move_out_date }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="amount-box">
+            <h1 style="color: #28a745; margin: 0;">HK$ {{ refund_amount }}</h1>
+            <p style="font-size: 18px; margin: 10px 0 0 0;"><strong>Security Deposit Refund</strong></p>
+        </div>
+
+        <div class="receipt-details">
+            <h3>Refund Breakdown</h3>
+            <table>
+                <tr>
+                    <td class="label">Original Security Deposit:</td>
+                    <td>HK$ {{ booking.deposit_paid }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Cleaning/Damage Deductions:</td>
+                    <td>HK$ {{ booking.deposit_paid|add:refund_amount }}</td>
+                </tr>
+                <tr style="border-top: 2px solid #333;">
+                    <td class="label"><strong>Total Refund Amount:</strong></td>
+                    <td><strong>HK$ {{ refund_amount }}</strong></td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="margin: 30px 0;">
+            <h3>Payment Details</h3>
+            <table>
+                <tr>
+                    <td class="label">Payment Method:</td>
+                    <td>Bank Transfer</td>
+                </tr>
+                <tr>
+                    <td class="label">Processed Date:</td>
+                    <td>{{ today }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Transaction Reference:</td>
+                    <td>WT{{ today|date:"Ymd" }}{{ booking.id }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>Wing Kong Property Management Ltd.</p>
+            <p>This is an official refund receipt. Please retain for your records.</p>
+            <p>Generated on: {{ today }} | System Reference: {{ booking.contract_number }}</p>
+        </div>
+    </div>
+</body>
+</html>

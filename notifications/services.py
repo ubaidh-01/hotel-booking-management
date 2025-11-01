@@ -589,3 +589,207 @@ class EmailService:
         except Exception as e:
             logger.error(f"Failed to send maintenance escalation alert: {e}")
             return False
+
+
+    @staticmethod
+    def send_contract_for_signature(contract):
+        """Send contract to tenant for digital signature (Requirement #16)"""
+        try:
+            tenant = contract.booking.tenant
+            room = contract.booking.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'room_code': room.room_code,
+                'contract_number': contract.contract_number,
+                'start_date': contract.start_date.strftime('%Y-%m-%d'),
+                'end_date': contract.end_date.strftime('%Y-%m-%d'),
+                'monthly_rent': contract.monthly_rent,
+                'security_deposit': contract.security_deposit,
+                'signing_url': f"https://wing-kong.com/contracts/{contract.id}/sign",
+                'email_verification_code': contract.email_verification_code,
+            }
+
+            subject = f"Tenancy Agreement for Signature - Room {room.room_code}"
+
+            html_content = render_to_string('emails/contract_for_signature.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                reply_to=['contracts@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            # Mark email as verified after sending
+            contract.tenant_email_verified = True
+            contract.save()
+
+            logger.info(f"Contract sent for signature to {tenant.full_name}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send contract for signature: {e}")
+            return False
+
+    @staticmethod
+    def send_contract_signed_confirmation(contract):
+        """Send confirmation when contract is fully signed"""
+        try:
+            tenant = contract.booking.tenant
+            room = contract.booking.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'room_code': room.room_code,
+                'contract_number': contract.contract_number,
+                'start_date': contract.start_date.strftime('%Y-%m-%d'),
+                'end_date': contract.end_date.strftime('%Y-%m-%d'),
+                'monthly_rent': contract.monthly_rent,
+                'contract_url': f"https://wing-kong.com/contracts/{contract.id}/view",
+                'tenant_portal_url': "https://wing-kong.com/tenant",
+            }
+
+            subject = f"Tenancy Agreement Executed - Room {room.room_code}"
+
+            html_content = render_to_string('emails/contract_signed_confirmation.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                reply_to=['contracts@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Contract signed confirmation sent to {tenant.full_name}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send contract confirmation: {e}")
+            return False
+
+    @staticmethod
+    def send_move_out_reminder_with_photos(booking):
+        """Send move out reminder with photo upload instructions"""
+        try:
+            tenant = booking.tenant
+            room = booking.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'room_code': room.room_code,
+                'move_out_date': booking.move_out_date.strftime('%Y-%m-%d'),
+                'days_until_move_out': (booking.move_out_date - timezone.now().date()).days,
+                'photo_upload_url': f"https://wing-kong.com/bookings/{booking.id}/move-out",
+                'cleaning_guidelines_url': "https://wing-kong.com/cleaning-guidelines",
+                'deposit_refund_policy_url': "https://wing-kong.com/deposit-policy",
+            }
+
+            subject = f"Move Out Reminder - Photo Upload Required - {room.room_code}"
+
+            html_content = render_to_string('emails/move_out_photo_reminder.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                reply_to=['moveout@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Move out photo reminder sent to {tenant.full_name}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send move out photo reminder: {e}")
+            return False
+
+    @staticmethod
+    def send_move_out_inspection_result(booking):
+        """Send move out inspection results to tenant"""
+        try:
+            tenant = booking.tenant
+            room = booking.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'room_code': room.room_code,
+                'clean_status': booking.get_move_out_clean_status_display(),
+                'inspection_notes': booking.move_out_inspection_notes,
+                'refund_amount': booking.refund_amount,
+                'original_deposit': booking.deposit_paid,
+                'deductions': booking.deposit_paid - booking.refund_amount,
+                'inspection_date': booking.move_out_inspection_date.strftime('%Y-%m-%d'),
+                'refund_timeline': '7-10 business days',
+            }
+
+            subject = f"Move Out Inspection Results - {room.room_code}"
+
+            html_content = render_to_string('emails/move_out_inspection_result.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                reply_to=['moveout@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Move out inspection results sent to {tenant.full_name}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send move out inspection results: {e}")
+            return False
+
+    @staticmethod
+    def send_refund_confirmation(booking):
+        """Send refund confirmation to tenant"""
+        try:
+            tenant = booking.tenant
+            room = booking.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'room_code': room.room_code,
+                'refund_amount': booking.refund_amount,
+                'refund_date': booking.refund_issued_date.strftime('%Y-%m-%d'),
+                'payment_method': 'Bank Transfer',  # Would come from tenant's payment info
+                'receipt_url': f"https://wing-kong.com/bookings/{booking.id}/refund-receipt",
+            }
+
+            subject = f"Refund Processed - HK$ {booking.refund_amount} - {room.room_code}"
+
+            html_content = render_to_string('emails/refund_confirmation.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                reply_to=['accounts@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Refund confirmation sent to {tenant.full_name}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send refund confirmation: {e}")
+            return False

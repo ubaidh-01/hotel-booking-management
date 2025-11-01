@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #fff3cd; padding: 20px; text-align: center; border-radius: 5px; border: 1px solid #ffeaa7; }
+        .content { padding: 20px; }
+        .button { background: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Move Out Photo Upload Required</h2>
+            <p>Room {{ room_code }} - Move Out: {{ move_out_date }}</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            <p>Your move out date for <strong>Room {{ room_code }}</strong> is in <strong>{{ days_until_move_out }} days</strong> ({{ move_out_date }}).</p>
+
+            <p><strong>To receive your security deposit refund, please upload photos of your cleaned room.</strong></p>
+
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h4>📸 Required Photos:</h4>
+                <ul>
+                    <li>All room corners and floors</li>
+                    <li>Bathroom and kitchen areas</li>
+                    <li>Windows and mirrors</li>
+                    <li>Inside cabinets and closets</li>
+                    <li>Any existing damages</li>
+                </ul>
+            </div>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{ photo_upload_url }}" class="button">Upload Move Out Photos</a>
+            </div>
+
+            <p><strong>Cleaning Guidelines:</strong></p>
+            <ul>
+                <li>Floors must be swept and mopped</li>
+                <li>All surfaces dusted and wiped clean</li>
+                <li>Bathroom and kitchen sanitized</li>
+                <li>All personal belongings removed</li>
+            </ul>
+
+            <p>For detailed cleaning requirements, please review our <a href="{{ cleaning_guidelines_url }}">cleaning guidelines</a>.</p>
+
+            <p>Your security deposit refund will be processed after photo verification and room inspection.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Operations Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated reminder. Please upload photos to receive your deposit refund.</p>
+        </div>
+    </div>
+</body>
+</html>
