@@ -1,0 +1,152 @@
+{% extends 'reports/base.html' %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Rent Increase Report</h2>
+        <p class="text-muted mb-0">Identify rooms with rent below threshold and contracts ending soon</p>
+    </div>
+    <div>
+        <a href="?export=csv" class="btn btn-outline-success">
+            <i class="fas fa-file-csv me-2"></i> Export CSV
+        </a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="stats-card warning">
+            <div class="stats-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stats-number">{{ total_rooms_needing_increase }}</div>
+            <div class="stats-label">Rooms Needing Increase</div>
+            <small class="text-muted">Below HK$ {{ threshold }}</small>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="stats-card danger">
+            <div class="stats-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="stats-number">{{ total_contracts_ending }}</div>
+            <div class="stats-label">Contracts Ending Soon</div>
+            <small class="text-muted">Next 30 days</small>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="stats-card success">
+            <div class="stats-icon">
+                <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="stats-number">HK$ {{ total_potential_increase }}</div>
+            <div class="stats-label">Potential Rent Increase</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Rent Increase Alerts -->
+    <div class="col-lg-12 mb-4">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i> Rent Increase Alerts</h5>
+                <small class="text-muted">Rooms with advertised price below HK$ {{ threshold }} and contracts ending in next 30 days</small>
+            </div>
+            <div class="card-body">
+                {% if rooms_needing_increase %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Room Code</th>
+                                <th>Property</th>
+                                <th>Current Rent</th>
+                                <th>Advertised Price</th>
+                                <th>Rent Difference</th>
+                                <th>Contract Ends</th>
+                                <th>Tenant</th>
+                                <th>Days Left</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in rooms_needing_increase %}
+                            {% for contract in item.ending_contracts %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'properties:crm_room_detail' room_code=item.room.room_code %}" class="text-decoration-none fw-bold">
+                                        {{ item.room.room_code|upper }}
+                                    </a>
+                                </td>
+                                <td>{{ item.room.property.name }}</td>
+                                <td>HK$ {{ item.current_rent }}</td>
+                                <td>
+                                    <strong class="text-danger">HK$ {{ item.advertised_price }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge {% if item.rent_difference > 0 %}bg-success{% else %}bg-secondary{% endif %}">
+                                        HK$ {{ item.rent_difference }}
+                                    </span>
+                                </td>
+                                <td>{{ contract.end_date }}</td>
+                                <td>{{ contract.booking.tenant.full_name }}</td>
+                                <td>
+                                    <span class="badge bg-warning">
+                                        {{ contract.end_date|timeuntil:today }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            onclick="sendRentIncreaseNotice('{{ contract.booking.tenant.id }}', '{{ item.room.id }}')">
+                                        <i class="fas fa-envelope me-1"></i> Send Notice
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h4>No Rent Increase Alerts</h4>
+                    <p class="text-muted">All rooms are above the HK$ {{ threshold }} threshold or no contracts ending soon.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+
+<!-- Manual Rent Increase Check -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-search me-2"></i> Manual Rent Increase Check</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-6">
+                <label for="threshold" class="form-label">Check rooms below:</label>
+                <div class="input-group">
+                    <span class="input-group-text">HK$</span>
+                    <input type="number" name="threshold" id="threshold" value="1500"
+                           class="form-control">
+                </div>
+                <div class="form-text">Manually check for rooms below a specific rent threshold</div>
+            </div>
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i> Check Rooms
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

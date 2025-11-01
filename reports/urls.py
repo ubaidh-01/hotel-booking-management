@@ -11,5 +11,8 @@ urlpatterns = [
     path('monthly-sales/', views.monthly_sales_report, name='monthly_sales'),
     path('utilities/', views.utilities_report, name='utilities'),
     path('temporary-stay/', views.temporary_stay_report, name='temporary_stay'),
+    path('owners/', views.owners_report, name='owners_report'),
+    path('profit-loss/', views.profit_loss_report, name='profit_loss_report'),
+    path('rent-increase/', views.rent_increase_report, name='rent_increase_report'),
 
 ]

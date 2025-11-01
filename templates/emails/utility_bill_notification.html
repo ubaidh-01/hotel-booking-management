@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #e3f2fd; padding: 20px; text-align: center; border-radius: 5px; }
+        .content { padding: 20px; }
+        .bill-details { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .button { background: #17a2b8; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Utility Bill Notification</h2>
+            <p>{{ utility_type }} Bill for {{ bill_period }}</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            <p>Your {{ utility_type }} bill for <strong>Room {{ room_code }}</strong> has been calculated and is now available for payment.</p>
+
+            <div class="bill-details">
+                <h4>Bill Details:</h4>
+                <table style="width: 100%;">
+                    <tr>
+                        <td><strong>Utility Type:</strong></td>
+                        <td>{{ utility_type }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Billing Period:</strong></td>
+                        <td>{{ bill_period }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Your Share:</strong></td>
+                        <td><strong>HK$ {{ amount_due }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Due Date:</strong></td>
+                        <td>{{ due_date }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <p><em>This amount has been calculated based on pro-rata sharing with other tenants in your building for the period you occupied the room.</em></p>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{ payment_url }}" class="button">Pay Utility Bill</a>
+            </div>
+
+            <p>You can view detailed bill information and payment history in your tenant portal.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Utilities Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated notification. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>

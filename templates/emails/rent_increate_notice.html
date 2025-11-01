@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; }
+        .content { padding: 20px; }
+        .alert { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; }
+        .button { background: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Wing Kong Property Management</h2>
+            <h3>Rent Increase Notice</h3>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            <div class="alert">
+                <h4>⚠️ Important: Rent Adjustment Notice</h4>
+                <p>Your current tenancy agreement for <strong>Room {{ room_code }}</strong> is ending soon, and we would like to inform you about a rent adjustment.</p>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Current Rent:</strong></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">HK$ {{ current_rent }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Proposed New Rent:</strong></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">HK$ {{ proposed_rent }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Contract End Date:</strong></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ contract_end_date }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;"><strong>Days Until Contract End:</strong></td>
+                    <td style="padding: 10px;">{{ days_until_end }} days</td>
+                </tr>
+            </table>
+
+            <p>This adjustment reflects current market rates and ensures we can continue providing quality accommodation services.</p>
+
+            <p>
+                <a href="{{ renewal_url }}" class="button">Review & Renew Contract</a>
+            </p>
+
+            <p>If you have any questions or would like to discuss this adjustment, please contact our leasing team.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated notification. Please do not reply to this email.</p>
+            <p>Wing Kong Property Management © {{ now|date:"Y" }}</p>
+        </div>
+    </div>
+</body>
+</html>

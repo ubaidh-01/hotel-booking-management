@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+
 from bookings.models import Booking
 from tenants.models import Tenant
 from properties.models import Room
@@ -45,6 +47,20 @@ class Contract(models.Model):
 
     # Status Tracking
     is_temporary_stay_active = models.BooleanField(default=False)
+
+    renewal_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('not_sent', 'Renewal Not Sent'),
+            ('sent', 'Renewal Sent'),
+            ('renewed', 'Renewed'),
+            ('declined', 'Declined'),
+        ],
+        default='not_sent'
+    )
+    renewal_sent_date = models.DateTimeField(null=True, blank=True)
+    move_out_notice_sent = models.BooleanField(default=False)
+    move_out_notice_sent_date = models.DateTimeField(null=True, blank=True)
 
     # Auto-generated fields
     created_at = models.DateTimeField(auto_now_add=True)
@@ -106,3 +122,22 @@ class Contract(models.Model):
             from django.utils import timezone
             return timezone.now().date() >= self.temporary_stay_end
         return False
+
+    @property
+    def days_until_expiry(self):
+        """Days until contract expires"""
+        return (self.end_date - timezone.now().date()).days
+
+    @property
+    def needs_renewal_reminder(self):
+        """Check if renewal reminder should be sent (3 weeks before)"""
+        return (self.days_until_expiry <= 21 and
+                self.days_until_expiry > 14 and
+                self.renewal_status == 'not_sent')
+
+    @property
+    def needs_move_out_reminder(self):
+        """Check if move out reminder should be sent (3 weeks before)"""
+        return (self.days_until_expiry <= 21 and
+                self.days_until_expiry > 0 and
+                not self.move_out_notice_sent)

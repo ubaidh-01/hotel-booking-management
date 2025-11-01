@@ -1,3 +1,4 @@
+from django.db import models
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
@@ -5,9 +6,9 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 import csv
 
-from properties.models import Room
+from properties.models import Room, Owner, PropertyOwnership
 from bookings.models import Booking
-from payments.models import Payment, UtilityBill
+from payments.models import Payment, UtilityBill, Expense
 from tenants.models import Tenant
 from contracts.models import Contract
 
@@ -386,3 +387,281 @@ def utilities_report(request):
         'today': today,
     }
     return render(request, 'reports/utilities.html', context)
+
+
+@staff_required
+def owners_report(request):
+    """Requirement #15: Owners Report (Confidential in CRM)"""
+    """Requirement #15: Owners Report (Confidential in CRM)"""
+    owners = Owner.objects.prefetch_related('property_ownerships__property_obj').all()
+
+    # CSV Export
+    if 'export' in request.GET:
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="owners_report.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['Owner Name', 'Email', 'Phone', 'Properties Count', 'Total Rent Owed', 'Management Fee %'])
+
+        for owner in owners:
+            writer.writerow([
+                owner.name,
+                owner.contact_email,
+                owner.phone_number,
+                owner.active_properties_count,
+                owner.total_rent_owed,
+                owner.management_fee_percentage
+            ])
+        return response
+    # Calculate statistics
+    total_owners = owners.count()
+    active_ownerships = PropertyOwnership.objects.filter(is_active=True)
+    total_rent_owed = sum(owner.total_rent_owed for owner in owners)
+
+    # Contracts expiring soon
+    expiring_contracts = PropertyOwnership.objects.filter(
+        contract_end__lte=timezone.now().date() + timedelta(days=30),
+        contract_end__gte=timezone.now().date(),
+        is_active=True
+    )
+
+    context = {
+        'title': 'Owners Report',
+        'owners': owners,
+        'total_owners': total_owners,
+        'active_ownerships_count': active_ownerships.count(),
+        'total_rent_owed': total_rent_owed,
+        'expiring_contracts': expiring_contracts,
+        'today': timezone.now().date(),
+    }
+    return render(request, 'reports/owners.html', context)
+
+
+@staff_required
+def profit_loss_report(request):
+    """Requirement #14: P&L Report (Confidential in CRM)"""
+    # Get selected month (default to current)
+    selected_month = request.GET.get('month', timezone.now().strftime('%Y-%m'))
+    year, month = map(int, selected_month.split('-'))
+
+    # Calculate date range for the month
+    start_date = datetime(year, month, 1).date()
+    if month == 12:
+        end_date = datetime(year, month, 31).date()
+    else:
+        end_date = datetime(year, month + 1, 1).date() - timedelta(days=1)
+
+    # INCOME: Completed payments for the month
+    monthly_income = Payment.objects.filter(
+        payment_date__range=[start_date, end_date],
+        status='completed'
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
+
+    # EXPENSES: Expenses for the month
+    monthly_expenses = Expense.objects.filter(
+        payment_date__range=[start_date, end_date]
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
+
+    # OWNER PAYMENTS: Rent paid to owners for the month
+    owner_payments = PropertyOwnership.objects.filter(
+        last_rent_paid_date__range=[start_date, end_date],
+        is_active=True
+    ).aggregate(total=models.Sum('monthly_rent_to_owner'))['total'] or 0
+
+    # Calculate net profit
+    net_profit = monthly_income - monthly_expenses - owner_payments
+
+    # Detailed breakdowns with percentages
+    income_by_type_raw = Payment.objects.filter(
+        payment_date__range=[start_date, end_date],
+        status='completed'
+    ).values('payment_type').annotate(
+        total=models.Sum('amount'),
+        count=models.Count('id')
+    ).order_by('-total')
+
+    # Calculate percentages for income
+    income_by_type = []
+    for item in income_by_type_raw:
+        percentage = (item['total'] / monthly_income * 100) if monthly_income > 0 else 0
+        income_by_type.append({
+            'payment_type': item['payment_type'],
+            'total': item['total'],
+            'count': item['count'],
+            'percentage': round(percentage, 1)
+        })
+
+    expenses_by_category_raw = Expense.objects.filter(
+        payment_date__range=[start_date, end_date]
+    ).values('category__name').annotate(
+        total=models.Sum('amount'),
+        count=models.Count('id')
+    ).order_by('-total')
+
+    # Calculate percentages for expenses
+    expenses_by_category = []
+    for item in expenses_by_category_raw:
+        percentage = (item['total'] / monthly_expenses * 100) if monthly_expenses > 0 else 0
+        expenses_by_category.append({
+            'category_name': item['category__name'],
+            'total': item['total'],
+            'count': item['count'],
+            'percentage': round(percentage, 1)
+        })
+
+    # Monthly comparison (previous month)
+    prev_month = start_date - timedelta(days=start_date.day)
+    prev_income = Payment.objects.filter(
+        payment_date__year=prev_month.year,
+        payment_date__month=prev_month.month,
+        status='completed'
+    ).aggregate(total=models.Sum('amount'))['total'] or 0
+
+    income_change = monthly_income - prev_income
+    income_change_percent = (income_change / prev_income * 100) if prev_income > 0 else 0
+
+    # CSV Export
+    if 'export' in request.GET:
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="profit_loss_report_{selected_month}.csv"'
+        writer = csv.writer(response)
+
+        # Header
+        writer.writerow(['Wing Kong Property Management - Profit & Loss Report'])
+        writer.writerow([f'Period: {start_date.strftime("%B %Y")}'])
+        writer.writerow(['Generated on:', timezone.now().strftime('%Y-%m-%d %H:%M')])
+        writer.writerow([])
+
+        # Summary Section
+        writer.writerow(['FINANCIAL SUMMARY'])
+        writer.writerow(['Total Income', f'HK$ {monthly_income}'])
+        writer.writerow(['Total Expenses', f'HK$ {monthly_expenses}'])
+        writer.writerow(['Owner Payments', f'HK$ {owner_payments}'])
+        writer.writerow(['Net Profit/Loss', f'HK$ {net_profit}'])
+        writer.writerow([])
+
+        # Income Breakdown
+        writer.writerow(['INCOME BREAKDOWN BY TYPE'])
+        writer.writerow(['Payment Type', 'Amount', 'Transaction Count', 'Percentage'])
+        for item in income_by_type:
+            writer.writerow([
+                item['payment_type'].title(),
+                f'HK$ {item["total"]}',
+                item['count'],
+                f'{item["percentage"]}%'
+            ])
+        writer.writerow([])
+
+        # Expense Breakdown
+        writer.writerow(['EXPENSE BREAKDOWN BY CATEGORY'])
+        writer.writerow(['Category', 'Amount', 'Expense Count', 'Percentage'])
+        for item in expenses_by_category:
+            writer.writerow([
+                item['category_name'],
+                f'HK$ {item["total"]}',
+                item['count'],
+                f'{item["percentage"]}%'
+            ])
+        writer.writerow([])
+
+        # Monthly Comparison
+        writer.writerow(['MONTHLY COMPARISON'])
+        writer.writerow(['Current Month Income', f'HK$ {monthly_income}'])
+        writer.writerow(['Previous Month Income', f'HK$ {prev_income}'])
+        writer.writerow(['Income Change', f'HK$ {income_change}'])
+        writer.writerow(['Income Change %', f'{income_change_percent}%'])
+
+        return response
+
+    context = {
+        'title': f'Profit & Loss Report - {start_date.strftime("%B %Y")}',
+        'selected_month': selected_month,
+        'start_date': start_date,
+        'end_date': end_date,
+        'monthly_income': monthly_income,
+        'monthly_expenses': monthly_expenses,
+        'owner_payments': owner_payments,
+        'net_profit': net_profit,
+        'income_by_type': income_by_type,
+        'expenses_by_category': expenses_by_category,
+        'income_change': income_change,
+        'income_change_percent': round(income_change_percent, 1),
+        'today': timezone.now().date(),
+    }
+    return render(request, 'reports/profit_loss.html', context)
+
+
+@staff_required
+def rent_increase_report(request):
+    """Requirement #17: Rent Increase Detection Report"""
+    rooms_needing_increase = []
+    all_rooms = Room.objects.select_related('property').prefetch_related(
+        'booking_set',
+        'booking_set__contract'
+    )
+    for room in all_rooms:
+        if room.needs_rent_increase_notice():
+            ending_contracts = room.get_ending_contracts()
+            if ending_contracts:
+                rooms_needing_increase.append({
+                    'room': room,
+                    'ending_contracts': ending_contracts,
+                    'current_rent': room.monthly_rent,
+                    'advertised_price': room.post_ad_price,
+                    'rent_difference': (room.post_ad_price - room.monthly_rent) if room.post_ad_price else 0
+                })
+
+    # Calculate statistics
+    total_rooms_needing_increase = len(rooms_needing_increase)
+    total_contracts_ending = sum(len(item['ending_contracts']) for item in rooms_needing_increase)
+    total_potential_increase = sum(
+        item['rent_difference'] for item in rooms_needing_increase if item['rent_difference'] > 0)
+
+    # CSV Export
+    if 'export' in request.GET:
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="rent_increase_report.csv"'
+        writer = csv.writer(response)
+
+        writer.writerow(['Wing Kong Property Management - Rent Increase Report'])
+        writer.writerow(['Generated on:', timezone.now().strftime('%Y-%m-%d %H:%M')])
+        writer.writerow([])
+
+        writer.writerow(['RENT INCREASE ALERTS - Rooms below HK$1500 with contracts ending soon'])
+        writer.writerow(
+            ['Room Code', 'Property', 'Current Rent', 'Advertised Price', 'Rent Difference', 'Contracts Ending',
+             'Tenants Affected'])
+
+        for item in rooms_needing_increase:
+            room = item['room']
+            tenant_names = ", ".join([contract.booking.tenant.full_name for contract in item['ending_contracts']])
+            contract_dates = ", ".join(
+                [contract.end_date.strftime('%Y-%m-%d') for contract in item['ending_contracts']])
+
+            writer.writerow([
+                room.room_code,
+                room.property.name,
+                f"HK$ {item['current_rent']}",
+                f"HK$ {item['advertised_price']}",
+                f"HK$ {item['rent_difference']}",
+                contract_dates,
+                tenant_names
+            ])
+
+        writer.writerow([])
+        writer.writerow(['SUMMARY'])
+        writer.writerow(['Total rooms needing increase notice:', total_rooms_needing_increase])
+        writer.writerow(['Total contracts ending soon:', total_contracts_ending])
+        writer.writerow(['Total potential rent increase:', f"HK$ {total_potential_increase}"])
+
+        return response
+
+    context = {
+        'title': 'Rent Increase Report',
+        'rooms_needing_increase': rooms_needing_increase,
+        'total_rooms_needing_increase': total_rooms_needing_increase,
+        'total_contracts_ending': total_contracts_ending,
+        'total_potential_increase': total_potential_increase,
+        'threshold': 1500,  # HK$1500 as per requirement
+        'today': timezone.now().date(),
+    }
+    return render(request, 'reports/rent_increase.html', context)

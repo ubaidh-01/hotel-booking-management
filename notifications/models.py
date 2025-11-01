@@ -12,6 +12,7 @@ class NotificationLog(models.Model):
         ('birthday_wish', 'Birthday Wish'),
         ('late_fee_invoice', 'Late Fee Invoice'),
         ('move_out_reminder', 'Move Out Reminder'),
+        ('rent_increase', 'Rent Increase Notice'),
         ('test_notification', 'Test Notification'),
     ]
 

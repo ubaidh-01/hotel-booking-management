@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8d7da; padding: 20px; text-align: center; border-radius: 5px; border: 1px solid #f5c6cb; }
+        .content { padding: 20px; }
+        .urgent { background: #f8d7da; padding: 15px; border-radius: 5px; margin: 20px 0; border: 2px solid #dc3545; }
+        .button { background: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>{% if urgent_action_required %}🚨 URGENT: {% endif %}Final Move Out Warning</h2>
+            <p>Your tenancy agreement ends in {{ days_until_end }} days</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            {% if urgent_action_required %}
+            <div class="urgent">
+                <h4>🚨 IMMEDIATE ACTION REQUIRED</h4>
+                <p>Your tenancy agreement for <strong>Room {{ room_code }}</strong> ends in <strong>ONLY {{ days_until_end }} DAYS</strong> on <strong>{{ contract_end_date }}</strong>.</p>
+                <p><strong>You must complete your move-out by this date.</strong></p>
+            </div>
+            {% else %}
+            <p><strong>FINAL NOTICE:</strong> Your tenancy agreement for <strong>Room {{ room_code }}</strong> ends on <strong>{{ contract_end_date }}</strong> (in {{ days_until_end }} days).</p>
+            {% endif %}
+
+            <p><strong>Important Information:</strong></p>
+            <ul>
+                <li>You must vacate the room by {{ contract_end_date }}</li>
+                <li>All personal belongings must be removed</li>
+                <li>Keys must be returned by 12:00 PM on {{ contract_end_date }}</li>
+                <li>Late move-out may result in additional charges</li>
+            </ul>
+
+            <p><strong>Deposit Refund Process:</strong></p>
+            <ul>
+                <li>Upload photos of the cleaned room to your tenant portal</li>
+                <li>Ensure all utility bills are settled</li>
+                <li>Return all keys and access cards</li>
+                <li>Refund will be processed within 7 business days after inspection</li>
+            </ul>
+
+            {% if urgent_action_required %}
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="tel:+852XXXXXXX" class="button">📞 Call Operations Team Now</a>
+            </div>
+            <p><strong>If you have not made arrangements yet, please contact us immediately to avoid complications.</strong></p>
+            {% endif %}
+
+            <p>Failure to vacate by the contract end date may result in:</p>
+            <ul>
+                <li>Daily overstay charges (HK$200 per day)</li>
+                <li>Legal proceedings for possession</li>
+                <li>Delay in security deposit refund</li>
+            </ul>
+
+            <p>Please ensure you complete all move-out procedures to avoid any issues.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Operations Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated final warning. Please contact us immediately if you have any questions.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!-- templates/emails/utility_payment_reminder.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header {
+            background: {% if days_overdue > 7 %}#f8d7da{% else %}#fff3cd{% endif %};
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            border: 1px solid {% if days_overdue > 7 %}#f5c6cb{% else %}#ffeaa7{% endif %};
+        }
+        .content { padding: 20px; }
+        .urgent-alert {
+            background: #f8d7da;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 2px solid #dc3545;
+        }
+        .warning-alert {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid #ffeaa7;
+        }
+        .payment-details { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .button {
+            background: {% if days_overdue > 7 %}#dc3545{% else %}#fd7e14{% endif %};
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            font-weight: bold;
+        }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>{% if days_overdue > 7 %}🚨 URGENT: {% endif %}Utility Payment Reminder</h2>
+            <p>
+                {% if days_overdue > 7 %}
+                    Payment Overdue by {{ days_overdue }} Days
+                {% else %}
+                    Payment Due
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            {% if days_overdue > 7 %}
+            <div class="urgent-alert">
+                <h4>🚨 IMMEDIATE ATTENTION REQUIRED</h4>
+                <p>Your utility payment for <strong>Room {{ room_code }}</strong> is <strong>{{ days_overdue }} days overdue</strong>.</p>
+                <p><strong>Failure to pay may result in service interruption or late fees.</strong></p>
+            </div>
+            {% elif days_overdue > 0 %}
+            <div class="warning-alert">
+                <h4>⚠️ Payment Overdue</h4>
+                <p>Your utility payment for <strong>Room {{ room_code }}</strong> is {{ days_overdue }} day{{ days_overdue|pluralize }} overdue.</p>
+            </div>
+            {% else %}
+            <p>This is a friendly reminder that your utility payment for <strong>Room {{ room_code }}</strong> is due soon.</p>
+            {% endif %}
+
+            <div class="payment-details">
+                <h4>Payment Details:</h4>
+                <table style="width: 100%;">
+                    <tr>
+                        <td><strong>Amount Due:</strong></td>
+                        <td><strong style="font-size: 18px; color: #dc3545;">HK$ {{ amount_due }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Original Due Date:</strong></td>
+                        <td>{{ original_due_date }}</td>
+                    </tr>
+                    {% if days_overdue > 0 %}
+                    <tr>
+                        <td><strong>Days Overdue:</strong></td>
+                        <td><strong>{{ days_overdue }} day{{ days_overdue|pluralize }}</strong></td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+
+            {% if days_overdue > 14 %}
+            <div class="urgent-alert">
+                <h4>⚠️ FINAL NOTICE</h4>
+                <p>This is your final reminder. If payment is not received within 48 hours, we may:</p>
+                <ul>
+                    <li>Apply late fees to your account</li>
+                    <li>Restrict access to online services</li>
+                    <li>Proceed with collection actions</li>
+                </ul>
+            </div>
+            {% elif days_overdue > 7 %}
+            <div class="urgent-alert">
+                <h4>⚠️ SERVICE INTERRUPTION WARNING</h4>
+                <p>Continued non-payment may result in utility service interruption.</p>
+                <p>Please settle this amount immediately to avoid service disruption.</p>
+            </div>
+            {% endif %}
+
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{ payment_url }}" class="button">
+                    {% if days_overdue > 7 %}
+                    🚨 PAY NOW
+                    {% else %}
+                    Make Payment
+                    {% endif %}
+                </a>
+            </div>
+
+            <p><strong>Payment Methods:</strong></p>
+            <ul>
+                <li>Online via tenant portal (recommended)</li>
+                <li>Bank transfer to our company account</li>
+                <li>In-person at our office during business hours</li>
+            </ul>
+
+            {% if days_overdue > 7 %}
+            <p><strong>If you have already made this payment, please ensure you have uploaded the payment proof to your tenant portal.</strong></p>
+            {% endif %}
+
+            <p>If you have any questions or need payment assistance, please contact our utilities team immediately.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Utilities Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>
+                {% if days_overdue > 7 %}
+                This is an URGENT final reminder. Please take immediate action to avoid service interruption.
+                {% else %}
+                This is an automated payment reminder. Please do not reply to this email.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</body>
+</html>

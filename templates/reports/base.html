@@ -304,6 +304,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {% if 'owners' in request.path %}active{% endif %}" href="{% url 'reports:owners_report' %}">
+                        <i class="fas fa-user-tie"></i> Owners Report
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {% if 'crm/rooms' in request.path %}active{% endif %}" href="{% url 'properties:crm_room_list' %}">
                         <i class="fas fa-door-open"></i> All Rooms
                     </a>
@@ -325,13 +330,23 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if 'temporary-stay' in request.path %}active{% endif %}" href="{% url 'reports:temporary_stay' %}">
-                        Temporary Stays
+                        <i class="fas fa-clock"></i> Temporary Stays
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link {% if 'monthly-sales' in request.path %}active{% endif %}" href="{% url 'reports:monthly_sales' %}">
                         <i class="fas fa-chart-line"></i> Sales Report
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'profit-loss' in request.path %}active{% endif %}" href="{% url 'reports:profit_loss_report' %}">
+                        <i class="fas fa-chart-line"></i> P&L Report
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'rent-increase' in request.path %}active{% endif %}" href="{% url 'reports:rent_increase_report' %}">
+                        <i class="fas fa-chart-line"></i> Rent Increase
                     </a>
                 </li>
                 <li class="nav-item">

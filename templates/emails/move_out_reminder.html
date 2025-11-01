@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #fff3cd; padding: 20px; text-align: center; border-radius: 5px; border: 1px solid #ffeaa7; }
+        .content { padding: 20px; }
+        .checklist { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .button { background: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Move Out Reminder</h2>
+            <p>Your tenancy agreement is ending in {{ days_until_end }} days</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            <p>This is a reminder that your tenancy agreement for <strong>Room {{ room_code }}</strong> will end on <strong>{{ contract_end_date }}</strong>.</p>
+
+            <div class="checklist">
+                <h4>📋 Move Out Checklist:</h4>
+                <ul>
+                    <li>Schedule your move-out date and time</li>
+                    <li>Clean the room thoroughly</li>
+                    <li>Remove all personal belongings</li>
+                    <li>Return all keys and access cards</li>
+                    <li>Take photos of the cleaned room for deposit refund</li>
+                </ul>
+            </div>
+
+            <p><strong>Deposit Refund Information:</strong></p>
+            <p>To receive your security deposit refund, please ensure:</p>
+            <ul>
+                <li>Room is cleaned to the original condition</li>
+                <li>No damages beyond normal wear and tear</li>
+                <li>All utility bills are paid</li>
+                <li>Photos of cleaned room are uploaded to your tenant portal</li>
+            </ul>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{ move_out_checklist_url }}" class="button">View Move Out Checklist</a>
+            </div>
+
+            <p>For more information about the deposit refund process, please visit:</p>
+            <p><a href="{{ deposit_refund_info_url }}">{{ deposit_refund_info_url }}</a></p>
+
+            <p>If you have any questions, please contact our operations team.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Operations Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated notification. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>

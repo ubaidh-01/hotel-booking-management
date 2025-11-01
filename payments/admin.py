@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Payment, UtilityBill
+from .models import Payment, UtilityBill, ExpenseCategory, Expense
 
 
 @admin.register(Payment)
@@ -36,14 +36,14 @@ class PaymentAdmin(admin.ModelAdmin):
 
 @admin.register(UtilityBill)
 class UtilityBillAdmin(admin.ModelAdmin):
-    list_display = ['property', 'bill_type', 'bill_amount', 'bill_date', 'due_date', 'is_settled']
+    list_display = ['property_obj', 'bill_type', 'bill_amount', 'bill_date', 'due_date', 'is_settled']
     list_filter = ['bill_type', 'bill_date', 'is_settled']
-    search_fields = ['property__name']
+    search_fields = ['property_obj__name']
     list_editable = ['is_settled']
 
     fieldsets = (
         ('Bill Information', {
-            'fields': ('property', 'bill_type', 'bill_amount', 'bill_date', 'due_date')
+            'fields': ('property_obj', 'bill_type', 'bill_amount', 'bill_date', 'due_date')
         }),
         ('Settlement', {
             'fields': ('total_tenants', 'is_settled')
@@ -53,3 +53,17 @@ class UtilityBillAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         })
     )
+
+
+@admin.register(ExpenseCategory)
+class ExpenseCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'description']
+    search_fields = ['name']
+
+
+@admin.register(Expense)
+class ExpenseAdmin(admin.ModelAdmin):
+    list_display = ['category', 'amount', 'description', 'payment_date', 'payment_method']
+    list_filter = ['category', 'payment_date', 'payment_method']
+    search_fields = ['description', 'category__name']
+    readonly_fields = ['created_at', 'updated_at']

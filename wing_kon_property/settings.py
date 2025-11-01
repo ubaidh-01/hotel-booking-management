@@ -116,6 +116,15 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'notifications.tasks.send_contract_reminders',
         'schedule': 86400.0,  # Every 24 hours
     },
+    'send-move-out-reminders': {
+        'task': 'notifications.tasks.send_move_out_reminders',
+        'schedule': 86400.0,  # Every 24 hours
+    },
+
+    'send-final-move-out-warnings': {
+        'task': 'notifications.tasks.send_final_move_out_warnings',
+        'schedule': 86400.0,  # Every 24 hours
+    },
     'send-birthday-wishes': {
         'task': 'notifications.tasks.send_birthday_wishes',
         'schedule': 86400.0,  # Every 24 hours
@@ -128,8 +137,25 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'notifications.tasks.sync_room_status',
         'schedule': 86400.0,  # Every 24 hours
     },
-}
+    'detect-rent-increases': {
+            'task': 'notifications.tasks.detect_rent_increases',
+            'schedule': 86400.0,  # Every 24 hours
+        },
 
+    'create-late-fee-payments': {
+        'task': 'notifications.tasks.create_late_fee_payments',
+        'schedule': 86400.0,  # Every 24 hours
+    },
+    'allocate-utility-bills': {
+        'task': 'notifications.tasks.allocate_utility_bills',
+        'schedule': 86400.0,  # Every 24 hours
+    },
+
+    'send-utility-reminders': {
+        'task': 'notifications.tasks.send_utility_payment_reminders',
+        'schedule': 86400.0,  # Every 24 hours
+    },
+}
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 

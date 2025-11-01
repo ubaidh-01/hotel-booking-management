@@ -1,0 +1,270 @@
+{% extends 'reports/base.html' %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">{{ title }}</h2>
+        <p class="text-muted mb-0">Financial overview for {{ start_date|date:"F Y" }}</p>
+    </div>
+    <div>
+        <!-- Month Selector -->
+        <form method="get" class="d-flex align-items-center">
+            <div class="input-group me-2">
+                <input type="month" name="month" value="{{ selected_month }}" class="form-control"
+                       onchange="this.form.submit()">
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <a href="?export=csv&month={{ selected_month }}" class="btn btn-outline-success">
+                <i class="fas fa-file-csv me-2"></i> Export CSV
+            </a>
+        </form>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card success">
+            <div class="stats-icon">
+                <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="stats-number">HK$ {{ monthly_income }}</div>
+            <div class="stats-label">Total Income</div>
+            {% if income_change != 0 %}
+            <div class="mt-2">
+                <small class="{% if income_change > 0 %}text-success{% else %}text-danger{% endif %}">
+                    <i class="fas fa-{% if income_change > 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                    {% if income_change > 0 %}{{ income_change_percent }}{% else %}{{ income_change_percent|cut:"-" }}{% endif %}% from last month
+                </small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card danger">
+            <div class="stats-icon">
+                <i class="fas fa-arrow-down"></i>
+            </div>
+            <div class="stats-number">HK$ {{ monthly_expenses }}</div>
+            <div class="stats-label">Total Expenses</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card warning">
+            <div class="stats-icon">
+                <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <div class="stats-number">HK$ {{ owner_payments }}</div>
+            <div class="stats-label">Owner Payments</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card {% if net_profit >= 0 %}success{% else %}danger{% endif %}">
+            <div class="stats-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stats-number">HK$ {{ net_profit }}</div>
+            <div class="stats-label">Net Profit</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Income Breakdown -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-coins me-2"></i> Income by Type</h5>
+            </div>
+            <div class="card-body">
+                {% if income_by_type %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Payment Type</th>
+                                <th>Amount</th>
+                                <th>Count</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in income_by_type %}
+                            <tr>
+                                <td>{{ item.payment_type|title }}</td>
+                                <td>HK$ {{ item.total }}</td>
+                                <td>{{ item.count }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="me-2">{{ item.percentage }}%</span>
+                                        <div class="progress" style="width: 100px; height: 8px;">
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                 style="width: {{ item.percentage }}%;"
+                                                 aria-valuenow="{{ item.percentage }}"
+                                                 aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-coins fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No income data available for this period</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Breakdown -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-receipt me-2"></i> Expenses by Category</h5>
+            </div>
+            <div class="card-body">
+                {% if expenses_by_category %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Count</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in expenses_by_category %}
+                            <tr>
+                                <td>{{ item.category_name }}</td>
+                                <td>HK$ {{ item.total }}</td>
+                                <td>{{ item.count }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="me-2">{{ item.percentage }}%</span>
+                                        <div class="progress" style="width: 100px; height: 8px;">
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ item.percentage }}%;"
+                                                 aria-valuenow="{{ item.percentage }}"
+                                                 aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No expense data available for this period</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profit/Loss Summary -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-balance-scale me-2"></i> Financial Summary</h5>
+    </div>
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="w-50"><strong>Total Income</strong></td>
+                                <td class="text-success fw-bold">HK$ {{ monthly_income }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total Expenses</strong></td>
+                                <td class="text-danger fw-bold">HK$ {{ monthly_expenses }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Owner Payments</strong></td>
+                                <td class="text-warning fw-bold">HK$ {{ owner_payments }}</td>
+                            </tr>
+                            <tr class="{% if net_profit >= 0 %}table-success{% else %}table-danger{% endif %}">
+                                <td><strong>Net Profit/Loss</strong></td>
+                                <td class="fw-bold">HK$ {{ net_profit }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 text-center">
+                    {% if net_profit >= 0 %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Profitable Month!</strong> Your business generated a profit of HK$ {{ net_profit }}.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Loss This Month.</strong> Your business had a loss of HK$ {% if net_profit < 0 %}{{ net_profit|cut:"-" }}{% else %}{{ net_profit }}{% endif %}.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Insights -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i> Financial Insights</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Profitability Analysis</h6>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Income to Expenses Ratio:</strong>
+                    {% if monthly_expenses > 0 %}
+                        {% if monthly_income > monthly_expenses %}
+                            <span class="text-success">Income exceeds expenses by HK$ {{ monthly_income|add:monthly_expenses.negate }}</span>
+                        {% else %}
+                            <span class="text-danger">Expenses exceed income by HK$ {{ monthly_expenses|add:monthly_income.negate }}</span>
+                        {% endif %}
+                    {% else %}
+                        <span>No expenses recorded</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6>Recommendations</h6>
+                <ul class="small">
+                    {% if net_profit < 0 %}
+                    <li>Consider reducing expenses in the following categories:</li>
+                    {% for item in expenses_by_category|slice:":3" %}
+                    <li>{{ item.category_name }} (HK$ {{ item.total }})</li>
+                    {% endfor %}
+                    {% else %}
+                    <li>Your business is performing well this month.</li>
+                    <li>Consider investing surplus profits into property improvements.</li>
+                    {% endif %}
+                    <li>Review owner payment terms to optimize cash flow.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

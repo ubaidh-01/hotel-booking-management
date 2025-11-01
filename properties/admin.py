@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Property, Room
+from .models import Property, Room, Owner, PropertyOwnership
 
 
 @admin.register(Property)
@@ -55,3 +55,19 @@ class RoomAdmin(admin.ModelAdmin):
         return "No current tenant"
 
     current_tenant_display.short_description = 'Current Tenant'
+
+
+@admin.register(Owner)
+class OwnerAdmin(admin.ModelAdmin):
+    list_display = ['name', 'contact_email', 'phone_number', 'active_properties_count', 'total_rent_owed']
+    list_filter = ['created_at']
+    search_fields = ['name', 'contact_email', 'phone_number']
+    readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(PropertyOwnership)
+class PropertyOwnershipAdmin(admin.ModelAdmin):
+    list_display = ['owner', 'property_obj', 'monthly_rent_to_owner', 'management_fee', 'contract_start', 'contract_end', 'is_active', 'rent_owed']  # Updated to property_obj
+    list_filter = ['is_active', 'contract_start', 'contract_end']
+    search_fields = ['owner__name', 'property_obj__name']
+    readonly_fields = ['created_at', 'updated_at', 'rent_owed']
