@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8d7da; padding: 20px; text-align: center; border-radius: 5px; border: 1px solid #f5c6cb; }
+        .content { padding: 20px; }
+        .alert-box { background: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border: 2px solid #ffc107; }
+        .ticket-details { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .button { background: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+        .details-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .details-table td { padding: 8px; border-bottom: 1px solid #ddd; }
+        .details-table .label { font-weight: bold; width: 40%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>🚨 Maintenance Ticket Overdue</h2>
+            <p>Immediate Attention Required</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ staff_name }}</strong>,</p>
+
+            <div class="alert-box">
+                <h4>⚠️ OVERDUE MAINTENANCE TICKET</h4>
+                <p>The maintenance ticket assigned to you is <strong>{{ days_overdue }} day{{ days_overdue|pluralize }} overdue</strong>.</p>
+                <p><strong>Please complete this task immediately or provide an update.</strong></p>
+            </div>
+
+            <div class="ticket-details">
+                <h4>Ticket Details:</h4>
+                <table class="details-table">
+                    <tr>
+                        <td class="label">Ticket Number:</td>
+                        <td><strong>{{ ticket_number }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Room:</td>
+                        <td>{{ room_code }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Title:</td>
+                        <td>{{ ticket_title }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Days Open:</td>
+                        <td>{{ days_open }} day{{ days_open|pluralize }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Days Overdue:</td>
+                        <td><strong style="color: #dc3545;">{{ days_overdue }} day{{ days_overdue|pluralize }}</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="background: #f8d7da; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h4>Required Actions:</h4>
+                <ul>
+                    <li>Complete the maintenance work immediately</li>
+                    <li>Update the ticket status in the CRM</li>
+                    <li>Add completion notes and photos</li>
+                    <li>Notify the tenant that work is completed</li>
+                    <li>Record any costs incurred</li>
+                </ul>
+            </div>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{ ticket_url }}" class="button">Update Ticket Status</a>
+            </div>
+
+            <p>If you need assistance or cannot complete this task, please notify your supervisor immediately.</p>
+
+            <p>This overdue ticket will be escalated to management if not resolved within 24 hours.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Maintenance System</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated alert for overdue maintenance tickets.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!-- templates/emails/maintenance_update.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #e3f2fd; padding: 20px; text-align: center; border-radius: 5px; }
+        .content { padding: 20px; }
+        .update-box { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #007bff; }
+        .priority-high { border-left-color: #dc3545; background: #f8d7da; }
+        .priority-medium { border-left-color: #fd7e14; background: #fff3cd; }
+        .button { background: #17a2b8; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Maintenance Update</h2>
+            <p>Ticket #{{ ticket_number }} - {{ room_code }}</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            <p>We have an update regarding your maintenance request:</p>
+
+            <div class="update-box {% if priority == 'urgent' %}priority-high{% elif priority == 'high' %}priority-medium{% endif %}">
+                <h4>{{ ticket_title }}</h4>
+                <p><strong>Status:</strong> {{ current_status }}</p>
+                <p><strong>Priority:</strong> {{ priority }}</p>
+                <p><strong>Update:</strong> {{ update_message }}</p>
+            </div>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{ ticket_url }}" class="button">View Ticket Details</a>
+            </div>
+
+            <p>You can check the status of your maintenance request anytime through your tenant portal.</p>
+
+            <p>If you have any questions, please contact our maintenance team.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Maintenance Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated update. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>

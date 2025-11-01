@@ -1,0 +1,109 @@
+<!-- templates/emails/maintenance_escalation_alert.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #dc3545; color: white; padding: 20px; text-align: center; border-radius: 5px; }
+        .content { padding: 20px; }
+        .escalation-box { background: #f8d7da; padding: 15px; border-radius: 5px; margin: 20px 0; border: 2px solid #dc3545; }
+        .ticket-details { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .button { background: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+        .details-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .details-table td { padding: 8px; border-bottom: 1px solid #ddd; }
+        .details-table .label { font-weight: bold; width: 40%; }
+        .consequences { background: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>⚡ MAINTENANCE ESCALATION ALERT</h2>
+            <p>Management Intervention Required</p>
+        </div>
+
+        <div class="content">
+            <p><strong>ATTENTION: Management Team</strong></p>
+
+            <div class="escalation-box">
+                <h4>🚨 URGENT MAINTENANCE TICKET REQUIRES ESCALATION</h4>
+                <p>A high-priority maintenance ticket has been open for <strong>{{ days_open }} days</strong> without resolution.</p>
+                <p><strong>Immediate management intervention is required to prevent tenant dissatisfaction and potential complaints.</strong></p>
+            </div>
+
+            <div class="ticket-details">
+                <h4>Ticket Information:</h4>
+                <table class="details-table">
+                    <tr>
+                        <td class="label">Ticket Number:</td>
+                        <td><strong>{{ ticket_number }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Room:</td>
+                        <td>{{ room_code }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Tenant:</td>
+                        <td>{{ tenant_name }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Title:</td>
+                        <td>{{ ticket_title }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Priority:</td>
+                        <td><strong style="color: #dc3545;">{{ priority }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Days Open:</td>
+                        <td><strong>{{ days_open }} day{{ days_open|pluralize }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Assigned To:</td>
+                        <td>{{ assigned_staff }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="consequences">
+                <h4>⚠️ Potential Consequences:</h4>
+                <ul>
+                    <li>Tenant dissatisfaction and potential complaints</li>
+                    <li>Negative impact on property reputation</li>
+                    <li>Possible rent reduction requests</li>
+                    <li>Legal implications for unresolved maintenance</li>
+                    <li>Impact on tenant retention</li>
+                </ul>
+            </div>
+
+            <div style="background: #e7f3ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h4>🔧 Recommended Actions:</h4>
+                <ol>
+                    <li><strong>Immediate Assessment:</strong> Review the ticket details and current status</li>
+                    <li><strong>Resource Allocation:</strong> Assign additional resources if needed</li>
+                    <li><strong>External Contractor:</strong> Consider hiring external specialist if internal resources are insufficient</li>
+                    <li><strong>Tenant Communication:</strong> Contact tenant with apology and revised timeline</li>
+                    <li><strong>Follow-up:</strong> Ensure completion within 24-48 hours</li>
+                </ol>
+            </div>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{ ticket_url }}" class="button">Review Ticket in CRM</a>
+            </div>
+
+            <p><strong>This ticket has been automatically escalated due to extended unresolved status.</strong></p>
+
+            <p>Please take immediate action to resolve this maintenance issue and prevent further escalation.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Escalation System</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated escalation alert for critical maintenance tickets.</p>
+        </div>
+    </div>
+</body>
+</html>

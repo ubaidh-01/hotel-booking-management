@@ -468,3 +468,124 @@ class EmailService:
         except Exception as e:
             logger.error(f"Failed to send utility payment reminder: {e}")
             return False
+
+
+    @staticmethod
+    def send_maintenance_update(ticket, message):
+        """Send maintenance update to tenant"""
+        try:
+            tenant = ticket.tenant
+            room = ticket.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'room_code': room.room_code,
+                'ticket_number': ticket.ticket_number,
+                'ticket_title': ticket.title,
+                'update_message': message,
+                'current_status': ticket.get_status_display(),
+                'priority': ticket.get_priority_display(),
+                'ticket_url': f"https://wing-kong.com/maintenance/{ticket.id}",
+            }
+
+            subject = f"Maintenance Update - {ticket.ticket_number} - {room.room_code}"
+
+            html_content = render_to_string('emails/maintenance_update.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                reply_to=['maintenance@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Maintenance update sent to {tenant.full_name} for ticket {ticket.ticket_number}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send maintenance update: {e}")
+            return False
+
+    @staticmethod
+    def send_maintenance_overdue_alert(ticket):
+        """Send overdue alert to assigned staff"""
+        try:
+            if not ticket.assigned_staff:
+                return False
+
+            staff = ticket.assigned_staff
+            room = ticket.room
+
+            context = {
+                'staff_name': staff.get_full_name() or staff.username,
+                'ticket_number': ticket.ticket_number,
+                'ticket_title': ticket.title,
+                'room_code': room.room_code,
+                'days_overdue': (timezone.now().date() - ticket.estimated_completion_date).days,
+                'days_open': ticket.days_open,
+                'ticket_url': f"https://wing-kong.com/crm/maintenance/{ticket.id}",
+            }
+
+            subject = f"OVERDUE: Maintenance Ticket {ticket.ticket_number} - {room.room_code}"
+
+            html_content = render_to_string('emails/maintenance_overdue_alert.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[staff.email],
+                reply_to=['maintenance@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Maintenance overdue alert sent to {staff.email}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send maintenance overdue alert: {e}")
+            return False
+
+    @staticmethod
+    def send_maintenance_escalation_alert(ticket):
+        """Send escalation alert to management"""
+        try:
+            context = {
+                'ticket_number': ticket.ticket_number,
+                'ticket_title': ticket.title,
+                'room_code': ticket.room.room_code,
+                'tenant_name': ticket.tenant.full_name,
+                'days_open': ticket.days_open,
+                'priority': ticket.get_priority_display(),
+                'assigned_staff': ticket.assigned_staff.get_full_name() if ticket.assigned_staff else 'Unassigned',
+                'ticket_url': f"https://wing-kong.com/crm/maintenance/{ticket.id}",
+            }
+
+            subject = f"ESCALATION REQUIRED: Urgent Maintenance Ticket {ticket.ticket_number}"
+
+            html_content = render_to_string('emails/maintenance_escalation_alert.html', context)
+            text_content = strip_tags(html_content)
+
+            # Send to management email (you can add multiple emails)
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['management@wing-kong.com', 'ubaidafzal022@gmail.com'],
+                reply_to=['maintenance@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Maintenance escalation alert sent for ticket {ticket.ticket_number}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send maintenance escalation alert: {e}")
+            return False

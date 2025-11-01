@@ -477,6 +477,93 @@ def send_utility_payment_reminders():
             logger.error(f"Failed to send utility reminder for {payment.id}: {e}")
 
 
+# notifications/tasks.py - ADD MAINTENANCE TASKS:
+
+@shared_task
+def check_maintenance_overdue():
+    """Check for overdue maintenance tickets and send alerts"""
+    from maintenance.models import MaintenanceTicket
+
+    logger.info("Checking for overdue maintenance tickets...")
+
+    overdue_tickets = MaintenanceTicket.objects.filter(
+        estimated_completion_date__lt=timezone.now().date(),
+        status__in=['open', 'in_progress']
+    ).select_related('tenant', 'room', 'assigned_staff')
+
+    for ticket in overdue_tickets:
+        try:
+            # Send alert to assigned staff
+            if ticket.assigned_staff:
+                EmailService.send_maintenance_overdue_alert(ticket)
+
+            # Notify management about severely overdue tickets
+            if ticket.days_open > 7:
+                EmailService.send_maintenance_management_alert(ticket)
+
+            logger.info(f"Overdue maintenance alert sent for ticket {ticket.ticket_number}")
+
+        except Exception as e:
+            logger.error(f"Failed to send overdue alert for ticket {ticket.id}: {e}")
+
+    logger.info(f"Maintenance overdue check completed: {overdue_tickets.count()} overdue tickets")
+    return overdue_tickets.count()
+
+
+@shared_task
+def send_maintenance_updates_to_tenants():
+    """Automatically send updates to tenants for tickets needing communication"""
+    from maintenance.models import MaintenanceTicket
+
+    logger.info("Sending maintenance updates to tenants...")
+
+    tickets_needing_updates = MaintenanceTicket.objects.filter(
+        status__in=['open', 'in_progress'],
+        tenant_notified=False
+    ).select_related('tenant', 'room')
+
+    update_count = 0
+
+    for ticket in tickets_needing_updates:
+        try:
+            # Only send updates for tickets open more than 2 days
+            if ticket.days_open >= 2:
+                message = f"Your maintenance request for {ticket.room.room_code} is currently {ticket.get_status_display().lower()}. We will update you once there are developments."
+
+                success = ticket.update_tenant(message)
+                if success:
+                    update_count += 1
+
+        except Exception as e:
+            logger.error(f"Failed to send update for ticket {ticket.id}: {e}")
+
+    logger.info(f"Maintenance updates sent: {update_count} tickets updated")
+    return update_count
+
+
+@shared_task
+def escalate_high_priority_tickets():
+    """Escalate high priority tickets that are stuck"""
+    from maintenance.models import MaintenanceTicket
+
+    logger.info("Escalating high priority maintenance tickets...")
+
+    # Find urgent tickets that have been open for more than 3 days
+    urgent_stuck_tickets = MaintenanceTicket.objects.filter(
+        priority='urgent',
+        status__in=['open', 'in_progress'],
+        reported_date__lt=timezone.now() - timedelta(days=3)
+    ).select_related('tenant', 'room')
+
+    for ticket in urgent_stuck_tickets:
+        try:
+            EmailService.send_maintenance_escalation_alert(ticket)
+            logger.info(f"Escalated urgent ticket {ticket.ticket_number}")
+        except Exception as e:
+            logger.error(f"Failed to escalate ticket {ticket.id}: {e}")
+
+    return urgent_stuck_tickets.count()
+
 def send_test_email():
     """Test task to verify email setup"""
     print("INN")

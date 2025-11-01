@@ -155,6 +155,20 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'notifications.tasks.send_utility_payment_reminders',
         'schedule': 86400.0,  # Every 24 hours
     },
+    'check-maintenance-overdue': {
+        'task': 'notifications.tasks.check_maintenance_overdue',
+        'schedule': 86400.0,  # Every 24 hours
+    },
+
+    'send-maintenance-updates': {
+        'task': 'notifications.tasks.send_maintenance_updates_to_tenants',
+        'schedule': 86400.0,  # Every 24 hours
+    },
+
+    'escalate-high-priority-tickets': {
+        'task': 'notifications.tasks.escalate_high_priority_tickets',
+        'schedule': 86400.0,  # Every 24 hours
+    },
 }
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
