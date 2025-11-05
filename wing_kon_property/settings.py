@@ -222,6 +222,10 @@ JAZZMIN_SETTINGS = {
 
 STATIC_URL = 'static/'
 
+# ✅ Add this for deployment on PythonAnywhere
+STATIC_ROOT = '/home/ubaid001/hotel-booking-management/staticfiles'
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
