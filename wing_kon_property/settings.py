@@ -14,7 +14,7 @@ env = environ.Env(
 # Take environment variables from .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['ubaid001.pythonanywhere.com']
 
 INSTALLED_APPS = [
     'jazzmin',
