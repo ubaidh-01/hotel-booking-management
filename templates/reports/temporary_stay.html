@@ -36,12 +36,7 @@
                         <td>{{ contract.temporary_room.room_code }}</td>
                         <td>{{ contract.booking.room.room_code }}</td>
                         <td class="text-danger">{{ contract.temporary_stay_end }}</td>
-                        <td>
-                            <form method="post" action="{% url 'switch_to_permanent' contract.id %}" style="display: inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-success">Switch to Permanent</button>
-                            </form>
-                        </td>
+
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -142,10 +137,7 @@
                                    class="btn btn-outline-primary" target="_blank">
                                     Edit
                                 </a>
-                                <form method="post" action="{% url 'contracts:switch_to_permanent' contract.id %}" style="display: inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-success">Switch Room</button>
-                                </form>
+
                             </div>
                         </td>
                     </tr>

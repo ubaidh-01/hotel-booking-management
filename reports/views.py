@@ -315,7 +315,7 @@ def utilities_report(request):
     # Get all utility bills
     utility_bills = UtilityBill.objects.filter(
         is_settled=False
-    ).select_related('property').prefetch_related('property__rooms__booking_set')
+    ).select_related('property_obj').prefetch_related('property_obj__rooms__booking_set')
 
     # Calculate pro-rata amounts for each bill
     bills_with_details = []
@@ -324,7 +324,7 @@ def utilities_report(request):
     for bill in utility_bills:
         # Get active tenants in this property during bill period
         active_bookings = Booking.objects.filter(
-            room__property=bill.property,
+            room__property=bill.property_obj,
             status='active',
             move_in_date__lte=bill.due_date,
             move_out_date__gte=bill.bill_date
