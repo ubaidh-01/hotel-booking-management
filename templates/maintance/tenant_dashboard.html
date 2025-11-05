@@ -1,0 +1,134 @@
+<!-- templates/maintenance/tenant_dashboard.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Maintenance Requests - Wing Kong Properties</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .status-badge { font-size: 0.8em; }
+        .priority-high { background-color: #dc3545; }
+        .priority-medium { background-color: #fd7e14; }
+        .priority-low { background-color: #ffc107; color: #000; }
+        .priority-urgent { background-color: #6f42c1; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-10 mx-auto">
+                <!-- Header -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="fas fa-tools"></i> Maintenance Requests</h4>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-white bg-warning">
+                            <div class="card-body text-center">
+                                <h3>{{ open_count }}</h3>
+                                <p class="mb-0">Open Requests</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-white bg-success">
+                            <div class="card-body text-center">
+                                <h3>{{ resolved_count }}</h3>
+                                <p class="mb-0">Resolved</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-white bg-info">
+                            <div class="card-body text-center">
+                                <h3>{{ total_count }}</h3>
+                                <p class="mb-0">Total Requests</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Request Button -->
+                <div class="text-end mb-3">
+                    <a href="{% url 'create_maintenance_request' %}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> New Maintenance Request
+                    </a>
+                </div>
+
+                <!-- Tickets List -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">My Maintenance Requests</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if tickets %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Ticket #</th>
+                                        <th>Title</th>
+                                        <th>Room</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Reported</th>
+                                        <th>Last Update</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ticket in tickets %}
+                                    <tr>
+                                        <td><strong>{{ ticket.ticket_number }}</strong></td>
+                                        <td>{{ ticket.title }}</td>
+                                        <td>{{ ticket.room.room_code }}</td>
+                                        <td>
+                                            <span class="badge priority-{{ ticket.priority }} status-badge">
+                                                {{ ticket.get_priority_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{% if ticket.status == 'open' %}secondary{% elif ticket.status == 'in_progress' %}primary{% elif ticket.status == 'resolved' %}success{% else %}dark{% endif %} status-badge">
+                                                {{ ticket.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ ticket.reported_date|date:"M d, Y" }}</td>
+                                        <td>
+                                            {% if ticket.updates.last %}
+                                                {{ ticket.updates.last.created_at|date:"M d, Y" }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'tenant_ticket_detail' ticket.id %}" class="btn btn-sm btn-outline-primary">
+                                                View Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h4>No Maintenance Requests</h4>
+                            <p class="text-muted">You haven't submitted any maintenance requests yet.</p>
+                            <a href="{% url 'create_maintenance_request' %}" class="btn btn-success">
+                                Submit Your First Request
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

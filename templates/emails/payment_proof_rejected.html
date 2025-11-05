@@ -1,0 +1,72 @@
+<!-- templates/emails/payment_proof_rejected.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8d7da; padding: 20px; text-align: center; border-radius: 5px; border: 1px solid #f5c6cb; }
+        .content { padding: 20px; }
+        .rejection-box { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .button { background: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Payment Proof Rejected</h2>
+            <p>Action Required - {{ receipt_number }}</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            <p>We regret to inform you that your payment proof for <strong>Room {{ room_code }}</strong> has been rejected.</p>
+
+            <div class="rejection-box">
+                <h4>Rejection Reason:</h4>
+                <div style="background: white; padding: 10px; border-radius: 3px; border-left: 4px solid #dc3545;">
+                    {{ rejection_reason }}
+                </div>
+
+                <table style="width: 100%; margin-top: 15px;">
+                    <tr>
+                        <td style="width: 40%;"><strong>Amount:</strong></td>
+                        <td>HK$ {{ amount }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Payment Type:</strong></td>
+                        <td>{{ payment_type }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Receipt Number:</strong></td>
+                        <td>{{ receipt_number }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <p><strong>Please upload a new payment proof with the following requirements:</strong></p>
+            <ul>
+                <li>Clear image of bank transfer slip or payment confirmation</li>
+                <li>Amount and date must be clearly visible</li>
+                <li>Reference number must match our records</li>
+                <li>File must be in PDF, JPG, or PNG format</li>
+            </ul>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{ upload_url }}" class="button">Upload New Proof</a>
+            </div>
+
+            <p>If you have any questions, please contact our accounts team immediately.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Accounts Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated rejection notification. Please upload a new proof to avoid late fees.</p>
+        </div>
+    </div>
+</body>
+</html>

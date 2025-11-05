@@ -52,7 +52,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],
+                to=['hmadafzal00@gmail.com'],
                 # to=[tenant.user.email],
                 reply_to=['accounts@wing-kong.com']
             )
@@ -97,7 +97,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],
+                to=['hmadafzal00@gmail.com' ],
                 # to=[tenant.user.email],
                 reply_to=['leasing@wing-kong.com']
             )
@@ -129,7 +129,7 @@ class EmailService:
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 # to=[tenant.user.email]
-                to=['ubaidafzal022@gmail.com'],
+                to=['hmadafzal00@gmail.com' ],
                 reply_to=['info@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -201,7 +201,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['accounts@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -251,7 +251,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['leasing@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -292,7 +292,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['leasing@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -330,7 +330,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['operations@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -370,7 +370,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['operations@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -412,7 +412,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['utilities@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -456,7 +456,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['utilities@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -497,7 +497,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['maintenance@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -577,7 +577,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['management@wing-kong.com', 'ubaidafzal022@gmail.com'],
+                to=['management@wing-kong.com', 'hmadafzal00@gmail.com' ],
                 reply_to=['maintenance@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -619,7 +619,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['contracts@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -663,7 +663,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['contracts@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -702,7 +702,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['moveout@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -743,7 +743,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['moveout@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -781,7 +781,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['accounts@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -822,7 +822,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['ubaidafzal022@gmail.com'],  # Replace with tenant.user.email
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
                 reply_to=['accounts@wing-kong.com']
             )
 
@@ -838,4 +838,198 @@ class EmailService:
 
         except Exception as e:
             logger.error(f"Failed to send payment receipt: {e}")
+            return False
+
+    @staticmethod
+    def send_new_maintenance_request(ticket):
+        """Send notification for new maintenance request to staff"""
+        try:
+            context = {
+                'ticket_number': ticket.ticket_number,
+                'tenant_name': ticket.tenant.full_name,
+                'room_code': ticket.room.room_code,
+                'title': ticket.title,
+                'description': ticket.description,
+                'priority': ticket.get_priority_display(),
+                'reported_date': ticket.reported_date.strftime('%Y-%m-%d %H:%M'),
+                'ticket_url': f"https://wing-kong.com/crm/maintenance/{ticket.id}",
+            }
+
+            subject = f"New Maintenance Request - {ticket.ticket_number} - {ticket.room.room_code}"
+
+            html_content = render_to_string('emails/new_maintenance_request.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['maintenance@wing-kong.com', 'hmadafzal00@gmail.com' ],
+                reply_to=[ticket.tenant.user.email] if ticket.tenant.user else ['noreply@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"New maintenance request notification sent for {ticket.ticket_number}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send new maintenance request notification: {e}")
+            return False
+
+
+    @staticmethod
+    def send_payment_proof_uploaded(payment):
+        """Notify staff when tenant uploads payment proof"""
+        try:
+            tenant = payment.booking.tenant
+            room = payment.booking.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'room_code': room.room_code,
+                'payment_type': payment.get_payment_type_display(),
+                'amount': payment.amount,
+                'payment_date': payment.payment_date.strftime('%Y-%m-%d'),
+                'receipt_number': payment.receipt_number,
+                'verification_url': f"https://wing-kong.com/crm/payments/{payment.id}/proof",
+            }
+
+            subject = f"Payment Proof Uploaded - {payment.receipt_number} - {room.room_code}"
+
+            html_content = render_to_string('emails/payment_proof_uploaded.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['accounts@wing-kong.com', 'hmadafzal00@gmail.com' ],
+                reply_to=['noreply@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Payment proof uploaded notification sent for {payment.receipt_number}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send payment proof uploaded notification: {e}")
+            return False
+
+    @staticmethod
+    def send_payment_proof_verified(payment):
+        """Notify tenant when payment proof is verified"""
+        try:
+            tenant = payment.booking.tenant
+            room = payment.booking.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'room_code': room.room_code,
+                'amount': payment.amount,
+                'payment_type': payment.get_payment_type_display(),
+                'receipt_number': payment.receipt_number,
+                'verified_date': payment.proof_verified_date.strftime('%Y-%m-%d'),
+                'receipt_url': f"https://wing-kong.com/payments/{payment.id}/receipt",
+            }
+
+            subject = f"Payment Verified - {payment.receipt_number} - {room.room_code}"
+
+            html_content = render_to_string('emails/payment_proof_verified.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                reply_to=['accounts@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Payment proof verified notification sent to {tenant.full_name}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send payment proof verified notification: {e}")
+            return False
+
+    @staticmethod
+    def send_payment_proof_rejected(payment, rejection_reason):
+        """Notify tenant when payment proof is rejected"""
+        try:
+            tenant = payment.booking.tenant
+            room = payment.booking.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'room_code': room.room_code,
+                'amount': payment.amount,
+                'payment_type': payment.get_payment_type_display(),
+                'receipt_number': payment.receipt_number,
+                'rejection_reason': rejection_reason,
+                'upload_url': f"https://wing-kong.com/payments/{payment.id}/upload-proof",
+            }
+
+            subject = f"Payment Proof Rejected - {payment.receipt_number} - {room.room_code}"
+
+            html_content = render_to_string('emails/payment_proof_rejected.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                reply_to=['accounts@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Payment proof rejected notification sent to {tenant.full_name}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send payment proof rejected notification: {e}")
+            return False
+
+    @staticmethod
+    def send_payment_proof_clarification(payment, clarification_request):
+        """Request clarification on payment proof from tenant"""
+        try:
+            tenant = payment.booking.tenant
+            room = payment.booking.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'room_code': room.room_code,
+                'amount': payment.amount,
+                'payment_type': payment.get_payment_type_display(),
+                'receipt_number': payment.receipt_number,
+                'clarification_request': clarification_request,
+                'upload_url': f"https://wing-kong.com/payments/{payment.id}/upload-proof",
+            }
+
+            subject = f"Clarification Needed - Payment Proof - {payment.receipt_number}"
+
+            html_content = render_to_string('emails/payment_proof_clarification.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                reply_to=['accounts@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Payment proof clarification request sent to {tenant.full_name}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send payment proof clarification request: {e}")
             return False

@@ -1,0 +1,77 @@
+<!-- templates/emails/new_maintenance_request.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #fff3cd; padding: 20px; text-align: center; border-radius: 5px; border: 1px solid #ffeaa7; }
+        .content { padding: 20px; }
+        .ticket-details { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .button { background: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>New Maintenance Request</h2>
+            <p>Ticket #{{ ticket_number }} - {{ room_code }}</p>
+        </div>
+
+        <div class="content">
+            <p><strong>Attention Maintenance Team,</strong></p>
+
+            <p>A new maintenance request has been submitted by <strong>{{ tenant_name }}</strong>.</p>
+
+            <div class="ticket-details">
+                <h4>Request Details:</h4>
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 30%;"><strong>Ticket Number:</strong></td>
+                        <td><strong>{{ ticket_number }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tenant:</strong></td>
+                        <td>{{ tenant_name }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Room:</strong></td>
+                        <td>{{ room_code }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Priority:</strong></td>
+                        <td>{{ priority }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reported:</strong></td>
+                        <td>{{ reported_date }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Title:</strong></td>
+                        <td>{{ title }}</td>
+                    </tr>
+                </table>
+
+                <div style="margin-top: 15px; padding: 10px; background: white; border-radius: 3px;">
+                    <strong>Description:</strong><br>
+                    {{ description }}
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{ ticket_url }}" class="button">View Ticket in CRM</a>
+            </div>
+
+            <p>Please assign this ticket and begin the maintenance process.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management System</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated notification for new maintenance requests.</p>
+        </div>
+    </div>
+</body>
+</html>

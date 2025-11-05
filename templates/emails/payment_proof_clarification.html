@@ -1,0 +1,71 @@
+<!-- templates/emails/payment_proof_clarification.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #fff3cd; padding: 20px; text-align: center; border-radius: 5px; border: 1px solid #ffeaa7; }
+        .content { padding: 20px; }
+        .clarification-box { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .button { background: #fd7e14; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; }
+        .footer { margin-top: 20px; padding: 20px; background: #f8f9fa; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Clarification Needed - Payment Proof</h2>
+            <p>Receipt {{ receipt_number }} - Room {{ room_code }}</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            <p>We require additional information regarding your payment proof for <strong>Room {{ room_code }}</strong>.</p>
+
+            <div class="clarification-box">
+                <h4>Information Needed:</h4>
+                <div style="background: white; padding: 10px; border-radius: 3px; border-left: 4px solid #fd7e14;">
+                    {{ clarification_request }}
+                </div>
+
+                <table style="width: 100%; margin-top: 15px;">
+                    <tr>
+                        <td style="width: 40%;"><strong>Amount:</strong></td>
+                        <td>HK$ {{ amount }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Payment Type:</strong></td>
+                        <td>{{ payment_type }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Receipt Number:</strong></td>
+                        <td>{{ receipt_number }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <p><strong>Please provide the requested information by:</strong></p>
+            <ul>
+                <li>Uploading a new proof with clearer details</li>
+                <li>Responding to this email with the required information</li>
+                <li>Contacting our accounts team directly</li>
+            </ul>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="{{ upload_url }}" class="button">Upload Updated Proof</a>
+            </div>
+
+            <p>Your payment will remain pending until we receive the clarification.</p>
+
+            <p>Best regards,<br>
+            <strong>Wing Kong Property Management Accounts Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated clarification request. Please respond within 48 hours.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -5,6 +5,7 @@ from django.utils import timezone
 from bookings.models import Booking
 import uuid
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -64,6 +65,27 @@ class Payment(models.Model):
     receipt_generated_date = models.DateTimeField(null=True, blank=True)
     receipt_pdf = models.FileField(upload_to='receipts/', null=True, blank=True)
 
+    proof_verified = models.BooleanField(default=False)
+    proof_verified_by = models.ForeignKey(
+        'auth.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='verified_payments'
+    )
+    proof_verified_date = models.DateTimeField(null=True, blank=True)
+    proof_verification_notes = models.TextField(blank=True)
+    proof_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending_review', 'Pending Review'),
+            ('verified', 'Verified'),
+            ('rejected', 'Rejected'),
+            ('needs_clarification', 'Needs Clarification'),
+        ],
+        default='pending_review'
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -122,6 +144,63 @@ class Payment(models.Model):
         except Exception as e:
             logger.error(f"Failed to send receipt email for payment {self.id}: {e}")
             return False
+
+    def verify_payment_proof(self, verified_by, notes=""):
+        """Verify payment proof and update status"""
+        self.proof_verified = True
+        self.proof_verified_by = verified_by
+        self.proof_verified_date = timezone.now()
+        self.proof_status = 'verified'
+        self.proof_verification_notes = notes
+        self.status = 'completed'  # Mark payment as completed
+        self.save()
+
+        # Generate receipt automatically
+        self.generate_receipt_pdf()
+        self.send_receipt_email()
+
+        logger.info(f"Payment proof verified for {self.receipt_number} by {verified_by.username}")
+        return True
+
+    def reject_payment_proof(self, verified_by, rejection_reason):
+        from notifications.services import EmailService
+
+        """Reject payment proof and notify tenant"""
+        self.proof_verified = False
+        self.proof_verified_by = verified_by
+        self.proof_verified_date = timezone.now()
+        self.proof_status = 'rejected'
+        self.proof_verification_notes = rejection_reason
+        self.save()
+
+        # Send rejection notification to tenant
+        EmailService.send_payment_proof_rejected(self, rejection_reason)
+
+        logger.info(f"Payment proof rejected for {self.receipt_number}")
+        return True
+
+    def request_clarification(self, verified_by, clarification_request):
+        from notifications.services import EmailService
+
+        """Request clarification on payment proof"""
+        self.proof_status = 'needs_clarification'
+        self.proof_verified_by = verified_by
+        self.proof_verified_date = timezone.now()
+        self.proof_verification_notes = clarification_request
+        self.save()
+
+        # Send clarification request to tenant
+        EmailService.send_payment_proof_clarification(self, clarification_request)
+
+        logger.info(f"Clarification requested for payment {self.receipt_number}")
+        return True
+
+    @property
+    def needs_proof_verification(self):
+        """Check if payment proof needs verification"""
+        return (self.proof_of_payment and
+                self.status == 'pending' and
+                self.proof_status == 'pending_review')
 
 
 class UtilityBill(models.Model):

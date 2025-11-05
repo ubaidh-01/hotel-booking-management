@@ -634,7 +634,7 @@ def send_test_email():
             'Test Email from Wing Kong CRM',
             'This is a test email to verify your email configuration.',
             'ubaidafzal022@gmail.com',
-            ['ubaidafzal022@gmail.com'],
+            ['hmadafzal00@gmail.com'],
             fail_silently=False,
         )
         print("Test email sent successfully.")
