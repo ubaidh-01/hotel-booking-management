@@ -14,12 +14,10 @@ from contracts.models import Contract
 
 
 def staff_required(view_func):
-    """Decorator that checks if user is staff member"""
-    decorated_view_func = login_required(user_passes_test(
-        lambda u: u.is_staff,
+    return login_required(
+        user_passes_test(lambda u: u.is_staff)(view_func),
         login_url='/admin/login/'
-    )(view_func))
-    return decorated_view_func
+    )
 
 
 @staff_required

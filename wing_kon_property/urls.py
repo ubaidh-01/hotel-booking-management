@@ -1,6 +1,8 @@
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
 from django.urls import path, include
 from django.shortcuts import redirect
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -8,5 +10,5 @@ urlpatterns = [
     path('notifications/', include('notifications.urls')),
     path('contracts/', include('contracts.urls')),
     path('', include('properties.urls')),  # Includes CRM room URLs
-    path('', lambda request: redirect('/reports/')),  # Default to CRM dashboard
+    path('', login_required(RedirectView.as_view(url='/reports/', permanent=False))),
 ]
