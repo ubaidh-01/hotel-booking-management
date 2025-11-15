@@ -1,5 +1,18 @@
+from .models import Property, Owner, PropertyOwnership, PropertyImage
 from django.contrib import admin
-from .models import Property, Room, Owner, PropertyOwnership
+from .models import Room, RoomPhoto, RoomVideo
+from django.utils.html import format_html
+
+
+
+class PropertyImageInline(admin.TabularInline):
+    model = PropertyImage
+    extra = 1
+
+@admin.register(PropertyImage)
+class PropertyImageAdmin(admin.ModelAdmin):
+    list_display = ['property', 'image_type', 'is_primary', 'uploaded_at']
+    list_filter = ['image_type', 'property']
 
 
 @admin.register(Property)
@@ -8,6 +21,45 @@ class PropertyAdmin(admin.ModelAdmin):
     list_filter = ['property_type', 'created_at']
     search_fields = ['name', 'address']
     readonly_fields = ['created_at', 'updated_at']
+    inlines = [PropertyImageInline]
+
+
+
+class RoomPhotoInline(admin.TabularInline):
+    model = RoomPhoto
+    extra = 1
+    fields = ["image", "preview"]
+    readonly_fields = ["preview"]
+
+    def preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="width: 120px; height:auto; border-radius:4px;" />',
+                obj.image.url
+            )
+        return "No Image"
+
+    preview.short_description = "Preview"
+
+
+class RoomVideoInline(admin.TabularInline):
+    model = RoomVideo
+    extra = 1
+    fields = ["video", "preview"]
+    readonly_fields = ["preview"]
+
+    def preview(self, obj):
+        if obj.video:
+            return format_html(
+                '<video width="200" controls>'
+                '<source src="{}" type="video/mp4">'
+                'Your browser does not support video.'
+                '</video>',
+                obj.video.url
+            )
+        return "No Video"
+
+    preview.short_description = "Preview"
 
 
 @admin.register(Room)
@@ -16,7 +68,9 @@ class RoomAdmin(admin.ModelAdmin):
     list_filter = ['status', 'property', 'has_private_bathroom', 'has_balcony']
     search_fields = ['room_code', 'property__name', 'description']
     readonly_fields = ['created_at', 'updated_at', 'current_tenant_display']
-    list_editable = ['status']  # Quick edit status
+    list_editable = ['status']
+
+    inlines = [RoomPhotoInline, RoomVideoInline]
 
     fieldsets = (
         ('Basic Information', {
@@ -32,14 +86,10 @@ class RoomAdmin(admin.ModelAdmin):
             'fields': ('current_tenant_display',),
             'classes': ('collapse',)
         }),
-        ('Media', {
-            'fields': ('photos', 'videos'),
-            'classes': ('collapse',)
-        }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
-        })
+        }),
     )
 
     def current_tenant(self, obj):
@@ -55,6 +105,7 @@ class RoomAdmin(admin.ModelAdmin):
         return "No current tenant"
 
     current_tenant_display.short_description = 'Current Tenant'
+
 
 
 @admin.register(Owner)

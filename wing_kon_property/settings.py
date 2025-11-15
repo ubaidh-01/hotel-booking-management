@@ -217,17 +217,14 @@ JAZZMIN_SETTINGS = {
 }
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
 STATIC_URL = 'static/'
 
 # ✅ Add this for deployment on PythonAnywhere
 STATIC_ROOT = '/home/ubaid001/hotel-booking-management/staticfiles'
 
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+# Media files settings
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -243,3 +240,7 @@ TO_EMAIL = env('TO_EMAIL')
 
 LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT_URL = '/reports/'
+
+
+
+

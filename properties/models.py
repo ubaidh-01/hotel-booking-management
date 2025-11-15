@@ -5,7 +5,6 @@ from decimal import Decimal
 from django.utils import timezone
 
 
-
 class Property(models.Model):
     PROPERTY_TYPES = [
         ('apartment', 'Apartment'),
@@ -14,6 +13,7 @@ class Property(models.Model):
 
     name = models.CharField(max_length=200)
     address = models.TextField()
+    address_chinese = models.TextField(null=True, blank=True)
     property_type = models.CharField(max_length=20, choices=PROPERTY_TYPES)
     total_rooms = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -21,6 +21,79 @@ class Property(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.get_property_type_display()}"
+
+    def get_kitchen_images(self):
+        """Get all kitchen images for this property"""
+        return self.property_images.filter(image_type='kitchen')
+
+    def get_living_room_images(self):
+        """Get all living room images for this property"""
+        return self.property_images.filter(image_type='living_room')
+
+    def get_toilet_images(self):
+        """Get all toilet images for this property"""
+        return self.property_images.filter(image_type='toilet')
+
+    def get_street_level_images(self):
+        """Get all street level images for this property"""
+        return self.property_images.filter(image_type='street_level')
+
+    def get_other_images(self):
+        """Get all other property images"""
+        return self.property_images.filter(image_type='other')
+
+    def get_main_kitchen_image(self):
+        """Get the first kitchen image (useful for thumbnails)"""
+        return self.property_images.filter(image_type='kitchen').first()
+
+    def get_main_living_room_image(self):
+        """Get the first living room image"""
+        return self.property_images.filter(image_type='living_room').first()
+
+    def get_main_toilet_image(self):
+        """Get the first toilet image"""
+        return self.property_images.filter(image_type='toilet').first()
+
+    def get_main_street_level_image(self):
+        """Get the first street level image"""
+        return self.property_images.filter(image_type='street_level').first()
+
+
+def property_image_upload_path(instance, filename):
+    """Generate upload path for property images"""
+    return f"properties/{instance.property.name}/images/{instance.image_type}/{filename}"
+
+
+class PropertyImage(models.Model):
+    IMAGE_TYPES = [
+        ('kitchen', 'Kitchen'),
+        ('living_room', 'Living Room'),
+        ('toilet', 'Toilet'),
+        ('street_level', 'Street Level'),
+        ('other', 'Other'),
+    ]
+
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="property_images")
+    image = models.ImageField(upload_to=property_image_upload_path)
+    image_type = models.CharField(max_length=20, choices=IMAGE_TYPES)
+    caption = models.CharField(max_length=200, blank=True, null=True)
+    is_primary = models.BooleanField(default=False, help_text="Mark as primary image for this type")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['image_type', '-is_primary', 'uploaded_at']
+
+    def __str__(self):
+        return f"{self.get_image_type_display()} - {self.property.name}"
+
+    def save(self, *args, **kwargs):
+        # If this image is marked as primary, ensure no other images of same type are primary
+        if self.is_primary:
+            PropertyImage.objects.filter(
+                property=self.property,
+                image_type=self.image_type
+            ).exclude(pk=self.pk).update(is_primary=False)
+        super().save(*args, **kwargs)
 
 
 class Room(models.Model):
@@ -40,8 +113,6 @@ class Room(models.Model):
     monthly_rent = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
     deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, default=2500.00)
     status = models.CharField(max_length=20, choices=ROOM_STATUS, default='available')
-    photos = models.JSONField(default=list, blank=True)
-    videos = models.JSONField(default=list, blank=True)
     post_ad_price = models.DecimalField(
         max_digits=10, decimal_places=2,
         null=True, blank=True,
@@ -137,6 +208,33 @@ class Room(models.Model):
             end_date__gte=today,
             status = 'signed'
     ).select_related('booking__tenant')
+
+
+
+def room_photo_upload_path(instance, filename):
+    return f"rooms/{instance.room.room_code}/photos/{filename}"
+
+def room_video_upload_path(instance, filename):
+    return f"rooms/{instance.room.room_code}/videos/{filename}"
+    return f"rooms/{instance.room.room_code}/videos/{filename}"
+
+class RoomPhoto(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="room_photos")
+    image = models.ImageField(upload_to=room_photo_upload_path)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Photo for {self.room.room_code}"
+
+
+class RoomVideo(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="room_videos")
+    video = models.FileField(upload_to=room_video_upload_path)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Video for {self.room.room_code}"
+
 
 
 class Owner(models.Model):

@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title|default:"Room Details" }}</title>
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #34a853;
+            --accent-color: #ea4335;
+            --light-color: #f8f9fa;
+            --dark-color: #202124;
+            --success-color: #34a853;
+            --warning-color: #fbbc04;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #4285f4);
+            color: white;
+            padding: 2.5rem 0;
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(100px, -150px);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .room-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .room-code {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            font-size: 1rem;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Main Content Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (min-width: 992px) {
+            .main-content {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        /* Media Gallery */
+        .media-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .media-tabs {
+            display: flex;
+            border-bottom: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+        }
+
+        .media-tab {
+            padding: 1.2rem 2rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+            position: relative;
+            color: #5f6368;
+        }
+
+        .media-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            background-color: white;
+        }
+
+        .media-tab:hover:not(.active) {
+            color: var(--primary-color);
+            background-color: rgba(26, 115, 232, 0.05);
+        }
+
+        .media-content {
+            padding: 2rem;
+            min-height: 300px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .gallery-container {
+            position: relative;
+        }
+
+        .main-media {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .media-thumbnails {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 1.5rem;
+        }
+
+        .thumbnail {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            opacity: 0.8;
+            border: 3px solid transparent;
+        }
+
+        .thumbnail:hover, .thumbnail.active {
+            opacity: 1;
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .video-thumbnail i {
+            position: absolute;
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .no-media {
+            text-align: center;
+            padding: 4rem;
+            color: var(--dark-color);
+        }
+
+        .no-media i {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            color: var(--primary-color);
+        }
+
+        /* Room Details */
+        .details-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid #e9ecef;
+            color: var(--dark-color);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            color: #5f6368;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--dark-color);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .status-available {
+            background-color: rgba(52, 168, 83, 0.15);
+            color: var(--success-color);
+        }
+
+        .status-reserved {
+            background-color: rgba(251, 188, 4, 0.15);
+            color: var(--warning-color);
+        }
+
+        .status-occupied {
+            background-color: rgba(26, 115, 232, 0.15);
+            color: var(--primary-color);
+        }
+
+        .status-maintenance {
+            background-color: rgba(234, 67, 53, 0.15);
+            color: var(--accent-color);
+        }
+
+        .status-temporary {
+            background-color: rgba(103, 58, 183, 0.15);
+            color: #673ab7;
+        }
+
+        .status-cleaning {
+            background-color: rgba(95, 99, 104, 0.15);
+            color: #5f6368;
+        }
+
+        /* Features */
+        .features-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .feature-badge {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            background-color: #f1f3f4;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .feature-badge:hover {
+            background-color: #e8eaed;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-badge i {
+            margin-right: 0.8rem;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        /* Booking Card */
+        .booking-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2.5rem;
+            position: sticky;
+            top: 2rem;
+            border: 1px solid #e8eaed;
+        }
+
+        .price-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e8eaed;
+        }
+
+        .price-label {
+            font-size: 0.9rem;
+            color: #5f6368;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .price-value {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0.5rem 0;
+        }
+
+        .price-period {
+            font-size: 1.1rem;
+            color: #5f6368;
+        }
+
+        .booking-info {
+            margin: 2rem 0;
+            padding: 1.5rem 0;
+            border-top: 1px solid #e8eaed;
+            border-bottom: 1px solid #e8eaed;
+        }
+
+        .booking-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+        }
+
+        .booking-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .booking-label {
+            color: #5f6368;
+            font-weight: 500;
+        }
+
+        .booking-value {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1.2rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1rem;
+            border-radius: 8px;
+        }
+
+        .btn i {
+            margin-right: 0.8rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3);
+        }
+
+        .btn-primary:hover {
+            background-color: #1765cc;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(26, 115, 232, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: #f1f3f4;
+            color: var(--dark-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e8eaed;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Description */
+        .description {
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+            color: #5f6368;
+            font-size: 1.1rem;
+        }
+
+        /* Property Info */
+        .property-info {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e8eaed;
+        }
+
+        .property-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+        }
+
+        .property-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .property-detail {
+            display: flex;
+            align-items: center;
+            color: #5f6368;
+            font-size: 1.1rem;
+        }
+
+        .property-detail i {
+            margin-right: 0.8rem;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        /* Property Images Section */
+        .property-images-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .property-image-type {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .property-image-type i {
+            margin-right: 0.8rem;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .property-image-type h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .property-image-gallery {
+            margin-bottom: 2rem;
+        }
+
+        .property-image-gallery:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .media-tabs {
+                flex-wrap: wrap;
+            }
+
+            .main-media {
+                height: 300px;
+            }
+
+            .media-thumbnails {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                gap: 10px;
+            }
+
+            .thumbnail {
+                height: 80px;
+            }
+
+            .room-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+    <!-- Using Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <h1 class="room-title">{{ room.room_number }}</h1>
+                    <div class="room-code">{{ room.room_code }}</div>
+                    <div class="room-code">{{ room.property.address }}</div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <!-- Left Column - Media and Details -->
+            <div>
+                <!-- Room Media Gallery -->
+                <section class="media-section">
+                    <div class="media-tabs">
+                        <div class="media-tab active" data-tab="photos">Photos</div>
+                        <div class="media-tab" data-tab="videos">Videos</div>
+                    </div>
+                    <div class="media-content">
+                        <!-- Photos Tab Content -->
+                        <div class="tab-content photos-content active">
+                            {% if room.room_photos.all %}
+                            <div class="gallery-container">
+                                <img id="main-photo" src="{{ room.room_photos.first.image.url }}" alt="Room photo" class="main-media">
+                                <div class="media-thumbnails">
+                                    {% for photo in room.room_photos.all %}
+                                    <img src="{{ photo.image.url }}" alt="Room photo thumbnail" class="thumbnail {% if forloop.first %}active{% endif %}" data-full="{{ photo.image.url }}">
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="no-media">
+                                <i class="fas fa-image"></i>
+                                <p>No photos available for this room</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Videos Tab Content -->
+                        <div class="tab-content videos-content">
+                            {% if room.room_videos.all %}
+                            <div class="gallery-container">
+                                <video id="main-video" controls class="main-media">
+                                    <source src="{{ room.room_videos.first.video.url }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                                <div class="media-thumbnails">
+                                    {% for video in room.room_videos.all %}
+                                    <div class="thumbnail video-thumbnail {% if forloop.first %}active{% endif %}" data-video="{{ video.video.url }}">
+                                        <i class="fas fa-play"></i>
+                                        <span>Video {{ forloop.counter }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="no-media">
+                                <i class="fas fa-video"></i>
+                                <p>No videos available for this room</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Property Images Section -->
+                <section class="property-images-section">
+                    <div class="media-tabs">
+                        <div class="media-tab active" data-tab="kitchen">Kitchen</div>
+                        <div class="media-tab" data-tab="living-room">Living Room</div>
+                        <div class="media-tab" data-tab="toilet">Toilet</div>
+                        <div class="media-tab" data-tab="street-level">Street Level</div>
+                        <div class="media-tab" data-tab="other">Other</div>
+                    </div>
+                    <div class="media-content">
+                        <!-- Kitchen Tab Content -->
+                        <div class="tab-content kitchen-content active">
+                            {% if room.property.get_kitchen_images %}
+                            <div class="gallery-container">
+                                <img id="main-kitchen-image" src="{{ room.property.get_kitchen_images.first.image.url }}" alt="Kitchen" class="main-media">
+                                <div class="media-thumbnails">
+                                    {% for image in room.property.get_kitchen_images %}
+                                    <img src="{{ image.image.url }}" alt="Kitchen thumbnail" class="thumbnail {% if forloop.first %}active{% endif %}" data-full="{{ image.image.url }}">
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="no-media">
+                                <i class="fas fa-utensils"></i>
+                                <p>No kitchen images available for this property</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Living Room Tab Content -->
+                        <div class="tab-content living-room-content">
+                            {% if room.property.get_living_room_images %}
+                            <div class="gallery-container">
+                                <img id="main-living-room-image" src="{{ room.property.get_living_room_images.first.image.url }}" alt="Living Room" class="main-media">
+                                <div class="media-thumbnails">
+                                    {% for image in room.property.get_living_room_images %}
+                                    <img src="{{ image.image.url }}" alt="Living Room thumbnail" class="thumbnail {% if forloop.first %}active{% endif %}" data-full="{{ image.image.url }}">
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="no-media">
+                                <i class="fas fa-couch"></i>
+                                <p>No living room images available for this property</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Toilet Tab Content -->
+                        <div class="tab-content toilet-content">
+                            {% if room.property.get_toilet_images %}
+                            <div class="gallery-container">
+                                <img id="main-toilet-image" src="{{ room.property.get_toilet_images.first.image.url }}" alt="Toilet" class="main-media">
+                                <div class="media-thumbnails">
+                                    {% for image in room.property.get_toilet_images %}
+                                    <img src="{{ image.image.url }}" alt="Toilet thumbnail" class="thumbnail {% if forloop.first %}active{% endif %}" data-full="{{ image.image.url }}">
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="no-media">
+                                <i class="fas fa-bath"></i>
+                                <p>No toilet images available for this property</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Street Level Tab Content -->
+                        <div class="tab-content street-level-content">
+                            {% if room.property.get_street_level_images %}
+                            <div class="gallery-container">
+                                <img id="main-street-level-image" src="{{ room.property.get_street_level_images.first.image.url }}" alt="Street Level" class="main-media">
+                                <div class="media-thumbnails">
+                                    {% for image in room.property.get_street_level_images %}
+                                    <img src="{{ image.image.url }}" alt="Street Level thumbnail" class="thumbnail {% if forloop.first %}active{% endif %}" data-full="{{ image.image.url }}">
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="no-media">
+                                <i class="fas fa-road"></i>
+                                <p>No street level images available for this property</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Other Tab Content -->
+                        <div class="tab-content other-content">
+                            {% if room.property.get_other_images %}
+                            <div class="gallery-container">
+                                <img id="main-other-image" src="{{ room.property.get_other_images.first.image.url }}" alt="Other" class="main-media">
+                                <div class="media-thumbnails">
+                                    {% for image in room.property.get_other_images %}
+                                    <img src="{{ image.image.url }}" alt="Other thumbnail" class="thumbnail {% if forloop.first %}active{% endif %}" data-full="{{ image.image.url }}">
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="no-media">
+                                <i class="fas fa-images"></i>
+                                <p>No other images available for this property</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Room Details -->
+                <section class="details-section">
+                    <h2 class="section-title">Room Details</h2>
+
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Monthly Rent</span>
+                            <span class="detail-value">HK$ {{ room.monthly_rent }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Deposit</span>
+                            <span class="detail-value">HK$ {{ room.deposit_amount }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Size</span>
+                            <span class="detail-value">
+                                {% if room.size_sqft %}
+                                    {{ room.size_sqft }} sqft
+                                {% else %}
+                                    Not specified
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status</span>
+                            <span class="status-badge status-{{ room.status }}">{{ room.get_status_display }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Description</span>
+                        <div class="description">
+                            {% if room.description %}
+                                {{ room.description }}
+                            {% else %}
+                                No description provided for this room.
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">Room Features</h3>
+                    <div class="features-list">
+                        <div class="feature-badge {% if room.has_private_bathroom %}has-feature{% endif %}">
+                            <i class="fas fa-bath"></i>
+                            <span>Private Bathroom</span>
+                        </div>
+                        <div class="feature-badge {% if room.has_balcony %}has-feature{% endif %}">
+                            <i class="fas fa-door-open"></i>
+                            <span>Balcony</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Property Information -->
+                <section class="property-info">
+                    <h2 class="section-title">Property Information</h2>
+                    <div class="property-name">{{ room.property.name }}</div>
+                    <div class="property-details">
+                        <div class="property-detail">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{ room.property.address }}</span>
+                        </div>
+                        <div class="property-detail">
+                            <i class="fas fa-building"></i>
+                            <span>{{ room.property.get_property_type_display }}</span>
+                        </div>
+                        <div class="property-detail">
+                            <i class="fas fa-door-closed"></i>
+                            <span>{{ room.property.total_rooms }} Rooms</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column - Booking Card -->
+            <div>
+                <section class="booking-card">
+                    <div class="price-section">
+                        <div class="price-label">Monthly Rent</div>
+                        <div class="price-value">HK$ {{ room.monthly_rent }}</div>
+                        <div class="price-period">per month</div>
+                    </div>
+
+                    <div class="booking-info">
+                        <div class="booking-item">
+                            <span class="booking-label">Room Code</span>
+                            <span class="booking-value">{{ room.room_code }}</span>
+                        </div>
+                        <div class="booking-item">
+                            <span class="booking-label">Room Number</span>
+                            <span class="booking-value">{{ room.room_number }}</span>
+                        </div>
+                        <div class="booking-item">
+                            <span class="booking-label">Status</span>
+                            <span class="status-badge status-{{ room.status }}">{{ room.get_status_display }}</span>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        {% if room.status == 'available' %}
+                            <a href="#" class="btn btn-primary">
+                                <i class="fas fa-calendar-check"></i> Book Now
+                            </a>
+                        {% else %}
+                            <button class="btn btn-secondary" disabled>
+                                <i class="fas fa-ban"></i> Not Available
+                            </button>
+                        {% endif %}
+                        <a href="#" class="btn btn-outline">
+                            <i class="fas fa-phone"></i> Contact Property
+                        </a>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality for room media
+        document.addEventListener('DOMContentLoaded', function() {
+            // Room media tabs
+            const roomTabs = document.querySelectorAll('.media-section:first-of-type .media-tab');
+            const roomTabContents = document.querySelectorAll('.media-section:first-of-type .tab-content');
+
+            roomTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and contents
+                    roomTabs.forEach(t => t.classList.remove('active'));
+                    roomTabContents.forEach(c => c.classList.remove('active'));
+
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+
+                    // Show corresponding content
+                    const tabName = tab.getAttribute('data-tab');
+                    document.querySelector(`.media-section:first-of-type .${tabName}-content`).classList.add('active');
+                });
+            });
+
+            // Property image tabs
+            const propertyTabs = document.querySelectorAll('.property-images-section .media-tab');
+            const propertyTabContents = document.querySelectorAll('.property-images-section .tab-content');
+
+            propertyTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and contents
+                    propertyTabs.forEach(t => t.classList.remove('active'));
+                    propertyTabContents.forEach(c => c.classList.remove('active'));
+
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+
+                    // Show corresponding content
+                    const tabName = tab.getAttribute('data-tab').replace('-', '-');
+                    document.querySelector(`.property-images-section .${tabName}-content`).classList.add('active');
+                });
+            });
+
+            // Photo gallery functionality for room photos
+            const roomThumbnails = document.querySelectorAll('.photos-content .thumbnail:not(.video-thumbnail)');
+            const mainPhoto = document.getElementById('main-photo');
+
+            roomThumbnails.forEach(thumb => {
+                thumb.addEventListener('click', () => {
+                    // Update main photo
+                    mainPhoto.src = thumb.getAttribute('data-full');
+
+                    // Update active thumbnail
+                    roomThumbnails.forEach(t => t.classList.remove('active'));
+                    thumb.classList.add('active');
+                });
+            });
+
+            // Video gallery functionality for room videos
+            const videoThumbnails = document.querySelectorAll('.videos-content .video-thumbnail');
+            const mainVideo = document.getElementById('main-video');
+
+            if (videoThumbnails.length > 0 && mainVideo) {
+                videoThumbnails.forEach(thumb => {
+                    thumb.addEventListener('click', () => {
+                        // Update main video source
+                        const videoSource = thumb.getAttribute('data-video');
+                        mainVideo.querySelector('source').src = videoSource;
+                        mainVideo.load();
+
+                        // Update active thumbnail
+                        videoThumbnails.forEach(t => t.classList.remove('active'));
+                        thumb.classList.add('active');
+                    });
+                });
+            }
+
+            // Kitchen images gallery functionality
+            const kitchenThumbnails = document.querySelectorAll('.kitchen-content .thumbnail');
+            const mainKitchenImage = document.getElementById('main-kitchen-image');
+
+            if (kitchenThumbnails.length > 0 && mainKitchenImage) {
+                kitchenThumbnails.forEach(thumb => {
+                    thumb.addEventListener('click', () => {
+                        // Update main image
+                        mainKitchenImage.src = thumb.getAttribute('data-full');
+
+                        // Update active thumbnail
+                        kitchenThumbnails.forEach(t => t.classList.remove('active'));
+                        thumb.classList.add('active');
+                    });
+                });
+            }
+
+            // Living room images gallery functionality
+            const livingRoomThumbnails = document.querySelectorAll('.living-room-content .thumbnail');
+            const mainLivingRoomImage = document.getElementById('main-living-room-image');
+
+            if (livingRoomThumbnails.length > 0 && mainLivingRoomImage) {
+                livingRoomThumbnails.forEach(thumb => {
+                    thumb.addEventListener('click', () => {
+                        // Update main image
+                        mainLivingRoomImage.src = thumb.getAttribute('data-full');
+
+                        // Update active thumbnail
+                        livingRoomThumbnails.forEach(t => t.classList.remove('active'));
+                        thumb.classList.add('active');
+                    });
+                });
+            }
+
+            // Toilet images gallery functionality
+            const toiletThumbnails = document.querySelectorAll('.toilet-content .thumbnail');
+            const mainToiletImage = document.getElementById('main-toilet-image');
+
+            if (toiletThumbnails.length > 0 && mainToiletImage) {
+                toiletThumbnails.forEach(thumb => {
+                    thumb.addEventListener('click', () => {
+                        // Update main image
+                        mainToiletImage.src = thumb.getAttribute('data-full');
+
+                        // Update active thumbnail
+                        toiletThumbnails.forEach(t => t.classList.remove('active'));
+                        thumb.classList.add('active');
+                    });
+                });
+            }
+
+            // Street level images gallery functionality
+            const streetLevelThumbnails = document.querySelectorAll('.street-level-content .thumbnail');
+            const mainStreetLevelImage = document.getElementById('main-street-level-image');
+
+            if (streetLevelThumbnails.length > 0 && mainStreetLevelImage) {
+                streetLevelThumbnails.forEach(thumb => {
+                    thumb.addEventListener('click', () => {
+                        // Update main image
+                        mainStreetLevelImage.src = thumb.getAttribute('data-full');
+
+                        // Update active thumbnail
+                        streetLevelThumbnails.forEach(t => t.classList.remove('active'));
+                        thumb.classList.add('active');
+                    });
+                });
+            }
+
+            // Other images gallery functionality
+            const otherThumbnails = document.querySelectorAll('.other-content .thumbnail');
+            const mainOtherImage = document.getElementById('main-other-image');
+
+            if (otherThumbnails.length > 0 && mainOtherImage) {
+                otherThumbnails.forEach(thumb => {
+                    thumb.addEventListener('click', () => {
+                        // Update main image
+                        mainOtherImage.src = thumb.getAttribute('data-full');
+
+                        // Update active thumbnail
+                        otherThumbnails.forEach(t => t.classList.remove('active'));
+                        thumb.classList.add('active');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
