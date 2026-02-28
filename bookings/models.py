@@ -77,6 +77,29 @@ class Booking(models.Model):
 
     # Additional Information
     special_requests = models.TextField(blank=True)
+    hkid_number = models.CharField(max_length=20, blank=True, null=True)
+    passport_number = models.CharField(max_length=50, blank=True, null=True)
+    move_in_time = models.TimeField(null=True, blank=True, help_text="Approximate move-in time")
+
+    # Additional deposits
+    key_deposit = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    security_deposit = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    stamp_duty = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    # Total calculations
+    total_deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def calculate_total_deposit(self):
+        """Calculate total deposit including all components"""
+        total = self.deposit_paid + self.key_deposit + self.security_deposit + self.stamp_duty
+        self.total_deposit_amount = total
+        return total
+
+    def save(self, *args, **kwargs):
+        # Auto-calculate total deposit
+        if not self.total_deposit_amount:
+            self.calculate_total_deposit()
+        super().save(*args, **kwargs)
 
     def calculate_refund_amount(self):
         """Calculate refund amount after deductions"""
@@ -199,3 +222,21 @@ def handle_booking_status_change(sender, instance, **kwargs):
 
         except Booking.DoesNotExist:
             pass
+
+
+@receiver(post_save, sender=Booking)
+def update_room_availability(sender, instance, created, **kwargs):
+    """Automatically hide/show rooms on website based on booking status"""
+    room = instance.room
+
+    if instance.status in ['confirmed', 'active']:
+        # Hide room from website
+        room.status = 'occupied' if instance.status == 'active' else 'reserved'
+    elif instance.status in ['completed', 'cancelled', 'terminated']:
+        # Show room on website again
+        room.status = 'available'
+    elif instance.status == 'pending':
+        # Keep room available but with pending booking
+        room.status = 'available'
+
+    room.save()

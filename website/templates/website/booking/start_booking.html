@@ -1,0 +1,130 @@
+{% extends 'website/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Book Room {{ room.room_code }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Room Summary -->
+                        <div class="alert alert-info">
+                            <h5>Room Details</h5>
+                            <p class="mb-1"><strong>Room:</strong> {{ room.room_code }} - {{ room.property.name }}</p>
+                            <p class="mb-1"><strong>Monthly Rent:</strong> HK$ {{ room.monthly_rent }}</p>
+                            <p class="mb-0"><strong>Required Deposit:</strong> HK$ {{ config.deposit_amount }} (Non-refundable)</p>
+                        </div>
+                        
+                        <!-- Identity Information -->
+                        <div class="mb-4">
+                            <h5>Identity Information</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">HKID Number (Optional)</label>
+                                    <input type="text" class="form-control" name="hkid_number" 
+                                           pattern="^[A-Z]{1,2}[0-9]{6}\([0-9A]\)$"
+                                           placeholder="A123456(7)">
+                                    <small class="form-text text-muted">Format: A123456(7)</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Passport Number (Optional)</label>
+                                    <input type="text" class="form-control" name="passport_number" 
+                                           placeholder="If no HKID">
+                                </div>
+                            </div>
+                            <div class="alert alert-warning">
+                                <small><i class="fas fa-exclamation-triangle me-1"></i> At least one ID (HKID or Passport) is required.</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Dates -->
+                        <div class="mb-4">
+                            <h5>Move-in Details</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Move-in Date *</label>
+                                    <input type="date" class="form-control" name="move_in_date" 
+                                           min="{{ min_date|date:'Y-m-d' }}"
+                                           max="{{ max_date|date:'Y-m-d' }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Approximate Time</label>
+                                    <select class="form-select" name="move_in_time">
+                                        <option value="">Select time</option>
+                                        <option value="09:00">9:00 AM</option>
+                                        <option value="10:00">10:00 AM</option>
+                                        <option value="11:00">11:00 AM</option>
+                                        <option value="12:00">12:00 PM</option>
+                                        <option value="13:00">1:00 PM</option>
+                                        <option value="14:00">2:00 PM</option>
+                                        <option value="15:00">3:00 PM</option>
+                                        <option value="16:00">4:00 PM</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Duration (Months) *</label>
+                                    <select class="form-select" name="duration_months" required>
+                                        {% for i in "3456789101112"|make_list %}
+                                            <option value="{{ forloop.counter|add:2 }}" 
+                                                    {% if forloop.counter|add:2 == config.min_stay_months %}selected{% endif %}>
+                                                {{ forloop.counter|add:2 }} months
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="form-text text-muted">Minimum stay: {{ config.min_stay_months }} months</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Special Requests -->
+                        <div class="mb-4">
+                            <label class="form-label">Special Requests (Optional)</label>
+                            <textarea class="form-control" name="special_requests" rows="3" 
+                                      placeholder="Any special requirements or requests..."></textarea>
+                        </div>
+                        
+                        <!-- Terms -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="{% url 'website:terms' %}" target="_blank">Terms & Conditions</a> 
+                                    and understand that the HK${{ config.deposit_amount }} deposit is <strong>non-refundable</strong>.
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'website:room_detail' room.room_code %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-1"></i> Back to Room
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-credit-card me-1"></i> Proceed to Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Important Notes -->
+            <div class="alert alert-warning mt-4">
+                <h6><i class="fas fa-exclamation-circle me-2"></i>Important Information</h6>
+                <ul class="mb-0">
+                    <li>The HK${{ config.deposit_amount }} deposit is required to reserve the room and is <strong>non-refundable</strong>.</li>
+                    <li>Full payment includes: Deposit + First month rent + Key deposit + Security deposit + Stamp duty.</li>
+                    <li>You will need to upload payment proof after bank transfer.</li>
+                    <li>Room will be reserved only after payment verification.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

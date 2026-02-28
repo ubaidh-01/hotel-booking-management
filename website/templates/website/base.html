@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ config.site_title }}{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #2c3e50 !important;
+        }
+        .hero-section {
+            background: linear-gradient(rgba(44, 62, 80, 0.9), rgba(44, 62, 80, 0.8)), url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 0;
+        }
+        .room-card {
+            transition: transform 0.3s;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        .room-price {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 50px 0 20px;
+        }
+        .footer a {
+            color: #bdc3c7;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            color: white;
+        }
+        .badge-available {
+            background-color: #28a745;
+        }
+        .badge-reserved {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .badge-occupied {
+            background-color: #dc3545;
+        }
+        .tenant-sidebar {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .tenant-nav-link {
+            color: #2c3e50;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .tenant-nav-link:hover, .tenant-nav-link.active {
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'website:home' %}">
+                <i class="fas fa-building me-2"></i>Wing Kong Properties
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'website:home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'website:room_list' %}">Rooms</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'website:about' %}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'website:contact' %}">Contact</a>
+                    </li>
+
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i>My Account
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'website:tenant_dashboard' %}">Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{% url 'website:tenant_payments' %}">Payments</a></li>
+                                <li><a class="dropdown-item" href="{% url 'website:tenant_maintenance' %}">Maintenance</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% if user.is_staff %}
+                                    <li><a class="dropdown-item" href="/crm/">CRM Dashboard</a></li>
+                                {% endif %}
+                                <li><a class="dropdown-item" href="{% url 'admin:logout' %}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'admin:login' %}?next={{ request.path }}">Login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Wing Kong Properties</h5>
+                    <p>Providing quality accommodation in Hong Kong since 2010.</p>
+                    {% if config %}
+                        <p><i class="fas fa-map-marker-alt me-2"></i> {{ config.address }}</p>
+                        <p><i class="fas fa-phone me-2"></i> {{ config.contact_phone }}</p>
+                        <p><i class="fas fa-envelope me-2"></i> {{ config.contact_email }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-2">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'website:home' %}">Home</a></li>
+                        <li><a href="{% url 'website:room_list' %}">Rooms</a></li>
+                        <li><a href="{% url 'website:about' %}">About Us</a></li>
+                        <li><a href="{% url 'website:careers' %}">Careers</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-2">
+                    <h5>Legal</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'website:terms' %}">Terms & Conditions</a></li>
+                        <li><a href="{% url 'website:privacy' %}">Privacy Policy</a></li>
+                        <li><a href="{% url 'website:contact' %}">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-4">
+                    <h5>Connect With Us</h5>
+                    <div class="social-links mt-3">
+                        {% if config.facebook_url %}
+                            <a href="{{ config.facebook_url }}" class="me-3 text-white"><i class="fab fa-facebook fa-2x"></i></a>
+                        {% endif %}
+                        {% if config.instagram_url %}
+                            <a href="{{ config.instagram_url }}" class="me-3 text-white"><i class="fab fa-instagram fa-2x"></i></a>
+                        {% endif %}
+                        {% if config.whatsapp_number %}
+                            <a href="https://wa.me/{{ config.whatsapp_number }}" class="text-white"><i class="fab fa-whatsapp fa-2x"></i></a>
+                        {% endif %}
+                    </div>
+                    <p class="mt-3">© {% now "Y" %} Wing Kong Property Management. All rights reserved.</p>
+                </div>
+            </div>
+
+            <hr class="bg-light mt-4">
+
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <p class="mb-0">Room Codes: c5a, c5b, c5c, c5d, etc. | Website: <a href="https://www.wing-kong.com" class="text-white">www.wing-kong.com</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- jQuery (optional, for some features) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        $(document).ready(function() {
+            setTimeout(function() {
+                $('.alert').alert('close');
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

@@ -87,6 +87,42 @@ class Payment(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+    is_deposit = models.BooleanField(default=False)
+    is_key_deposit = models.BooleanField(default=False)
+    is_security_deposit = models.BooleanField(default=False)
+    is_stamp_duty = models.BooleanField(default=False)
+
+    # For receipt wording
+    receipt_notes = models.TextField(blank=True)
+    is_non_refundable = models.BooleanField(default=False)
+
+    def generate_detailed_receipt(self):
+        """Generate receipt with all required details"""
+        from weasyprint import HTML
+        from django.template.loader import render_to_string
+        from django.core.files.base import ContentFile
+
+        context = {
+            'payment': self,
+            'booking': self.booking,
+            'tenant': self.booking.tenant,
+            'room': self.booking.room,
+            'today': timezone.now().date(),
+            'is_deposit_receipt': self.is_deposit,
+            'non_refundable_note': "This deposit is non-refundable" if self.is_non_refundable else "",
+        }
+
+        template_name = 'payments/deposit_receipt.html' if self.is_deposit else 'payments/payment_receipt.html'
+        html_string = render_to_string(template_name, context)
+        pdf_file = HTML(string=html_string).write_pdf()
+
+        filename = f"receipt_{self.receipt_number}_{timezone.now().strftime('%Y%m%d')}.pdf"
+        self.receipt_pdf.save(filename, ContentFile(pdf_file), save=False)
+        self.receipt_generated = True
+        self.receipt_generated_date = timezone.now()
+        self.save()
+
+        return True
 
     class Meta:
         ordering = ['-payment_date']

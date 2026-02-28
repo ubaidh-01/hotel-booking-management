@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     'payments',
     'maintenance',
     'reports',
+    # Website
+    'website.apps.WebsiteConfig',
     # Celery & Notifications
     'django_celery_beat',
     'notifications',
