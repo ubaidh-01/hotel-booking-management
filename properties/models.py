@@ -216,7 +216,6 @@ def room_photo_upload_path(instance, filename):
 
 def room_video_upload_path(instance, filename):
     return f"rooms/{instance.room.room_code}/videos/{filename}"
-    return f"rooms/{instance.room.room_code}/videos/{filename}"
 
 class RoomPhoto(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="room_photos")

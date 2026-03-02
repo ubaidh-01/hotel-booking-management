@@ -9,76 +9,695 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts - Modern fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #06d6a0;
+            --accent: #f72585;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+            --gradient: linear-gradient(135deg, #4361ee, #06d6a0);
+            --gradient-accent: linear-gradient(135deg, #f72585, #b5179e);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-hover: 0 30px 40px -15px rgba(67, 97, 238, 0.3);
+            --border-radius: 1rem;
+            --border-radius-sm: 0.5rem;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
         }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            padding: 0.5rem 0;
+            box-shadow: var(--shadow-sm);
+        }
+
         .navbar-brand {
-            font-weight: bold;
-            color: #2c3e50 !important;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
         }
-        .hero-section {
-            background: linear-gradient(rgba(44, 62, 80, 0.9), rgba(44, 62, 80, 0.8)), url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 100px 0;
+
+        .navbar-brand i {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-right: 0.5rem;
         }
-        .room-card {
-            transition: transform 0.3s;
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark) !important;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 1rem;
+            right: 1rem;
+            height: 2px;
+            background: var(--gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            transform: scaleX(1);
+        }
+
+        .dropdown-menu {
             border: none;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-md);
+            border-radius: var(--border-radius-sm);
+            padding: 0.5rem;
         }
-        .room-card:hover {
+
+        .dropdown-item {
+            border-radius: 0.25rem;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: var(--gradient);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        /* Buttons */
+        .btn {
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+            border-radius: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            letter-spacing: 0.3px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            border: none;
+            box-shadow: 0 8px 20px -8px var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--gradient);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -10px var(--primary);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--gradient);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -10px var(--primary);
+        }
+
+        .btn-light {
+            background: white;
+            color: var(--primary);
+            border: none;
+        }
+
+        .btn-outline-light {
+            border: 2px solid white;
+            color: white;
+        }
+
+        .btn-outline-light:hover {
+            background: white;
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .btn-lg {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            box-shadow: var(--shadow-hover);
         }
+
+        .card-img-top {
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover .card-img-top {
+            transform: scale(1.05);
+        }
+
+        /* Room Card Specific */
+        .room-card {
+            position: relative;
+        }
+
+        .room-card .badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .badge-available {
+            background: linear-gradient(135deg, #06d6a0, #05b58b);
+            color: white;
+        }
+
+        .badge-reserved {
+            background: linear-gradient(135deg, #ffd166, #ffb347);
+            color: var(--dark);
+        }
+
+        .badge-occupied {
+            background: linear-gradient(135deg, #ef476f, #d33b61);
+            color: white;
+        }
+
         .room-price {
             font-size: 1.5rem;
-            color: #2c3e50;
-            font-weight: bold;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.95), rgba(6, 214, 160, 0.9)),
+                        url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            padding: 120px 0;
+            margin-top: -1px;
+            position: relative;
+        }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to top, var(--light), transparent);
+        }
+
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 20px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero-section .lead {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .hero-section .btn {
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Features Section */
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .feature-icon:hover {
+            transform: rotate(360deg) scale(1.1);
+        }
+
+        /* Testimonials */
+        .testimonial-card {
+            background: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .testimonial-card .stars {
+            color: #ffd166;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-card .message {
+            font-style: italic;
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .testimonial-card .author {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .testimonial-card .type {
+            font-size: 0.875rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: var(--gradient);
+            position: relative;
+            overflow: hidden;
+            padding: 80px 0;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(-35deg);
+        }
+
+        .cta-section::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            left: -20%;
+            width: 80%;
+            height: 200%;
+            background: rgba(0, 0, 0, 0.05);
+            transform: rotate(-35deg);
+        }
+
+        .cta-section .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section .lead {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+        }
+
+        /* Footer */
         .footer {
-            background-color: #2c3e50;
+            background: linear-gradient(135deg, #0b1a33, #1e293b);
             color: white;
-            padding: 50px 0 20px;
+            padding: 60px 0 30px;
+            position: relative;
+            overflow: hidden;
         }
-        .footer a {
-            color: #bdc3c7;
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient);
+        }
+
+        .footer h5 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .footer h5::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--gradient);
+            border-radius: 2px;
+        }
+
+        .footer ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer ul li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer ul li a {
+            color: #a0b3d9;
             text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-block;
         }
-        .footer a:hover {
+
+        .footer ul li a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .footer .social-links a {
+            display: inline-block;
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 45px;
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer .social-links a:hover {
+            background: var(--gradient);
+            transform: translateY(-3px);
+        }
+
+        .footer .social-links a i {
+            font-size: 1.25rem;
             color: white;
         }
-        .badge-available {
-            background-color: #28a745;
-        }
-        .badge-reserved {
-            background-color: #ffc107;
-            color: #212529;
-        }
-        .badge-occupied {
-            background-color: #dc3545;
-        }
+
+        /* Tenant Sidebar */
         .tenant-sidebar {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
         }
+
         .tenant-nav-link {
-            color: #2c3e50;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin-bottom: 5px;
+            color: var(--dark);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
             display: block;
-        }
-        .tenant-nav-link:hover, .tenant-nav-link.active {
-            background-color: #3498db;
-            color: white;
             text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .tenant-nav-link:hover,
+        .tenant-nav-link.active {
+            background: var(--gradient);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        /* Alerts */
+        .alert {
+            border: none;
+            border-radius: var(--border-radius-sm);
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #06d6a0, #05b58b);
+            color: white;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #ef476f, #d33b61);
+            color: white;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #ffd166, #ffb347);
+            color: var(--dark);
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            color: white;
+        }
+
+        /* Form Elements */
+        .form-control, .form-select {
+            border: 2px solid var(--light-gray);
+            border-radius: var(--border-radius-sm);
+            padding: 0.75rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+            outline: none;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Pagination */
+        .pagination {
+            gap: 0.5rem;
+        }
+
+        .page-link {
+            border: none;
+            padding: 0.75rem 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+            background: white;
+            border-radius: var(--border-radius-sm) !important;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .page-link:hover {
+            background: var(--gradient);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .page-item.active .page-link {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .page-item.disabled .page-link {
+            background: var(--light-gray);
+            color: var(--gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 80px 0;
+            }
+
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-section .lead {
+                font-size: 1.1rem;
+            }
+
+            .btn-lg {
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.25rem;
+            }
+
+            .feature-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .cta-section h2 {
+                font-size: 2rem;
+            }
+
+            .cta-section .lead {
+                font-size: 1.1rem;
+            }
+
+            .card-img-top {
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+
+            .hero-section {
+                padding: 60px 0;
+            }
+
+            .btn-lg {
+                width: 100%;
+                margin: 0.5rem 0 !important;
+            }
+
+            .d-flex.justify-content-center.flex-wrap.gap-3 {
+                flex-direction: column;
+                gap: 0.5rem !important;
+            }
+
+            .footer {
+                text-align: center;
+            }
+
+            .footer h5::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .footer .social-links {
+                justify-content: center;
+                display: flex;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 
@@ -86,7 +705,7 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{% url 'website:home' %}">
                 <i class="fas fa-building me-2"></i>Wing Kong Properties
@@ -137,13 +756,17 @@
         </div>
     </nav>
 
+    <!-- Spacer for fixed navbar -->
+    <div style="height: 76px;"></div>
+
     <!-- Messages -->
     {% if messages %}
         <div class="container mt-3">
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
         </div>
@@ -155,22 +778,22 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer mt-5">
+    <footer class="footer">
         <div class="container">
-            <div class="row">
-                <div class="col-md-4">
+            <div class="row gy-4">
+                <div class="col-lg-4 col-md-6">
                     <h5>Wing Kong Properties</h5>
-                    <p>Providing quality accommodation in Hong Kong since 2010.</p>
+                    <p class="mt-3" style="color: #a0b3d9;">Providing quality accommodation in Hong Kong since 2010. Your comfort is our priority.</p>
                     {% if config %}
-                        <p><i class="fas fa-map-marker-alt me-2"></i> {{ config.address }}</p>
-                        <p><i class="fas fa-phone me-2"></i> {{ config.contact_phone }}</p>
-                        <p><i class="fas fa-envelope me-2"></i> {{ config.contact_email }}</p>
+                        <p><i class="fas fa-map-marker-alt me-2" style="color: var(--secondary);"></i> {{ config.address }}</p>
+                        <p><i class="fas fa-phone me-2" style="color: var(--secondary);"></i> {{ config.contact_phone }}</p>
+                        <p><i class="fas fa-envelope me-2" style="color: var(--secondary);"></i> {{ config.contact_email }}</p>
                     {% endif %}
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-lg-2 col-md-6">
                     <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
+                    <ul class="mt-3">
                         <li><a href="{% url 'website:home' %}">Home</a></li>
                         <li><a href="{% url 'website:room_list' %}">Rooms</a></li>
                         <li><a href="{% url 'website:about' %}">About Us</a></li>
@@ -178,37 +801,37 @@
                     </ul>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-lg-2 col-md-6">
                     <h5>Legal</h5>
-                    <ul class="list-unstyled">
+                    <ul class="mt-3">
                         <li><a href="{% url 'website:terms' %}">Terms & Conditions</a></li>
                         <li><a href="{% url 'website:privacy' %}">Privacy Policy</a></li>
                         <li><a href="{% url 'website:contact' %}">Contact Us</a></li>
                     </ul>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-lg-4 col-md-6">
                     <h5>Connect With Us</h5>
                     <div class="social-links mt-3">
                         {% if config.facebook_url %}
-                            <a href="{{ config.facebook_url }}" class="me-3 text-white"><i class="fab fa-facebook fa-2x"></i></a>
+                            <a href="{{ config.facebook_url }}" target="_blank"><i class="fab fa-facebook-f"></i></a>
                         {% endif %}
                         {% if config.instagram_url %}
-                            <a href="{{ config.instagram_url }}" class="me-3 text-white"><i class="fab fa-instagram fa-2x"></i></a>
+                            <a href="{{ config.instagram_url }}" target="_blank"><i class="fab fa-instagram"></i></a>
                         {% endif %}
                         {% if config.whatsapp_number %}
-                            <a href="https://wa.me/{{ config.whatsapp_number }}" class="text-white"><i class="fab fa-whatsapp fa-2x"></i></a>
+                            <a href="https://wa.me/{{ config.whatsapp_number }}" target="_blank"><i class="fab fa-whatsapp"></i></a>
                         {% endif %}
                     </div>
-                    <p class="mt-3">© {% now "Y" %} Wing Kong Property Management. All rights reserved.</p>
+                    <p class="mt-4 mb-0" style="color: #a0b3d9;">© {% now "Y" %} Wing Kong Property Management. All rights reserved.</p>
                 </div>
             </div>
 
-            <hr class="bg-light mt-4">
+            <hr class="mt-5 mb-4" style="border-color: rgba(255, 255, 255, 0.1);">
 
             <div class="row">
                 <div class="col-md-12 text-center">
-                    <p class="mb-0">Room Codes: c5a, c5b, c5c, c5d, etc. | Website: <a href="https://www.wing-kong.com" class="text-white">www.wing-kong.com</a></p>
+                    <p class="mb-0" style="color: #a0b3d9;">Room Codes: c5a, c5b, c5c, c5d | Website: <a href="https://www.wing-kong.com" class="text-white" style="text-decoration: underline; text-decoration-color: var(--secondary);">www.wing-kong.com</a></p>
                 </div>
             </div>
         </div>
@@ -228,6 +851,15 @@
             setTimeout(function() {
                 $('.alert').alert('close');
             }, 5000);
+        });
+
+        // Navbar scroll effect
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 50) {
+                $('.navbar').addClass('scrolled');
+            } else {
+                $('.navbar').removeClass('scrolled');
+            }
         });
     </script>
 </body>

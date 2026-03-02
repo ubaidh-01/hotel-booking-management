@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, TemplateView, CreateView
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.db.models import Q
@@ -462,8 +463,13 @@ def start_booking(request, room_code):
             move_in = datetime.strptime(move_in_date, '%Y-%m-%d').date()
             move_out = move_in + timedelta(days=30 * duration_months)  # Approximate
 
-            # Create booking with ALL information
-            booking = Booking.objects.create(
+            # Check min stay duration
+            if config and duration_months < config.min_stay_months:
+                messages.error(request, f'Minimum stay duration is {config.min_stay_months} months.')
+                return redirect('website:start_booking', room_code=room_code)
+
+            # Create booking instance
+            booking = Booking(
                 tenant=tenant,
                 room=room,
                 move_in_date=move_in,
@@ -486,13 +492,23 @@ def start_booking(request, room_code):
                 special_requests=request.POST.get('special_requests', ''),
             )
 
-            # Calculate total deposit
+            # Calculate total deposit and run full validation
             booking.calculate_total_deposit()
+            booking.full_clean()
             booking.save()
 
             # Redirect to payment page with deposit amount
             return redirect('website:booking_payment', booking_id=booking.id)
 
+        except ValidationError as e:
+            # Handle Django validation errors
+            if hasattr(e, 'message_dict'):
+                for field, errors in e.message_dict.items():
+                    for error in errors:
+                        messages.error(request, f"{field.replace('_', ' ').title()}: {error}")
+            else:
+                for error in e.messages:
+                    messages.error(request, error)
         except Exception as e:
             messages.error(request, f'Error creating booking: {str(e)}')
 
@@ -581,6 +597,9 @@ def booking_payment(request, booking_id):
 
             # Generate detailed receipt
             payment.generate_detailed_receipt()
+
+            # Send booking confirmation email
+            EmailService.send_booking_confirmation(booking)
 
             messages.success(request, 'Payment successful! Booking confirmed.')
             return redirect('website:booking_confirmation', booking_id=booking.id)
@@ -684,3 +703,259 @@ class FeedbackThanksView(TemplateView):
         config = WebsiteConfig.objects.first()
         context['config'] = config
         return context
+
+
+# ===== TENANT REGISTRATION & LOGIN =====
+
+def tenant_register(request):
+    """Tenant self-registration - creates User + Tenant profile"""
+    from django.contrib.auth.models import User
+    from django.contrib.auth import login
+
+    if request.user.is_authenticated:
+        return redirect('website:tenant_dashboard')
+
+    config = WebsiteConfig.objects.first()
+
+    if request.method == 'POST':
+        # Collect registration information
+        full_name = request.POST.get('full_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        whatsapp = request.POST.get('whatsapp_number', '').strip()
+        nationality = request.POST.get('nationality', '').strip()
+        date_of_birth = request.POST.get('date_of_birth', '').strip()
+        gender = request.POST.get('gender', '').strip()
+        password = request.POST.get('password', '')
+        password_confirm = request.POST.get('password_confirm', '')
+
+        # Validation
+        errors = []
+        if not full_name:
+            errors.append('Full name is required.')
+        if not email:
+            errors.append('Email is required.')
+        if not phone:
+            errors.append('Phone number is required.')
+        if not nationality:
+            errors.append('Nationality is required.')
+        if not date_of_birth:
+            errors.append('Date of birth is required.')
+        if not gender:
+            errors.append('Gender is required.')
+        if not password or len(password) < 8:
+            errors.append('Password must be at least 8 characters.')
+        if password != password_confirm:
+            errors.append('Passwords do not match.')
+        if User.objects.filter(email=email).exists():
+            errors.append('An account with this email already exists.')
+
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return render(request, 'website/tenant/register.html', {
+                'config': config,
+                'form_data': request.POST,
+            })
+
+        try:
+            # Create Django User
+            username = email  # Use email as username
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=full_name.split()[0] if full_name else '',
+                last_name=' '.join(full_name.split()[1:]) if len(full_name.split()) > 1 else '',
+            )
+
+            # Create Tenant profile
+            from datetime import datetime as dt
+            tenant = Tenant.objects.create(
+                user=user,
+                full_name=full_name,
+                phone_number=phone,
+                whatsapp_number=whatsapp or phone,
+                nationality=nationality,
+                date_of_birth=dt.strptime(date_of_birth, '%Y-%m-%d').date(),
+                gender=gender,
+            )
+
+            # Auto-login
+            login(request, user)
+            messages.success(request, f'Welcome, {full_name}! Your account has been created successfully.')
+            return redirect('website:tenant_dashboard')
+
+        except Exception as e:
+            messages.error(request, f'Registration failed: {str(e)}')
+            return render(request, 'website/tenant/register.html', {
+                'config': config,
+                'form_data': request.POST,
+            })
+
+    return render(request, 'website/tenant/register.html', {'config': config})
+
+
+def tenant_login_view(request):
+    """Custom tenant login page"""
+    from django.contrib.auth import authenticate, login
+
+    if request.user.is_authenticated:
+        return redirect('website:tenant_dashboard')
+
+    config = WebsiteConfig.objects.first()
+
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+
+        # Try to authenticate with email as username
+        user = authenticate(request, username=email, password=password)
+        if user is not None:
+            login(request, user)
+            # Check if user is staff → redirect to admin
+            if user.is_staff:
+                return redirect('reports:dashboard')
+            return redirect('website:tenant_dashboard')
+        else:
+            messages.error(request, 'Invalid email or password.')
+
+    return render(request, 'website/tenant/login.html', {'config': config})
+
+
+def tenant_logout_view(request):
+    """Tenant logout"""
+    from django.contrib.auth import logout
+    logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('website:home')
+
+
+# ===== CONTRACT RENEWAL FLOW =====
+
+@tenant_login_required
+def tenant_renewal_response(request, contract_id):
+    """Handle tenant's response to contract renewal offer"""
+    contract = get_object_or_404(
+        Contract,
+        id=contract_id,
+        booking__tenant__user=request.user,
+        status='signed'
+    )
+
+    config = WebsiteConfig.objects.first()
+
+    if request.method == 'POST':
+        response = request.POST.get('renewal_response')
+
+        if response == 'yes':
+            # Tenant wants to renew
+            new_duration = int(request.POST.get('new_duration_months', 3))
+            new_end_date = contract.end_date + timedelta(days=30 * new_duration)
+
+            # Create new booking for renewal
+            old_booking = contract.booking
+            new_booking = Booking.objects.create(
+                tenant=old_booking.tenant,
+                room=old_booking.room,
+                move_in_date=contract.end_date,
+                move_out_date=new_end_date,
+                duration_months=new_duration,
+                monthly_rent=old_booking.monthly_rent,
+                status='pending',
+                payment_status='pending',
+            )
+
+            # Create new contract (draft)
+            new_contract = Contract.objects.create(
+                booking=new_booking,
+                start_date=contract.end_date,
+                end_date=new_end_date,
+                monthly_rent=old_booking.monthly_rent,
+                security_deposit=contract.security_deposit,
+                status='draft',
+            )
+
+            # Update old contract renewal status
+            contract.renewal_status = 'renewed'
+            contract.save()
+
+            # Send renewal agreement email
+            EmailService.send_contract_for_signature(new_contract)
+
+            messages.success(request, 'Thank you! Your renewal contract has been created. Please check your email to sign the new agreement.')
+            return redirect('website:tenant_contract_view', contract_id=new_contract.id)
+
+        elif response == 'no':
+            # Tenant declines renewal
+            contract.renewal_status = 'declined'
+            contract.save()
+
+            messages.info(request, 'Thank you for letting us know. We wish you well!')
+            return redirect('website:tenant_dashboard')
+
+    context = {
+        'config': config,
+        'contract': contract,
+        'booking': contract.booking,
+        'room': contract.booking.room,
+    }
+    return render(request, 'website/tenant/renewal_response.html', context)
+
+
+# ===== CUSTOMER SELF-FILL CONTRACT =====
+
+@tenant_login_required
+def tenant_contract_fill(request, contract_id):
+    """Tenant fills in their own details on the flatshare agreement"""
+    contract = get_object_or_404(
+        Contract,
+        id=contract_id,
+        booking__tenant__user=request.user,
+    )
+
+    tenant = request.user.tenant
+    config = WebsiteConfig.objects.first()
+
+    if request.method == 'POST':
+        # Update tenant details from form
+        tenant.full_name = request.POST.get('full_name', tenant.full_name)
+        tenant.phone_number = request.POST.get('phone_number', tenant.phone_number)
+        tenant.whatsapp_number = request.POST.get('whatsapp_number', tenant.whatsapp_number)
+        tenant.emergency_contact_name = request.POST.get('emergency_contact_name', tenant.emergency_contact_name)
+        tenant.emergency_contact_phone = request.POST.get('emergency_contact_phone', tenant.emergency_contact_phone)
+
+        # Update user email
+        new_email = request.POST.get('email', '').strip()
+        if new_email and new_email != tenant.user.email:
+            tenant.user.email = new_email
+            tenant.user.save()
+
+        # Update HKID/Passport on booking
+        hkid = request.POST.get('hkid_number', '').strip()
+        passport = request.POST.get('passport_number', '').strip()
+        if hkid:
+            tenant.hkid_number = hkid
+        if passport:
+            tenant.passport_number = passport
+
+        tenant.save()
+
+        # Mark contract as ready for signing if it's still draft
+        if contract.status == 'draft':
+            contract.status = 'sent'
+            contract.save()
+            # Send contract for signature
+            contract.send_for_tenant_signature()
+
+        messages.success(request, 'Your details have been updated. Please proceed to sign the contract.')
+        return redirect('website:tenant_contract_view', contract_id=contract.id)
+
+    context = {
+        'config': config,
+        'contract': contract,
+        'tenant': tenant,
+        'booking': contract.booking,
+        'room': contract.booking.room,
+    }
+    return render(request, 'website/tenant/contract_fill.html', context)

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+        }
+
+        .header {
+            background: #e74c3c;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #fff;
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .info-box {
+            background: #fef3f2;
+            border-left: 4px solid #e74c3c;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .detail-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-table .label {
+            font-weight: bold;
+            color: #555;
+            width: 40%;
+        }
+
+        .action-btn {
+            display: inline-block;
+            background: #e74c3c;
+            color: #fff;
+            padding: 12px 28px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-top: 16px;
+        }
+
+        .footer {
+            padding: 20px 30px;
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧹 Room Cleanup Required</h1>
+        </div>
+        <div class="content">
+            <p>Dear Operations Team,</p>
+
+            <div class="info-box">
+                <strong>A temporary stay has ended and the room needs to be cleaned and prepared.</strong>
+            </div>
+
+            <table class="detail-table">
+                <tr>
+                    <td class="label">Temporary Room:</td>
+                    <td><strong>{{ temp_room_code }}</strong></td>
+                </tr>
+                <tr>
+                    <td class="label">Permanent Room:</td>
+                    <td>{{ permanent_room_code }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Tenant:</td>
+                    <td>{{ tenant_name }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Temp Stay Ended:</td>
+                    <td>{{ temp_stay_end }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Property:</td>
+                    <td>{{ property_name }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Address:</td>
+                    <td>{{ property_address }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Contract:</td>
+                    <td>{{ contract_number }}</td>
+                </tr>
+            </table>
+
+            <p><strong>Required Actions:</strong></p>
+            <ul>
+                <li>Clean and inspect room <strong>{{ temp_room_code }}</strong></li>
+                <li>Ensure the room is ready for the next tenant</li>
+                <li>Report any damages or maintenance issues</li>
+                <li>Update room status in the system once complete</li>
+            </ul>
+        </div>
+        <div class="footer">
+            <p>Wing Kong Property Management Ltd.</p>
+            <p>This is an automated notification from the CRM system.</p>
+        </div>
+    </div>
+</body>
+
+</html>

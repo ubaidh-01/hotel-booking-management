@@ -642,3 +642,51 @@ def send_test_email():
     except Exception as e:
         print(f"Failed to send test email: {e}")
         return False
+
+
+@shared_task
+def check_temp_stay_switches():
+    """Check for temporary stays that have ended and notify operations for cleanup"""
+    logger.info("Checking for temporary stay switches...")
+
+    today = timezone.now().date()
+
+    # Find contracts where temporary stay has ended and needs switching
+    contracts_needing_switch = Contract.objects.filter(
+        is_temporary_stay_active=True,
+        temporary_stay_end__lte=today,
+        status='signed'
+    ).select_related('booking__tenant', 'booking__room', 'temporary_room')
+
+    switch_count = 0
+
+    for contract in contracts_needing_switch:
+        try:
+            # Send notification to operations team about room cleanup
+            EmailService.send_temp_stay_cleanup_notification(contract)
+
+            # Auto-switch to permanent room
+            switched = contract.switch_to_permanent_room()
+
+            if switched:
+                switch_count += 1
+                logger.info(
+                    f"Switched tenant {contract.booking.tenant.full_name} "
+                    f"from temp room to permanent room"
+                )
+
+                NotificationLog.objects.create(
+                    tenant=contract.booking.tenant,
+                    notification_type='temp_stay_switch',
+                    status='sent',
+                    subject=f'Room Switch - {contract.booking.tenant.full_name}',
+                    related_booking=contract.booking,
+                    sent_at=timezone.now()
+                )
+
+        except Exception as e:
+            logger.error(f"Failed to process temp stay switch for contract {contract.id}: {e}")
+
+    logger.info(f"Temp stay check completed: {switch_count} rooms switched")
+    return switch_count
+

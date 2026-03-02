@@ -1,0 +1,98 @@
+{% extends "website/base.html" %}
+
+{% block title %}Careers - {{ config.site_title }}{% endblock %}
+
+{% block content %}
+<div class="bg-dark text-white py-5 text-center shadow-sm"
+    style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80') center/cover;">
+    <div class="container my-5">
+        <h1 class="display-4 fw-bold">Join Our Team</h1>
+        <p class="lead">Build the future of property management with Wing Kong Properties.</p>
+    </div>
+</div>
+
+<div class="container my-5 py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <h3 class="fw-bold mb-4 border-bottom pb-3">Submit Your Application</h3>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="row g-4">
+                            <h5 class="text-primary mb-0 mt-4"><i class="fas fa-user me-2"></i>Personal Information</h5>
+
+                            <div class="col-md-6 mt-2">
+                                <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">Full Name <span
+                                        class="text-danger">*</span></label>
+                                {{ form.name }}
+                            </div>
+                            <div class="col-md-6 mt-2">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label fw-semibold">Phone <span
+                                        class="text-danger">*</span></label>
+                                {{ form.phone }}
+                            </div>
+                            <div class="col-md-12 mt-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">Email Address
+                                    <span class="text-danger">*</span></label>
+                                {{ form.email }}
+                            </div>
+
+                            <h5 class="text-primary mb-0 mt-5"><i class="fas fa-briefcase me-2"></i>Job Details</h5>
+
+                            <div class="col-md-6 mt-2">
+                                <label for="{{ form.desired_position.id_for_label }}"
+                                    class="form-label fw-semibold">Position Applying For <span
+                                        class="text-danger">*</span></label>
+                                {{ form.desired_position }}
+                            </div>
+                            <div class="col-md-6 mt-2">
+                                <label for="{{ form.job_type.id_for_label }}" class="form-label fw-semibold">Job Type
+                                    <span class="text-danger">*</span></label>
+                                {{ form.job_type }}
+                            </div>
+                            <div class="col-md-6 mt-3">
+                                <label for="{{ form.expected_salary.id_for_label }}"
+                                    class="form-label fw-semibold">Expected Salary</label>
+                                {{ form.expected_salary }}
+                            </div>
+                            <div class="col-md-6 mt-3">
+                                <label for="{{ form.available_from.id_for_label }}"
+                                    class="form-label fw-semibold">Available From</label>
+                                {{ form.available_from }}
+                            </div>
+
+                            <h5 class="text-primary mb-0 mt-5"><i class="fas fa-file-alt me-2"></i>Documents</h5>
+
+                            <div class="col-md-12 mt-2">
+                                <label for="{{ form.resume.id_for_label }}" class="form-label fw-semibold">Resume/CV
+                                    (PDF) <span class="text-danger">*</span></label>
+                                {{ form.resume }}
+                            </div>
+                            <div class="col-md-12 mt-3">
+                                <label for="{{ form.cover_letter.id_for_label }}" class="form-label fw-semibold">Cover
+                                    Letter</label>
+                                {{ form.cover_letter }}
+                            </div>
+
+                            <div class="col-12 text-center mt-5">
+                                <button type="submit"
+                                    class="btn btn-primary btn-lg px-5 py-3 fw-bold w-100 shadow-sm">Submit
+                                    Application</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

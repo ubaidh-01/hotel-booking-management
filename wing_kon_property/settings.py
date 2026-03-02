@@ -4,20 +4,21 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-%#l3qtlobp+0_hq8=(#h*v^ws=%b@gdam*y!4)_(bzp1aseieg'
-
-DEBUG = True
 env = environ.Env(
-    DEBUG=(bool, False)
+    DEBUG=(bool, True)
 )
 
 # Take environment variables from .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-ALLOWED_HOSTS = ['ubaid001.pythonanywhere.com', '127.0.0.1']
+# SECURITY: Read from environment, with fallback for development only
+SECRET_KEY = env('SECRET_KEY', default='django-insecure-%#l3qtlobp+0_hq8=(#h*v^ws=%b@gdam*y!4)_(bzp1aseieg')
+DEBUG = env.bool('DEBUG', default=False)
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['ubaid001.pythonanywhere.com', '127.0.0.1', 'localhost'])
 
 INSTALLED_APPS = [
     'jazzmin',
+    'widget_tweaks',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -122,7 +123,6 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'notifications.tasks.send_move_out_reminders',
         'schedule': 86400.0,  # Every 24 hours
     },
-
     'send-final-move-out-warnings': {
         'task': 'notifications.tasks.send_final_move_out_warnings',
         'schedule': 86400.0,  # Every 24 hours
@@ -140,10 +140,9 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': 86400.0,  # Every 24 hours
     },
     'detect-rent-increases': {
-            'task': 'notifications.tasks.detect_rent_increases',
-            'schedule': 86400.0,  # Every 24 hours
-        },
-
+        'task': 'notifications.tasks.detect_rent_increases',
+        'schedule': 86400.0,  # Every 24 hours
+    },
     'create-late-fee-payments': {
         'task': 'notifications.tasks.create_late_fee_payments',
         'schedule': 86400.0,  # Every 24 hours
@@ -152,7 +151,6 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'notifications.tasks.allocate_utility_bills',
         'schedule': 86400.0,  # Every 24 hours
     },
-
     'send-utility-reminders': {
         'task': 'notifications.tasks.send_utility_payment_reminders',
         'schedule': 86400.0,  # Every 24 hours
@@ -161,34 +159,34 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'notifications.tasks.check_maintenance_overdue',
         'schedule': 86400.0,  # Every 24 hours
     },
-
     'send-maintenance-updates': {
         'task': 'notifications.tasks.send_maintenance_updates_to_tenants',
         'schedule': 86400.0,  # Every 24 hours
     },
-
     'escalate-high-priority-tickets': {
         'task': 'notifications.tasks.escalate_high_priority_tickets',
         'schedule': 86400.0,  # Every 24 hours
     },
-
     'generate-payment-receipts': {
         'task': 'notifications.tasks.generate_payment_receipts',
         'schedule': 3600.0,  # Every hour
     },
-
     'process-pending-receipts': {
         'task': 'notifications.tasks.process_pending_receipts',
         'schedule': 1800.0,  # Every 30 minutes
     },
-
+    'check-temp-stay-switches': {
+        'task': 'notifications.tasks.check_temp_stay_switches',
+        'schedule': 86400.0,  # Every 24 hours
+    },
 }
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Hong_Kong'
 
 USE_I18N = True
 
@@ -201,7 +199,7 @@ JAZZMIN_SETTINGS = {
     "site_brand": "Wing Kong",
     "welcome_sign": "Welcome to Wing Kong Admin",
     "copyright": "Wing Kong © 2025",
-    "show_ui_builder": True,  # Enables a live UI style editor in the admin
+    "show_ui_builder": True,
 
     "icons": {
         "auth": "fas fa-users-cog",
@@ -221,8 +219,8 @@ JAZZMIN_SETTINGS = {
 
 STATIC_URL = 'static/'
 
-# ✅ Add this for deployment on PythonAnywhere
-STATIC_ROOT = '/home/ubaid001/hotel-booking-management/staticfiles'
+# Configurable static root for deployment
+STATIC_ROOT = env('STATIC_ROOT', default=os.path.join(BASE_DIR, 'staticfiles'))
 
 # Media files settings
 MEDIA_URL = '/media/'
@@ -240,9 +238,18 @@ EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 TO_EMAIL = env('TO_EMAIL')
 
-LOGIN_URL = '/admin/login/'
-LOGIN_REDIRECT_URL = '/reports/'
+LOGIN_URL = '/tenant/login/'
+LOGIN_REDIRECT_URL = '/tenant/dashboard/'
 
 
-
-
+# Production security settings
+# if not DEBUG:
+#     SECURE_SSL_REDIRECT = True
+#     CSRF_COOKIE_SECURE = True
+#     SESSION_COOKIE_SECURE = True
+#     SECURE_HSTS_SECONDS = 31536000
+#     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+#     SECURE_HSTS_PRELOAD = True
+#     SECURE_BROWSER_XSS_FILTER = True
+#     SECURE_CONTENT_TYPE_NOSNIFF = True
+#     X_FRAME_OPTIONS = 'DENY'

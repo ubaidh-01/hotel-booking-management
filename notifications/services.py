@@ -1154,3 +1154,43 @@ class EmailService:
         except Exception as e:
             logger.error(f"Failed to send job application notification: {e}")
             return False
+
+    @staticmethod
+    def send_temp_stay_cleanup_notification(contract):
+        """Notify operations that a temporary stay room needs cleanup"""
+        try:
+            tenant = contract.booking.tenant
+            temp_room = contract.temporary_room
+            permanent_room = contract.booking.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'temp_room_code': temp_room.room_code if temp_room else 'N/A',
+                'permanent_room_code': permanent_room.room_code,
+                'temp_stay_end': contract.temporary_stay_end.strftime('%Y-%m-%d') if contract.temporary_stay_end else 'N/A',
+                'property_name': permanent_room.property.name,
+                'property_address': permanent_room.property.address,
+                'contract_number': contract.contract_number,
+            }
+
+            subject = f"Room Cleanup Required - {temp_room.room_code if temp_room else 'N/A'} - Temp Stay Ended"
+
+            html_content = render_to_string('emails/temp_stay_cleanup.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[settings.TO_EMAIL],
+                reply_to=['operations@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Temp stay cleanup notification sent for {tenant.full_name}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send temp stay cleanup notification: {e}")
+            return False

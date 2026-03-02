@@ -191,6 +191,17 @@ class Payment(models.Model):
         self.status = 'completed'  # Mark payment as completed
         self.save()
 
+        # If this is the initial deposit, confirm the booking
+        if self.is_deposit and self.booking.status == 'pending':
+            self.booking.status = 'confirmed'
+            self.booking.payment_status = 'deposit_paid'
+            self.booking.confirmed_date = timezone.now()
+            self.booking.save()
+            self.booking.update_room_status()
+            
+            from notifications.services import EmailService
+            EmailService.send_booking_confirmation(self.booking)
+
         # Generate receipt automatically
         self.generate_receipt_pdf()
         self.send_receipt_email()

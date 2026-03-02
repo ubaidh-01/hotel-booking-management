@@ -20,6 +20,7 @@ urlpatterns = [
     path('crm/properties/', include('properties.urls')),
     path('crm/maintenance/', include('maintenance.urls')),
     path('crm/payments/', include('payments.urls')),
+    path('crm/bookings/', include('bookings.urls')),
 
     # Website Routes (Public)
     path('', include('website.urls')),

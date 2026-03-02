@@ -1,0 +1,109 @@
+{% extends "website/base.html" %}
+{% block title %}Contract Renewal - Wing Kong Property{% endblock %}
+
+{% block content %}
+<div
+    style="max-width: 700px; margin: 40px auto; padding: 30px; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+    <h2 style="text-align: center; color: #2c3e50; margin-bottom: 10px;">Contract Renewal</h2>
+    <p style="text-align: center; color: #888; margin-bottom: 30px;">Your current contract is expiring soon. Would you
+        like to renew?</p>
+
+    {% if messages %}
+    <div style="margin-bottom: 20px;">
+        {% for message in messages %}
+        <div style="padding: 12px 16px; border-radius: 6px; margin-bottom: 8px;
+            {% if message.tags == 'error' %}background: #fee; color: #c33;
+            {% elif message.tags == 'info' %}background: #e8f4fd; color: #1a73e8;
+            {% else %}background: #efe; color: #363;{% endif %} border-left: 4px solid;">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Current Contract Details -->
+    <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+        <h4 style="margin: 0 0 12px; color: #2c3e50;">Current Contract Details</h4>
+        <table style="width: 100%; font-size: 14px;">
+            <tr>
+                <td style="padding: 6px 0; color: #888;">Contract Number:</td>
+                <td style="font-weight: 600;">{{ contract.contract_number }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px 0; color: #888;">Room:</td>
+                <td style="font-weight: 600;">{{ room.room_code }} — {{ room.property.name }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px 0; color: #888;">Current Period:</td>
+                <td>{{ contract.start_date }} to {{ contract.end_date }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px 0; color: #888;">Monthly Rent:</td>
+                <td style="font-weight: 600;">HK$ {{ contract.monthly_rent }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px 0; color: #888;">Days Until Expiry:</td>
+                <td
+                    style="font-weight: 600; color: {% if contract.days_until_expiry <= 7 %}#dc3545{% else %}#28a745{% endif %};">
+                    {{ contract.days_until_expiry }} days
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Renewal Form -->
+    <form method="post">
+        {% csrf_token %}
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+            <!-- Yes - Renew -->
+            <div style="border: 2px solid #28a745; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer;"
+                onclick="selectRenewal('yes')">
+                <input type="radio" name="renewal_response" value="yes" id="renewal_yes" style="margin-bottom: 10px;"
+                    required>
+                <label for="renewal_yes"
+                    style="display: block; font-size: 18px; font-weight: 700; color: #28a745; cursor: pointer;">
+                    ✅ Yes, I want to stay
+                </label>
+                <p style="color: #666; font-size: 13px; margin-top: 8px;">Continue your tenancy with a new contract</p>
+            </div>
+
+            <!-- No - Move Out -->
+            <div style="border: 2px solid #dc3545; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer;"
+                onclick="selectRenewal('no')">
+                <input type="radio" name="renewal_response" value="no" id="renewal_no">
+                <label for="renewal_no"
+                    style="display: block; font-size: 18px; font-weight: 700; color: #dc3545; cursor: pointer;">
+                    ❌ No, I will move out
+                </label>
+                <p style="color: #666; font-size: 13px; margin-top: 8px;">End your tenancy at contract expiry</p>
+            </div>
+        </div>
+
+        <!-- Duration selection (shown only when Yes is selected) -->
+        <div id="duration_section"
+            style="display: none; margin-bottom: 24px; padding: 16px; background: #f0fff4; border-radius: 8px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #2c3e50;">New Contract
+                Duration</label>
+            <select name="new_duration_months"
+                style="width: 100%; padding: 10px 12px; border: 1px solid #28a745; border-radius: 6px; font-size: 14px;">
+                <option value="3">3 Months</option>
+                <option value="6" selected>6 Months</option>
+                <option value="12">12 Months</option>
+            </select>
+        </div>
+
+        <button type="submit"
+            style="width: 100%; padding: 14px; background: #2c3e50; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;">
+            Submit Response
+        </button>
+    </form>
+</div>
+
+<script>
+    function selectRenewal(value) {
+        document.getElementById('renewal_' + value).checked = true;
+        document.getElementById('duration_section').style.display = value === 'yes' ? 'block' : 'none';
+    }
+</script>
+{% endblock %}

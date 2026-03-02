@@ -23,12 +23,19 @@ urlpatterns = [
     path('feedback/', SubmitFeedbackView.as_view(), name='submit_feedback'),
     path('feedback/thanks/', FeedbackThanksView.as_view(), name='feedback_thanks'),
 
+    # Tenant Authentication
+    path('tenant/register/', views.tenant_register, name='tenant_register'),
+    path('tenant/login/', views.tenant_login_view, name='tenant_login'),
+    path('tenant/logout/', views.tenant_logout_view, name='tenant_logout'),
+
     # Tenant Portal
     path('tenant/dashboard/', views.tenant_dashboard, name='tenant_dashboard'),
     path('tenant/booking/<int:booking_id>/', views.tenant_booking_detail, name='tenant_booking_detail'),
     path('tenant/payments/', views.tenant_payments, name='tenant_payments'),
     path('tenant/maintenance/', views.tenant_maintenance, name='tenant_maintenance'),
     path('tenant/contract/<int:contract_id>/', views.tenant_contract_view, name='tenant_contract_view'),
+    path('tenant/contract/<int:contract_id>/renew/', views.tenant_renewal_response, name='tenant_renewal_response'),
+    path('tenant/contract/<int:contract_id>/fill/', views.tenant_contract_fill, name='tenant_contract_fill'),
 
     # Booking Flow
     path('book/<str:room_code>/', views.start_booking, name='start_booking'),

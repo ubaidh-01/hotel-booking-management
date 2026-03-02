@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 import logging
 
 from django.db import models
@@ -94,6 +95,46 @@ class Booking(models.Model):
         total = self.deposit_paid + self.key_deposit + self.security_deposit + self.stamp_duty
         self.total_deposit_amount = total
         return total
+
+    def clean(self):
+        """Custom validation for Booking model"""
+        # Ensure dates are provided
+        if not self.move_in_date or not self.move_out_date:
+            return
+
+        # 1. Ensure move_out_date is after move_in_date
+        if self.move_out_date <= self.move_in_date:
+            raise ValidationError({
+                'move_out_date': "Move-out date must be after the move-in date."
+            })
+
+        # 2. Ensure move_in_date is not in the past (only for new bookings)
+        if not self.pk and self.move_in_date < timezone.now().date():
+            raise ValidationError({
+                'move_in_date': "Move-in date cannot be in the past."
+            })
+
+        # 3. Ensure duration_months is positive
+        if self.duration_months <= 0:
+            raise ValidationError({
+                'duration_months': "Duration must be a positive number of months."
+            })
+
+        # 4. Check for overlapping bookings for the same room
+        overlapping_bookings = Booking.objects.filter(
+            room=self.room,
+            status__in=['confirmed', 'active'],
+            move_in_date__lt=self.move_out_date,
+            move_out_date__gt=self.move_in_date
+        )
+
+        if self.pk:
+            overlapping_bookings = overlapping_bookings.exclude(pk=self.pk)
+
+        if overlapping_bookings.exists():
+            raise ValidationError(
+                "This room is already booked or occupied for the selected dates."
+            )
 
     def save(self, *args, **kwargs):
         # Auto-calculate total deposit
@@ -222,21 +263,3 @@ def handle_booking_status_change(sender, instance, **kwargs):
 
         except Booking.DoesNotExist:
             pass
-
-
-@receiver(post_save, sender=Booking)
-def update_room_availability(sender, instance, created, **kwargs):
-    """Automatically hide/show rooms on website based on booking status"""
-    room = instance.room
-
-    if instance.status in ['confirmed', 'active']:
-        # Hide room from website
-        room.status = 'occupied' if instance.status == 'active' else 'reserved'
-    elif instance.status in ['completed', 'cancelled', 'terminated']:
-        # Show room on website again
-        room.status = 'available'
-    elif instance.status == 'pending':
-        # Keep room available but with pending booking
-        room.status = 'available'
-
-    room.save()
