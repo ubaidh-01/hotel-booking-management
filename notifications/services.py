@@ -1033,3 +1033,164 @@ class EmailService:
         except Exception as e:
             logger.error(f"Failed to send payment proof clarification request: {e}")
             return False
+
+    # Add to existing EmailService class
+
+    @staticmethod
+    def send_booking_confirmation(booking):
+        """Send booking confirmation email"""
+        try:
+            tenant = booking.tenant
+            room = booking.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'room_code': room.room_code,
+                'move_in_date': booking.move_in_date.strftime('%Y-%m-%d'),
+                'move_out_date': booking.move_out_date.strftime('%Y-%m-%d'),
+                'duration_months': booking.duration_months,
+                'monthly_rent': booking.monthly_rent,
+                'deposit_paid': booking.deposit_paid,
+                'total_amount': booking.total_rent_amount,
+                'booking_id': booking.id,
+                'tenant_portal_url': 'https://wing-kong.com/tenant/dashboard/',
+                'next_steps_url': 'https://wing-kong.com/tenant/next-steps/',
+            }
+
+            subject = f"Booking Confirmed - Room {room.room_code} - Wing Kong Properties"
+
+            html_content = render_to_string('emails/booking_confirmation.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['hmadafzal00@gmail.com'],  # Replace with tenant.user.email
+                reply_to=['bookings@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Booking confirmation sent to {tenant.full_name}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send booking confirmation: {e}")
+            return False
+
+    @staticmethod
+    def send_inquiry_notification(inquiry):
+        """Send notification about new inquiry"""
+        try:
+            context = {
+                'inquiry_id': inquiry.inquiry_id,
+                'name': inquiry.name,
+                'email': inquiry.email,
+                'phone': inquiry.phone,
+                'inquiry_type': inquiry.get_inquiry_type_display(),
+                'message': inquiry.message,
+                'preferred_contact': inquiry.get_preferred_contact_method_display(),
+                'room_code': inquiry.room_code,
+                'inquiry_url': f"https://wing-kong.com/crm/inquiries/{inquiry.id}/",
+            }
+
+            subject = f"New Website Inquiry: {inquiry.get_inquiry_type_display()}"
+
+            html_content = render_to_string('emails/new_inquiry.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['info@wing-kong.com', 'hmadafzal00@gmail.com'],
+                reply_to=[inquiry.email]
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Inquiry notification sent for {inquiry.inquiry_id}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send inquiry notification: {e}")
+            return False
+
+    @staticmethod
+    def send_job_application_notification(application):
+        """Send notification about new job application"""
+        try:
+            context = {
+                'application_id': application.application_id,
+                'name': application.name,
+                'email': application.email,
+                'phone': application.phone,
+                'desired_position': application.desired_position,
+                'job_type': application.get_job_type_display(),
+                'available_from': application.available_from.strftime('%Y-%m-%d'),
+                'expected_salary': application.expected_salary,
+                'application_url': f"https://wing-kong.com/crm/job-applications/{application.id}/",
+            }
+
+            subject = f"New Job Application: {application.desired_position}"
+
+            html_content = render_to_string('emails/new_job_application.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=['hr@wing-kong.com', 'hmadafzal00@gmail.com'],
+                reply_to=[application.email]
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Job application notification sent for {application.application_id}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send job application notification: {e}")
+            return False
+
+    @staticmethod
+    def send_temp_stay_cleanup_notification(contract):
+        """Notify operations that a temporary stay room needs cleanup"""
+        try:
+            tenant = contract.booking.tenant
+            temp_room = contract.temporary_room
+            permanent_room = contract.booking.room
+
+            context = {
+                'tenant_name': tenant.full_name,
+                'temp_room_code': temp_room.room_code if temp_room else 'N/A',
+                'permanent_room_code': permanent_room.room_code,
+                'temp_stay_end': contract.temporary_stay_end.strftime('%Y-%m-%d') if contract.temporary_stay_end else 'N/A',
+                'property_name': permanent_room.property.name,
+                'property_address': permanent_room.property.address,
+                'contract_number': contract.contract_number,
+            }
+
+            subject = f"Room Cleanup Required - {temp_room.room_code if temp_room else 'N/A'} - Temp Stay Ended"
+
+            html_content = render_to_string('emails/temp_stay_cleanup.html', context)
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[settings.TO_EMAIL],
+                reply_to=['operations@wing-kong.com']
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+            logger.info(f"Temp stay cleanup notification sent for {tenant.full_name}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send temp stay cleanup notification: {e}")
+            return False

@@ -14,5 +14,5 @@ urlpatterns = [
     path('owners/', views.owners_report, name='owners_report'),
     path('profit-loss/', views.profit_loss_report, name='profit_loss_report'),
     path('rent-increase/', views.rent_increase_report, name='rent_increase_report'),
-
+    path('daily-invoices/', views.daily_invoice_summary, name='daily_invoice_summary'),
 ]

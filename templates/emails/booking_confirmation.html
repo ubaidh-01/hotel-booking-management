@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+        }
+
+        .header {
+            background: #28a745;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #fff;
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .success-box {
+            background: #f0fff4;
+            border-left: 4px solid #28a745;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .detail-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-table .label {
+            font-weight: bold;
+            color: #555;
+            width: 40%;
+        }
+
+        .action-btn {
+            display: inline-block;
+            background: #28a745;
+            color: #fff;
+            padding: 12px 28px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-top: 16px;
+        }
+
+        .footer {
+            padding: 20px 30px;
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Booking Confirmed!</h1>
+        </div>
+        <div class="content">
+            <p>Dear <strong>{{ tenant_name }}</strong>,</p>
+
+            <div class="success-box">
+                <strong>Your booking has been confirmed!</strong> We're excited to have you as a tenant at Wing Kong
+                Properties.
+            </div>
+
+            <h3 style="color: #2c3e50; margin-top: 24px;">Booking Details</h3>
+            <table class="detail-table">
+                <tr>
+                    <td class="label">Booking Reference:</td>
+                    <td><strong>#{{ booking_id }}</strong></td>
+                </tr>
+                <tr>
+                    <td class="label">Room:</td>
+                    <td><strong>{{ room_code }}</strong></td>
+                </tr>
+                <tr>
+                    <td class="label">Move-In Date:</td>
+                    <td>{{ move_in_date }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Move-Out Date:</td>
+                    <td>{{ move_out_date }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Duration:</td>
+                    <td>{{ duration_months }} months</td>
+                </tr>
+                <tr>
+                    <td class="label">Monthly Rent:</td>
+                    <td><strong>HK$ {{ monthly_rent }}</strong></td>
+                </tr>
+                <tr>
+                    <td class="label">Deposit Paid:</td>
+                    <td>HK$ {{ deposit_paid }}</td>
+                </tr>
+            </table>
+
+            <h3 style="color: #2c3e50;">Next Steps</h3>
+            <ol style="padding-left: 20px;">
+                <li>You will receive a Flatshare Agreement to sign digitally</li>
+                <li>Complete your tenant profile in the Tenant Portal</li>
+                <li>Prepare documents for move-in day (HKID/Passport)</li>
+                <li>Contact us if you need any assistance</li>
+            </ol>
+
+            <div style="text-align: center; margin-top: 24px;">
+                <a href="{{ tenant_portal_url }}" class="action-btn">Visit Tenant Portal</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p><strong>Wing Kong Property Management Ltd.</strong></p>
+            <p>Unit 123, Prosperity Building, Hong Kong | Tel: +852 1234 5678</p>
+            <p>This is an automated email. Please do not reply directly.</p>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,63 @@
+{% extends "website/base.html" %}
+
+{% block title %}Privacy Policy - {{ config.site_title }}{% endblock %}
+
+{% block content %}
+<div class="bg-light py-5">
+    <div class="container my-4">
+        <h1 class="display-5 fw-bold text-center mb-5">Privacy Policy</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10 bg-white p-5 shadow-sm rounded">
+                <p class="text-muted text-end mb-4">Last Updated: {% now "F j, Y" %}</p>
+
+                <h4 class="fw-bold text-primary mt-4 mb-3">1. Overview</h4>
+                <p>Wing Kong Properties respects your privacy and is committed to protecting your personal data. This
+                    privacy policy explains how we collect, use, and safeguard your information when you visit our
+                    website, apply for a room, or use our tenant portal.</p>
+
+                <h4 class="fw-bold text-primary mt-4 mb-3">2. Data We Collect</h4>
+                <p>We may collect, use, store and transfer different kinds of personal data about you which we have
+                    grouped together as follows:</p>
+                <ul>
+                    <li><strong>Identity Data:</strong> includes first name, last name, username or similar identifier,
+                        marital status, title, date of birth and gender.</li>
+                    <li><strong>Contact Data:</strong> includes billing address, delivery address, email address and
+                        telephone numbers.</li>
+                    <li><strong>Financial Data:</strong> includes bank account and payment proof images.</li>
+                    <li><strong>Transaction Data:</strong> includes details about payments to and from you and other
+                        details of products and services you have purchased from us.</li>
+                </ul>
+
+                <h4 class="fw-bold text-primary mt-4 mb-3">3. How We Use Your Data</h4>
+                <p>We will only use your personal data when the law allows us to. Most commonly, we will use your
+                    personal data in the following circumstances:</p>
+                <ol>
+                    <li>Where we need to perform the contract we are about to enter into or have entered into with you
+                        (e.g. processing room bookings, confirming payments).</li>
+                    <li>Where it is necessary for our legitimate interests (or those of a third party) and your
+                        interests and fundamental rights do not override those interests.</li>
+                    <li>Where we need to comply with a legal or regulatory obligation.</li>
+                </ol>
+
+                <h4 class="fw-bold text-primary mt-4 mb-3">4. Data Security</h4>
+                <p>We have put in place appropriate security measures to prevent your personal data from being
+                    accidentally lost, used or accessed in an unauthorized way, altered or disclosed. For instance,
+                    payment proofs and personal identification are securely stored and encrypted where necessary.</p>
+
+                <h4 class="fw-bold text-primary mt-4 mb-3">5. Data Retention</h4>
+                <p>We will only retain your personal data for as long as necessary to fulfill the purposes we collected
+                    it for, including for the purposes of satisfying any legal, accounting, or reporting requirements.
+                    Upon the termination of your lease, financial documents will be retained according to standard tax
+                    regulations, and extraneous information securely deleted.</p>
+
+                <hr class="my-5">
+                <div class="alert alert-info py-3">
+                    <i class="fas fa-lock me-2"></i> To request data deletion or raise any concerns, please <a
+                        href="{% url 'website:contact' %}" class="alert-link">contact us</a>.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

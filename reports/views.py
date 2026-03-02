@@ -663,3 +663,76 @@ def rent_increase_report(request):
         'today': timezone.now().date(),
     }
     return render(request, 'reports/rent_increase.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def daily_invoice_summary(request):
+    """Daily Invoice Summary Report - shows number of invoices emailed today"""
+    from notifications.models import NotificationLog
+    from datetime import datetime
+
+    today = timezone.now().date()
+    selected_date = request.GET.get('date')
+
+    if selected_date:
+        try:
+            report_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
+        except ValueError:
+            report_date = today
+    else:
+        report_date = today
+
+    # Get all notification logs for the selected date
+    daily_notifications = NotificationLog.objects.filter(
+        created_at__date=report_date
+    ).order_by('-created_at')
+
+    # Break down by type
+    late_fee_invoices = daily_notifications.filter(
+        notification_type='late_fee_invoice'
+    )
+    rent_reminders = daily_notifications.filter(
+        notification_type='rent_reminder'
+    )
+    contract_reminders = daily_notifications.filter(
+        notification_type='contract_reminder'
+    )
+    move_out_reminders = daily_notifications.filter(
+        notification_type='move_out_reminder'
+    )
+    birthday_wishes = daily_notifications.filter(
+        notification_type='birthday_wish'
+    )
+    rent_increase_notices = daily_notifications.filter(
+        notification_type='rent_increase'
+    )
+
+    # Count successful vs failed
+    total_sent = daily_notifications.filter(status='sent').count()
+    total_failed = daily_notifications.filter(status='failed').count()
+    total_pending = daily_notifications.filter(status='pending').count()
+
+    context = {
+        'report_date': report_date,
+        'today': today,
+        'daily_notifications': daily_notifications,
+        'total_notifications': daily_notifications.count(),
+        'total_sent': total_sent,
+        'total_failed': total_failed,
+        'total_pending': total_pending,
+        'late_fee_invoices': late_fee_invoices,
+        'late_fee_count': late_fee_invoices.count(),
+        'rent_reminders': rent_reminders,
+        'rent_reminder_count': rent_reminders.count(),
+        'contract_reminders': contract_reminders,
+        'contract_reminder_count': contract_reminders.count(),
+        'move_out_reminders': move_out_reminders,
+        'move_out_reminder_count': move_out_reminders.count(),
+        'birthday_wishes': birthday_wishes,
+        'birthday_wish_count': birthday_wishes.count(),
+        'rent_increase_notices': rent_increase_notices,
+        'rent_increase_count': rent_increase_notices.count(),
+    }
+
+    return render(request, 'reports/daily_invoices.html', context)

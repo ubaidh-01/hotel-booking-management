@@ -1,0 +1,172 @@
+{% extends "reports/base.html" %}
+{% load humanize %}
+
+{% block title %}Daily Invoice Summary{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>📧 Daily Invoice & Notification Summary</h2>
+            <p class="text-muted">Report for: <strong>{{ report_date }}</strong></p>
+        </div>
+    </div>
+
+    <!-- Date Selector -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <form method="get" class="d-flex gap-2">
+                <input type="date" name="date" value="{{ report_date|date:'Y-m-d' }}" class="form-control">
+                <button type="submit" class="btn btn-primary">View</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h1 class="display-4 text-primary">{{ total_notifications }}</h1>
+                    <p class="text-muted mb-0">Total Notifications</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h1 class="display-4 text-success">{{ total_sent }}</h1>
+                    <p class="text-muted mb-0">Successfully Sent</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <h1 class="display-4 text-danger">{{ total_failed }}</h1>
+                    <p class="text-muted mb-0">Failed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h1 class="display-4 text-warning">{{ total_pending }}</h1>
+                    <p class="text-muted mb-0">Pending</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Headline -->
+    <div class="alert alert-info mb-4">
+        <h5 class="mb-0">
+            📋 Today, <strong>{{ late_fee_count }}</strong> late fee invoice(s) and
+            <strong>{{ rent_reminder_count }}</strong> rent reminder(s) have been emailed out.
+        </h5>
+    </div>
+
+    <!-- Breakdown by Type -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Breakdown by Type</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Notification Type</th>
+                                <th class="text-center">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🔴 Late Fee Invoices</td>
+                                <td class="text-center"><span class="badge bg-danger">{{ late_fee_count }}</span></td>
+                            </tr>
+                            <tr>
+                                <td>💰 Rent Reminders</td>
+                                <td class="text-center"><span class="badge bg-warning">{{ rent_reminder_count }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>📄 Contract Reminders</td>
+                                <td class="text-center"><span class="badge bg-info">{{ contract_reminder_count }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>🚚 Move Out Reminders</td>
+                                <td class="text-center"><span class="badge bg-secondary">{{ move_out_reminder_count
+                                        }}</span></td>
+                            </tr>
+                            <tr>
+                                <td>🎂 Birthday Wishes</td>
+                                <td class="text-center"><span class="badge bg-success">{{ birthday_wish_count }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>📈 Rent Increase Notices</td>
+                                <td class="text-center"><span class="badge bg-primary">{{ rent_increase_count }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Log -->
+    {% if daily_notifications %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Detailed Notification Log</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Type</th>
+                                    <th>Tenant</th>
+                                    <th>Subject</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in daily_notifications %}
+                                <tr>
+                                    <td>{{ log.created_at|date:"H:i" }}</td>
+                                    <td>{{ log.get_notification_type_display }}</td>
+                                    <td>{{ log.tenant.full_name|default:"—" }}</td>
+                                    <td>{{ log.subject|truncatewords:8 }}</td>
+                                    <td>
+                                        {% if log.status == 'sent' %}
+                                        <span class="badge bg-success">Sent</span>
+                                        {% elif log.status == 'failed' %}
+                                        <span class="badge bg-danger">Failed</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-secondary text-center">
+        <h5 class="mb-0">No notifications sent on {{ report_date }}.</h5>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

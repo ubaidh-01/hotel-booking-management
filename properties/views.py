@@ -15,7 +15,6 @@ def staff_required(view_func):
 
 @staff_required
 def crm_room_detail(request, room_code):
-    """CRM room detail page - for staff only"""
     room = get_object_or_404(Room, room_code=room_code)
 
     # Get current booking if any
@@ -40,7 +39,7 @@ def crm_room_detail(request, room_code):
         'maintenance_tickets': maintenance_tickets,
         'title': f'Room {room.room_code} - CRM'
     }
-    return render(request, 'properties/crm_room_detail.html', context)
+    return render(request, 'properties/room_details.html', context)
 
 
 @staff_required

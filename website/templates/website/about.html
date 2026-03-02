@@ -1,0 +1,183 @@
+{% extends "website/base.html" %}
+
+{% block title %}About Us - {{ config.site_title }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="position-relative overflow-hidden" style="background: var(--gradient);">
+    <div class="container py-5 text-center text-white position-relative" style="z-index: 2;">
+        <div class="py-5">
+            <h1 class="display-3 fw-bold mb-4">About {{ config.site_title }}</h1>
+            <p class="lead fs-4 mx-auto" style="max-width: 800px; opacity: 0.95;">
+                Redefining modern living and property management in Hong Kong since 2010.
+            </p>
+        </div>
+    </div>
+    <!-- Decorative Wave -->
+    <div class="position-absolute bottom-0 start-0 end-0" style="z-index: 1;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
+            <path fill="#f8fafc" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
+        </svg>
+    </div>
+</section>
+
+<div class="container py-5 my-4">
+    <!-- Mission Section -->
+    <div class="row align-items-center g-5 mb-5">
+        <div class="col-lg-6">
+            <h2 class="display-5 fw-bold mb-4 position-relative pb-3" style="border-bottom: 4px solid var(--primary);">
+                Our Mission
+            </h2>
+            <p class="fs-5 text-muted lh-lg mb-4">
+                At Wing Kong Property Management, our mission is to provide high-quality, comfortable, and affordable
+                living spaces across Hong Kong. We understand the challenges of finding the perfect home in a bustling
+                metropolis.
+            </p>
+            <p class="fs-5 text-muted lh-lg">
+                That's why we meticulously curate and manage our properties to ensure every tenant experiences the utmost
+                convenience, comfort, and peace of mind in their new home.
+            </p>
+
+            <!-- Key Stats -->
+            <div class="row g-4 mt-4">
+                <div class="col-4">
+                    <div class="text-center">
+                        <h3 class="display-6 fw-bold text-primary">110+</h3>
+                        <p class="text-muted">Rooms</p>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="text-center">
+                        <h3 class="display-6 fw-bold text-primary">20+</h3>
+                        <p class="text-muted">Properties</p>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="text-center">
+                        <h3 class="display-6 fw-bold text-primary">500+</h3>
+                        <p class="text-muted">Happy Tenants</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="position-relative">
+                <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+                    alt="Building exterior" class="img-fluid rounded-4 shadow-lg">
+                <!-- Experience Badge -->
+                <div class="position-absolute bottom-0 end-0 bg-white p-4 rounded-4 shadow-lg m-4">
+                    <div class="d-flex align-items-center">
+                        <div class="feature-icon me-3" style="width: 50px; height: 50px;">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0">14+ Years</h4>
+                            <p class="text-muted small mb-0">of Excellence</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Values Section -->
+    <div class="row g-4 mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="display-5 fw-bold mb-3">Our Core Values</h2>
+            <p class="lead text-muted">The principles that guide everything we do</p>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-lg hover-lift">
+                <div class="card-body text-center p-5">
+                    <div class="feature-icon mx-auto mb-4" style="width: 80px; height: 80px;">
+                        <i class="fas fa-handshake fa-2x"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Trust & Transparency</h4>
+                    <p class="text-muted">No hidden fees or surprises. We believe in clear contracts and honest communication with every tenant.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-lg hover-lift">
+                <div class="card-body text-center p-5">
+                    <div class="feature-icon mx-auto mb-4" style="width: 80px; height: 80px;">
+                        <i class="fas fa-tools fa-2x"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Proactive Maintenance</h4>
+                    <p class="text-muted">Our dedicated maintenance team ensures your living environment remains pristine and fully functional year-round.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-lg hover-lift">
+                <div class="card-body text-center p-5">
+                    <div class="feature-icon mx-auto mb-4" style="width: 80px; height: 80px;">
+                        <i class="fas fa-map-marked-alt fa-2x"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Prime Locations</h4>
+                    <p class="text-muted">We strategically select properties that offer excellent connectivity, bringing the best of the city to your doorstep.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team/Story Section -->
+    <div class="row align-items-center g-5 mt-5">
+        <div class="col-lg-6 order-lg-2">
+            <h2 class="display-5 fw-bold mb-4 position-relative pb-3" style="border-bottom: 4px solid var(--primary);">
+                Our Story
+            </h2>
+            <p class="fs-5 text-muted lh-lg mb-4">
+                Founded in 2010, Wing Kong Property Management started with a simple vision: to provide quality housing with exceptional service in Hong Kong's competitive real estate market.
+            </p>
+            <p class="fs-5 text-muted lh-lg mb-4">
+                What began as a small portfolio of properties has grown into a trusted name in Hong Kong's property management industry, serving hundreds of satisfied tenants across the city.
+            </p>
+            <div class="d-flex align-items-center mt-4">
+                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80"
+                     alt="Founder" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                <div>
+                    <h5 class="fw-bold mb-1">Mr. Wing Kong</h5>
+                    <p class="text-muted small mb-0">Founder & CEO</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 order-lg-1">
+            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+                 alt="Office interior" class="img-fluid rounded-4 shadow-lg">
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<section class="bg-light py-5 mt-5">
+    <div class="container py-4">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h2 class="display-6 fw-bold mb-3">Ready to find your perfect home?</h2>
+                <p class="lead text-muted mb-4 mb-lg-0">Browse our available rooms or contact us for personalized assistance.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+
+                <a href="{% url 'website:contact' %}" class="btn btn-outline-primary btn-lg px-5 py-3">
+                    <i class="fas fa-envelope me-2"></i>Contact Us
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Add custom CSS for hover effects -->
+<style>
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 40px -15px rgba(67, 97, 238, 0.3) !important;
+    }
+</style>
+{% endblock %}

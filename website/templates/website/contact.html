@@ -1,0 +1,205 @@
+{% extends "website/base.html" %}
+
+
+{% load widget_tweaks %}
+
+{% block title %}Contact Us - {{ config.site_title }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="bg-primary text-white py-5">
+    <div class="container py-3">
+        <h1 class="display-5 fw-bold mb-2">Contact Us</h1>
+        <p class="lead mb-0 opacity-90">We're here to help with any questions you have.</p>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row g-5">
+        <!-- Contact Information -->
+        <div class="col-md-5">
+            <div class="bg-light p-4 p-xl-5 rounded-4 h-100">
+                <h4 class="fw-bold mb-4">Get in Touch</h4>
+
+                <!-- Phone -->
+                <div class="d-flex mb-4">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                        <i class="fas fa-phone-alt fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Phone</h6>
+                        <p class="text-muted mb-0">{{ config.contact_phone|default:"+852 1234 5678" }}</p>
+                        <small class="text-muted">Mon-Fri, 9am-6pm</small>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="d-flex mb-4">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                        <i class="fas fa-envelope fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Email</h6>
+                        <p class="text-muted mb-0">{{ config.contact_email|default:"info@wingkong.com" }}</p>
+                        <small class="text-muted">24hr response time</small>
+                    </div>
+                </div>
+
+                <!-- Office -->
+                <div class="d-flex mb-4">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                        <i class="fas fa-map-marker-alt fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Office</h6>
+                        <p class="text-muted mb-0">{{ config.address|default:"123 Main Street, Hong Kong" }}</p>
+                    </div>
+                </div>
+
+                <!-- Hours -->
+                <div class="d-flex">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                        <i class="fas fa-clock fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Office Hours</h6>
+                        <p class="text-muted mb-1">Mon-Fri: 9:00 AM - 6:00 PM</p>
+                        <p class="text-muted mb-1">Sat: 10:00 AM - 2:00 PM</p>
+                        <p class="text-muted mb-0">Sun: Closed</p>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="mt-5 pt-3">
+                    <h6 class="fw-bold mb-3">Connect With Us</h6>
+                    <div class="d-flex gap-2">
+                        {% if config.facebook_url %}
+                        <a href="{{ config.facebook_url }}" class="btn btn-outline-primary rounded-circle p-3" style="width: 45px; height: 45px;" target="_blank">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        {% endif %}
+                        {% if config.instagram_url %}
+                        <a href="{{ config.instagram_url }}" class="btn btn-outline-primary rounded-circle p-3" style="width: 45px; height: 45px;" target="_blank">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        {% endif %}
+                        {% if config.whatsapp_number %}
+                        <a href="https://wa.me/{{ config.whatsapp_number }}" class="btn btn-outline-success rounded-circle p-3" style="width: 45px; height: 45px;" target="_blank">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Form -->
+<!-- Contact Form -->
+<div class="col-md-7">
+    <div class="bg-white p-4 p-xl-5 rounded-4 shadow-lg border-0">
+        <h4 class="fw-bold mb-4 text-primary">Send a Message</h4>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger py-2">
+                <small>{{ form.non_field_errors }}</small>
+            </div>
+            {% endif %}
+
+            <div class="row g-4">
+
+                <!-- Name -->
+                <div class="col-md-6">
+                    <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">
+                        Name <span class="text-danger">*</span>
+                    </label>
+                    {{ form.name|add_class:"form-control form-control-lg rounded-3" }}
+                    {% if form.name.errors %}
+                        <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Phone -->
+                <div class="col-md-6">
+                    <label for="{{ form.phone.id_for_label }}" class="form-label fw-semibold">
+                        Phone <span class="text-danger">*</span>
+                    </label>
+                    {{ form.phone|add_class:"form-control form-control-lg rounded-3" }}
+                    {% if form.phone.errors %}
+                        <div class="text-danger small mt-1">{{ form.phone.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Email -->
+                <div class="col-md-6">
+                    <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">
+                        Email <span class="text-danger">*</span>
+                    </label>
+                    {{ form.email|add_class:"form-control form-control-lg rounded-3" }}
+                    {% if form.email.errors %}
+                        <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Inquiry Type -->
+                <div class="col-md-6">
+                    <label for="{{ form.inquiry_type.id_for_label }}" class="form-label fw-semibold">
+                        Inquiry Type <span class="text-danger">*</span>
+                    </label>
+                    {{ form.inquiry_type|add_class:"form-select form-select-lg rounded-3" }}
+                    {% if form.inquiry_type.errors %}
+                        <div class="text-danger small mt-1">{{ form.inquiry_type.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Preferred Contact -->
+                <div class="col-md-6">
+                    <label for="{{ form.preferred_contact_method.id_for_label }}" class="form-label fw-semibold">
+                        Preferred Contact <span class="text-danger">*</span>
+                    </label>
+                    {{ form.preferred_contact_method|add_class:"form-select form-select-lg rounded-3" }}
+                    {% if form.preferred_contact_method.errors %}
+                        <div class="text-danger small mt-1">{{ form.preferred_contact_method.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Room Code -->
+                <div class="col-md-6">
+                    <label for="{{ form.room_code.id_for_label }}" class="form-label fw-semibold">
+                        Room Code
+                    </label>
+                    {{ form.room_code|add_class:"form-control form-control-lg rounded-3" }}
+                    {% if form.room_code.errors %}
+                        <div class="text-danger small mt-1">{{ form.room_code.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Message -->
+                <div class="col-12">
+                    <label for="{{ form.message.id_for_label }}" class="form-label fw-semibold">
+                        Message <span class="text-danger">*</span>
+                    </label>
+                    {{ form.message|add_class:"form-control rounded-3" }}
+                    {% if form.message.errors %}
+                        <div class="text-danger small mt-1">{{ form.message.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Submit -->
+                <div class="col-12 mt-3">
+                    <button type="submit"
+                        class="btn btn-primary w-100 py-3 fw-semibold rounded-3 shadow-sm">
+                        <i class="fas fa-paper-plane me-2"></i>
+                        Send Message
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+    </div>
+</div>
+{% endblock %}
