@@ -1,0 +1,169 @@
+{% extends "website/base.html" %}
+{% block title %}Maintenance - Wing Kong Property{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Maintenance Requests</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'website:home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'website:tenant_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Maintenance</li>
+            </ol>
+        </nav>
+    </div>
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show border-0 shadow-sm"
+            role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- New Request Form -->
+        <div class="col-lg-5 mb-4">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0">Report an Issue</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Title</label>
+                            <input type="text" name="title" class="form-control"
+                                placeholder="Summarize the issue (e.g., Leaking faucet)" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Description</label>
+                            <textarea name="description" class="form-control" rows="4"
+                                placeholder="Provide more details..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Priority</label>
+                            <select name="priority" class="form-select">
+                                <option value="low">Low - Minor issue</option>
+                                <option value="medium" selected>Medium - Normal maintenance</option>
+                                <option value="high">High - Urgent (affects living condition)</option>
+                                <option value="urgent">Urgent - Emergency</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Photos (Optional)</label>
+                            <input type="file" name="photos" class="form-control" multiple accept="image/*">
+                            <div class="form-text">You can select multiple photos.</div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary py-2 fw-bold">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request History -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0">My Requests</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Date</th>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th class="pe-4 text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ticket in maintenance_tickets %}
+                                <tr>
+                                    <td class="ps-4">{{ ticket.reported_date|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold">{{ ticket.title }}</span>
+                                            <small class="text-muted">{{ ticket.room.room_code }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if ticket.status == 'open' %}
+                                        <span class="badge bg-secondary rounded-pill">Open</span>
+                                        {% elif ticket.status == 'in_progress' %}
+                                        <span class="badge bg-primary rounded-pill">In Progress</span>
+                                        {% elif ticket.status == 'resolved' %}
+                                        <span class="badge bg-success rounded-pill">Resolved</span>
+                                        {% else %}
+                                        <span class="badge bg-dark rounded-pill">{{ ticket.get_status_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="pe-4 text-end">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                            data-bs-toggle="collapse" data-bs-target="#ticket-{{ ticket.id }}">
+                                            Details
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="collapse" id="ticket-{{ ticket.id }}">
+                                    <td colspan="4" class="bg-light p-4">
+                                        <div class="mb-3">
+                                            <h6 class="fw-bold mb-2">Description:</h6>
+                                            <p class="mb-0">{{ ticket.description }}</p>
+                                        </div>
+                                        <div class="row g-2">
+                                            {% for photo in ticket.photos %}
+                                            <div class="col-3">
+                                                <img src="/media/{{ photo }}" class="img-fluid rounded shadow-sm border"
+                                                    alt="Issue photo">
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% if ticket.updates.all %}
+                                        <div class="mt-4">
+                                            <h6 class="fw-bold mb-2">Updates:</h6>
+                                            <div class="border-start border-3 ps-3 ms-2">
+                                                {% for update in ticket.updates.all %}
+                                                <div class="mb-3">
+                                                    <div class="d-flex justify-content-between">
+                                                        <span class="fw-bold small">{{ update.created_at|date:"M d, Y
+                                                            H:i" }}</span>
+                                                        <span class="badge bg-light text-dark border small">{{
+                                                            update.get_status_display }}</span>
+                                                    </div>
+                                                    <p class="small mb-0">{{ update.message }}</p>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-5">
+                                        <div class="text-muted">
+                                            <i class="fas fa-tools fa-3x mb-3"></i>
+                                            <p>No maintenance requests yet.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
