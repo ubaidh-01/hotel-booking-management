@@ -1,4 +1,11 @@
-.idea
-**/tests/
+ **/tests/
 .venv
 .env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# PyCharm / IDE
+.idea/

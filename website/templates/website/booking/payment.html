@@ -1,0 +1,130 @@
+{% extends "website/base.html" %}
+{% block title %}Payment - Wing Kong Property{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-3 overflow-hidden mb-4">
+                <div class="card-header bg-primary text-white p-4">
+                    <h4 class="fw-bold mb-0"><i class="fas fa-credit-card me-2"></i>Secure Deposit Payment</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info border-0 shadow-sm rounded-3 mb-4">
+                        <div class="d-flex">
+                            <i class="fas fa-info-circle fa-2x me-3"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Booking Confirmed!</h6>
+                                <p class="mb-0 small">Your room <strong>{{ booking.room.room_code }}</strong> is
+                                    reserved for 24 hours. Please complete the deposit payment to finalize your booking.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <h5 class="fw-bold mb-3">Select Payment Option</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="payment-option border rounded-3 p-3 text-center h-100 position-relative">
+                                    <input type="radio" name="payment_option" value="deposit_only" id="opt_deposit"
+                                        class="form-check-input position-absolute top-0 end-0 m-3" checked>
+                                    <label for="opt_deposit" class="d-block cursor-pointer">
+                                        <div class="h3 fw-bold text-primary mb-1">HK$ {{ deposit_amount }}</div>
+                                        <div class="fw-bold mb-2">Deposit Only</div>
+                                        <p class="small text-muted mb-0">Pay the non-refundable deposit now to confirm
+                                            your stay. Remaining fees due on check-in.</p>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="payment-option border rounded-3 p-3 text-center h-100 position-relative">
+                                    <input type="radio" name="payment_option" value="full_payment" id="opt_full"
+                                        class="form-check-input position-absolute top-0 end-0 m-3">
+                                    <label for="opt_full" class="d-block cursor-pointer">
+                                        <div class="h3 fw-bold text-success mb-1">HK$ {{ total_full_payment }}</div>
+                                        <div class="fw-bold mb-2">Full Payment</div>
+                                        <p class="small text-muted mb-0">Pay deposit, 1st month rent, and all deposits
+                                            now for a seamless move-in experience.</p>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold mb-3">Payment Method</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <div class="method-option border rounded-3 p-3 text-center">
+                                    <input type="radio" name="payment_method" value="bank_transfer" id="met_bank"
+                                        class="form-check-input mb-2" checked>
+                                    <label for="met_bank" class="d-block">
+                                        <i class="fas fa-university fa-2x mb-2 text-muted"></i>
+                                        <div class="small fw-bold">Bank Transfer</div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="method-option border rounded-3 p-3 text-center">
+                                    <input type="radio" name="payment_method" value="fps" id="met_fps"
+                                        class="form-check-input mb-2">
+                                    <label for="met_fps" class="d-block">
+                                        <i class="fas fa-mobile-alt fa-2x mb-2 text-muted"></i>
+                                        <div class="small fw-bold">FPS / PayMe</div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="method-option border rounded-3 p-3 text-center bg-light">
+                                    <input type="radio" name="payment_method" value="credit_card" id="met_card"
+                                        class="form-check-input mb-2" disabled>
+                                    <label for="met_card" class="d-block opacity-50">
+                                        <i class="fas fa-credit-card fa-2x mb-2 text-muted"></i>
+                                        <div class="small fw-bold">Credit Card</div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg py-3 fw-bold shadow">
+                                Proceed to Payment <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card border-0 bg-transparent text-center">
+                <p class="text-muted small">
+                    <i class="fas fa-shield-alt me-1"></i> Your payment information is secure and encrypted.
+                    <br>Non-refundable deposit of HK$ {{ deposit_amount }} is required to reserve the room.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .payment-option,
+    .method-option {
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .payment-option:hover,
+    .method-option:hover {
+        border-color: var(--primary) !important;
+        background-color: rgba(67, 97, 238, 0.05);
+    }
+
+    .form-check-input:checked+label {
+        color: var(--primary);
+    }
+
+    .payment-option input:checked+label .h3 {
+        color: var(--primary);
+    }
+</style>
+{% endblock %}

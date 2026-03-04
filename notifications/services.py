@@ -52,7 +52,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com'],
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 # to=[tenant.user.email],
                 reply_to=['accounts@wing-kong.com']
             )
@@ -97,7 +97,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 # to=[tenant.user.email],
                 reply_to=['leasing@wing-kong.com']
             )
@@ -129,7 +129,7 @@ class EmailService:
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 # to=[tenant.user.email]
-                to=['hmadafzal00@gmail.com' ],
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['info@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -201,7 +201,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['accounts@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -251,7 +251,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['leasing@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -292,7 +292,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['leasing@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -330,7 +330,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['operations@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -370,7 +370,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['operations@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -412,7 +412,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['utilities@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -456,7 +456,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['utilities@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -497,7 +497,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['maintenance@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -577,7 +577,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['management@wing-kong.com', 'hmadafzal00@gmail.com' ],
+                to=[settings.MANAGEMENT_EMAIL, settings.TO_EMAIL],
                 reply_to=['maintenance@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -619,7 +619,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['contracts@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -663,7 +663,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['contracts@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -702,7 +702,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['moveout@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -743,7 +743,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['moveout@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -781,7 +781,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['accounts@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -822,7 +822,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['accounts@wing-kong.com']
             )
 
@@ -864,7 +864,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['maintenance@wing-kong.com', 'hmadafzal00@gmail.com' ],
+                to=[settings.MAINTENANCE_EMAIL, settings.TO_EMAIL],
                 reply_to=[ticket.tenant.user.email] if ticket.tenant.user else ['noreply@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -904,7 +904,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['accounts@wing-kong.com', 'hmadafzal00@gmail.com' ],
+                to=[settings.ACCOUNTS_EMAIL, settings.TO_EMAIL],
                 reply_to=['noreply@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -943,7 +943,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['accounts@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -982,7 +982,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['accounts@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -1021,7 +1021,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com' ],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['accounts@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -1066,7 +1066,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hmadafzal00@gmail.com'],  # Replace with tenant.user.email
+                to=[tenant.user.email] if tenant.user and tenant.user.email else [settings.TO_EMAIL],
                 reply_to=['bookings@wing-kong.com']
             )
             email.attach_alternative(html_content, "text/html")
@@ -1104,7 +1104,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['info@wing-kong.com', 'hmadafzal00@gmail.com'],
+                to=[settings.INFO_EMAIL, settings.TO_EMAIL],
                 reply_to=[inquiry.email]
             )
             email.attach_alternative(html_content, "text/html")
@@ -1142,7 +1142,7 @@ class EmailService:
                 subject=subject,
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=['hr@wing-kong.com', 'hmadafzal00@gmail.com'],
+                to=[settings.HR_EMAIL, settings.TO_EMAIL],
                 reply_to=[application.email]
             )
             email.attach_alternative(html_content, "text/html")

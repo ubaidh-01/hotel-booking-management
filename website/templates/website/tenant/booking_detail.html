@@ -1,0 +1,144 @@
+{% extends "website/base.html" %}
+{% block title %}Booking Details - Wing Kong Property{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Booking Details</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'website:home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'website:tenant_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Booking Details</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <!-- Main Info -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-3 mb-4">
+                <div
+                    class="card-header bg-white border-bottom-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">Room Information</h5>
+                    <span
+                        class="badge bg-{% if booking.status == 'active' %}success{% elif booking.status == 'confirmed' %}primary{% else %}secondary{% endif %} rounded-pill px-3 py-2">
+                        {{ booking.get_status_display|upper }}
+                    </span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-4">
+                            {% with booking.room.room_photos.first as photo %}
+                            {% if photo %}
+                            <img src="{{ photo.image.url }}" class="img-fluid rounded-3 shadow-sm" alt="Room Photo">
+                            {% else %}
+                            <div class="bg-light rounded-3 d-flex align-items-center justify-content-center"
+                                style="height: 150px;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                        <div class="col-md-8 mt-3 mt-md-0">
+                            <h4 class="fw-bold mb-1">{{ booking.room.room_code }}</h4>
+                            <p class="text-muted mb-3"><i class="fas fa-map-marker-alt me-2"></i>{{
+                                booking.room.property.name }}, {{ booking.room.property.address }}</p>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <small class="text-muted d-block text-uppercase small fw-bold">Move In</small>
+                                    <span class="h6 mb-0 fw-bold">{{ booking.move_in_date|date:"F d, Y" }}</span>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted d-block text-uppercase small fw-bold">Move Out</small>
+                                    <span class="h6 mb-0 fw-bold">{{ booking.move_out_date|date:"F d, Y" }}</span>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted d-block text-uppercase small fw-bold">Monthly Rent</small>
+                                    <span class="h6 mb-0 fw-bold text-primary">HK$ {{ booking.monthly_rent }}</span>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted d-block text-uppercase small fw-bold">Duration</small>
+                                    <span class="h6 mb-0 fw-bold">{{ booking.duration_months }} Months</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4 opacity-50">
+
+                    <h6 class="fw-bold mb-3">Room Amenities</h6>
+                    <div class="row g-2">
+                        {% if booking.room.has_private_bathroom %}
+                        <div class="col-md-4"><i class="fas fa-check-circle text-success me-2"></i>Private Bathroom
+                        </div>
+                        {% endif %}
+                        {% if booking.room.has_balcony %}
+                        <div class="col-md-4"><i class="fas fa-check-circle text-success me-2"></i>Balcony</div>
+                        {% endif %}
+                        {% if booking.room.has_window %}
+                        <div class="col-md-4"><i class="fas fa-check-circle text-success me-2"></i>Window</div>
+                        {% endif %}
+                        <div class="col-md-4"><i class="fas fa-check-circle text-success me-2"></i>Furnished</div>
+                        <div class="col-md-4"><i class="fas fa-check-circle text-success me-2"></i>Wi-Fi Included</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contract -->
+            {% if contract %}
+            <div class="card shadow-sm border-0 rounded-3 mb-4 border-start border-4 border-info">
+                <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold mb-1">Rental Agreement</h5>
+                        <p class="text-muted mb-0">Contract #{{ contract.id }} - Active until {{
+                            contract.contract_end|date:"M Y" }}</p>
+                    </div>
+                    <a href="{% url 'website:tenant_contract_view' contract.id %}"
+                        class="btn btn-outline-info rounded-pill px-4">
+                        <i class="fas fa-file-contract me-2"></i>View Agreement
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Payment History Sidebar -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0">Booking Payments</h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if payments %}
+                    <div class="d-flex flex-column gap-3">
+                        {% for payment in payments %}
+                        <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted d-block">{{
+                                    payment.payment_date|default:payment.due_date|date:"M d, Y" }}</small>
+                                <span class="fw-bold">{{ payment.get_payment_type_display }}</span>
+                            </div>
+                            <div class="text-end">
+                                <span class="d-block fw-bold text-primary">HK$ {{ payment.amount }}</span>
+                                <span
+                                    class="badge {% if payment.status == 'completed' %}bg-success{% elif payment.status == 'pending' %}bg-warning text-dark{% else %}bg-danger{% endif %} small">
+                                    {{ payment.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-3 mb-0">No payment records yet.</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white border-top-0 pb-4 px-4 text-center">
+                    <a href="{% url 'website:tenant_payments' %}" class="text-decoration-none small">View Full
+                        History</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

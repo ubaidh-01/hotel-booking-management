@@ -299,10 +299,10 @@ def tenant_dashboard(request):
     """Tenant portal dashboard"""
     tenant = request.user.tenant
 
-    # Get current booking
+    # Get current booking (active or confirmed)
     current_booking = Booking.objects.filter(
         tenant=tenant,
-        status='active'
+        status__in=['active', 'confirmed']
     ).select_related('room', 'room__property').first()
 
     # Get upcoming payments
@@ -375,30 +375,49 @@ def tenant_maintenance(request):
         description = request.POST.get('description')
         priority = request.POST.get('priority', 'medium')
 
+        # Allow requests for both active and confirmed bookings
         current_booking = Booking.objects.filter(
             tenant=tenant,
-            status='active'
+            status__in=['active', 'confirmed']
         ).first()
 
-        if current_booking and title and description:
-            ticket = MaintenanceTicket.objects.create(
-                tenant=tenant,
-                room=current_booking.room,
-                title=title,
-                description=description,
-                priority=priority,
-            )
-
-            # Handle photo uploads
-            if 'photos' in request.FILES:
-                photos = []
-                for photo in request.FILES.getlist('photos'):
-                    photos.append(photo.name)
-                ticket.photos = photos
-                ticket.save()
-
-            messages.success(request, 'Maintenance request submitted successfully.')
+        if not current_booking:
+            messages.error(request, 'You do not have an active or confirmed booking to report maintenance for.')
             return redirect('website:tenant_maintenance')
+
+        if title and description:
+            try:
+                ticket = MaintenanceTicket.objects.create(
+                    tenant=tenant,
+                    room=current_booking.room,
+                    title=title,
+                    description=description,
+                    priority=priority,
+                )
+
+                # Handle photo uploads properly
+                if 'photos' in request.FILES:
+                    from django.core.files.storage import FileSystemStorage
+                    import os
+                    fs = FileSystemStorage()
+                    saved_photos = []
+                    
+                    for photo in request.FILES.getlist('photos'):
+                        # Generate unique filename to avoid collisions
+                        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                        filename = f"maintenance/T{ticket.id}_{timestamp}_{photo.name}"
+                        name = fs.save(filename, photo)
+                        saved_photos.append(name)
+                    
+                    ticket.photos = saved_photos
+                    ticket.save()
+
+                messages.success(request, 'Maintenance request submitted successfully.')
+                return redirect('website:tenant_maintenance')
+            except Exception as e:
+                messages.error(request, f'Failed to create maintenance request: {str(e)}')
+        else:
+            messages.error(request, 'Please provide both a title and description for your request.')
 
     # Get maintenance tickets
     maintenance_tickets = MaintenanceTicket.objects.filter(

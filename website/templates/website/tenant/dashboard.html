@@ -1,0 +1,173 @@
+{% extends "website/base.html" %}
+{% block title %}Dashboard - Wing Kong Property{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar/Welcome -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-circle fa-4x text-primary"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">{{ tenant.full_name }}</h3>
+                    <p class="text-muted mb-3">Tenant since {{ tenant.user.date_joined|date:"M Y" }}</p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'website:tenant_maintenance' %}" class="btn btn-primary">
+                            <i class="fas fa-tools me-2"></i>Request Repair
+                        </a>
+                    </div>
+                </div>
+                <div class="list-group list-group-flush border-top">
+                    <a href="{% url 'website:tenant_dashboard' %}"
+                        class="list-group-item list-group-item-action active py-3">
+                        <i class="fas fa-th-large me-2"></i> Dashboard
+                    </a>
+                    <a href="{% url 'website:tenant_payments' %}" class="list-group-item list-group-item-action py-3">
+                        <i class="fas fa-credit-card me-2"></i> Payments
+                    </a>
+                    <a href="{% url 'website:tenant_maintenance' %}"
+                        class="list-group-item list-group-item-action py-3">
+                        <i class="fas fa-wrench me-2"></i> Maintenance
+                    </a>
+                </div>
+            </div>
+
+            {% if current_booking %}
+            <div class="card shadow-sm border-0 rounded-3 mt-4">
+                <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0">Current Room</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-door-open fa-2x text-secondary"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 fw-bold">{{ current_booking.room.room_code }}</h6>
+                            <small class="text-muted">{{ current_booking.room.property.name }}</small>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Status:</span>
+                        <span
+                            class="badge bg-{% if current_booking.status == 'active' %}success{% elif current_booking.status == 'confirmed' %}primary{% else %}warning{% endif %} rounded-pill">
+                            {{ current_booking.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Move-in:</span>
+                        <span>{{ current_booking.move_in_date|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Move-out:</span>
+                        <span>{{ current_booking.move_out_date|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="d-grid">
+                        <a href="{% url 'website:tenant_booking_detail' current_booking.id %}"
+                            class="btn btn-sm btn-outline-secondary">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Upcoming Payments -->
+            <div class="card shadow-sm border-0 rounded-3 mb-4">
+                <div
+                    class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center pt-4 px-4">
+                    <h5 class="fw-bold mb-0">Upcoming Payments</h5>
+                    <a href="{% url 'website:tenant_payments' %}" class="text-decoration-none small">View All</a>
+                </div>
+                <div class="card-body p-4">
+                    {% if upcoming_payments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Due Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in upcoming_payments %}
+                                <tr>
+                                    <td>{{ payment.due_date|date:"M d, Y" }}</td>
+                                    <td>{{ payment.get_payment_type_display }}</td>
+                                    <td class="fw-bold">HK$ {{ payment.amount }}</td>
+                                    <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                    <td class="text-end">
+                                        <a href="{% url 'website:payment_proof_upload' payment.id %}"
+                                            class="btn btn-sm btn-primary">Pay Now</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 bg-light rounded-3">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <p class="mb-0 text-muted">You are all caught up! No upcoming payments.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Maintenance -->
+            <div class="card shadow-sm border-0 rounded-3">
+                <div
+                    class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center pt-4 px-4">
+                    <h5 class="fw-bold mb-0">Recent Maintenance Requests</h5>
+                    <a href="{% url 'website:tenant_maintenance' %}" class="text-decoration-none small">View All</a>
+                </div>
+                <div class="card-body p-4">
+                    {% if maintenance_tickets %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Ticket #</th>
+                                    <th>Issue</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ticket in maintenance_tickets %}
+                                <tr>
+                                    <td>{{ ticket.reported_date|date:"M d" }}</td>
+                                    <td class="font-monospace small">{{ ticket.id }}</td>
+                                    <td>{{ ticket.title }}</td>
+                                    <td>
+                                        <span
+                                            class="badge rounded-pill {% if ticket.status == 'open' %}bg-secondary{% elif ticket.status == 'in_progress' %}bg-primary{% elif ticket.status == 'resolved' %}bg-success{% else %}bg-dark{% endif %}">
+                                            {{ ticket.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 bg-light rounded-3">
+                        <i class="fas fa-notes-medical fa-3x text-muted mb-3"></i>
+                        <p class="mb-0 text-muted">No recent maintenance requests.</p>
+                        <a href="{% url 'website:tenant_maintenance' %}" class="btn btn-sm btn-link">Report an issue</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends "website/base.html" %}
+{% block title %}Rental Agreement - Wing Kong Property{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Rental Agreement</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-print me-2"></i>Print
+            </button>
+            <a href="{% url 'website:tenant_dashboard' %}" class="btn btn-primary">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-lg border-0 rounded-3 overflow-hidden">
+        <div class="card-body p-5">
+            <div class="row mb-5">
+                <div class="col-8">
+                    <h3 class="fw-bold text-primary mb-1">WING KONG PROPERTY MANAGEMENT</h3>
+                    <p class="text-muted mb-0">Professional Flatshare Services</p>
+                </div>
+                <div class="col-4 text-end">
+                    <h5 class="fw-bold mb-1">AGREEMENT #{{ contract.id }}</h5>
+                    <p class="text-muted mb-0">Date: {{ contract.created_at|date:"F d, Y" }}</p>
+                </div>
+            </div>
+
+            <div class="row g-5 mb-5">
+                <div class="col-md-6">
+                    <h6 class="text-uppercase text-muted fw-bold mb-3 border-bottom pb-2">Parties</h6>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Landlord / Manager:</small>
+                        <span class="fw-bold">Wing Kong Property Management Limited</span>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">Tenant:</small>
+                        <span class="fw-bold text-uppercase">{{ contract.booking.tenant.full_name }}</span>
+                        <br>
+                        <small class="text-muted">Passport/HKID: {{
+                            contract.booking.hkid_number|default:contract.booking.passport_number }}</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-uppercase text-muted fw-bold mb-3 border-bottom pb-2">Premises</h6>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Property:</small>
+                        <span class="fw-bold">{{ contract.booking.room.property.name }}</span>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">Room Number:</small>
+                        <span class="fw-bold">{{ contract.booking.room.room_code }}</span>
+                        <br>
+                        <small class="text-muted">Address: {{ contract.booking.room.property.address }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-5 mb-5">
+                <div class="col-md-6">
+                    <h6 class="text-uppercase text-muted fw-bold mb-3 border-bottom pb-2">Terms</h6>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">Commencement:</div>
+                        <div class="col-6 fw-bold">{{ contract.contract_start|date:"F d, Y" }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">Expiry:</div>
+                        <div class="col-6 fw-bold text-danger">{{ contract.contract_end|date:"F d, Y" }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">Duration:</div>
+                        <div class="col-6 fw-bold">{{ contract.booking.duration_months }} Months</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-uppercase text-muted fw-bold mb-3 border-bottom pb-2">Financials</h6>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">Monthly Rent:</div>
+                        <div class="col-6 fw-bold">HK$ {{ contract.monthly_rent }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">Security Deposit:</div>
+                        <div class="col-6 fw-bold">HK$ {{ contract.booking.security_deposit }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">Key Deposit:</div>
+                        <div class="col-6 fw-bold">HK$ {{ contract.booking.key_deposit }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-light p-4 rounded-3 mb-5">
+                <h6 class="fw-bold mb-3">Key Terms & Conditions:</h6>
+                <ol class="small text-muted ps-3">
+                    <li class="mb-2">The Tenant shall use the Premises only for private residential purposes.</li>
+                    <li class="mb-2">Rent is payable in advance on or before the 1st day of each calendar month.</li>
+                    <li class="mb-2">The Security Deposit is held as security for the performance of the Tenant's
+                        obligations.</li>
+                    <li class="mb-2">No subletting or sharing of the Premises is permitted without written consent.</li>
+                    <li class="mb-2">The Tenant is responsible for keeping the Premises in good and clean condition.
+                    </li>
+                    <li class="mb-2">Early termination by Tenant requires a notice period as specified in the full
+                        agreement and may incur penalties.</li>
+                </ol>
+            </div>
+
+            <div class="row mt-5 pt-5">
+                <div class="col-6 text-center">
+                    <div class="border-top pt-3 mx-4">
+                        {% if contract.digital_signature_tenant %}
+                        <p class="mb-0 fw-bold font-monospace text-primary"
+                            style="font-size: 1.2rem; transform: rotate(-5deg);">{{ contract.digital_signature_tenant }}
+                        </p>
+                        <small class="text-muted d-block">Digitally Signed by Tenant</small>
+                        <small class="text-muted small" style="font-size: 0.7rem;">{{
+                            contract.tenant_signed_at|date:"Y-m-d H:i:s" }}</small>
+                        {% else %}
+                        <p class="text-muted mb-5 italic small">Awaiting Signature</p>
+                        <small class="text-muted d-block">Tenant Signature</small>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-6 text-center">
+                    <div class="border-top pt-3 mx-4">
+                        {% if contract.digital_signature_staff %}
+                        <p class="mb-0 fw-bold font-monospace text-success"
+                            style="font-size: 1.2rem; transform: rotate(-5deg);">Wing Kong Admin</p>
+                        <small class="text-muted d-block">Digitally Signed by Landlord</small>
+                        {% else %}
+                        <p class="text-muted mb-5 italic small">Awaiting Signature</p>
+                        <small class="text-muted d-block">Authorized Signatory</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+
+        .navbar,
+        .btn,
+        .breadcrumb,
+        footer {
+            display: none !important;
+        }
+
+        body {
+            background: white !important;
+        }
+
+        .card {
+            box-shadow: none !important;
+            border: 1px solid #eee !important;
+        }
+
+        .container {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+    }
+</style>
+{% endblock %}
